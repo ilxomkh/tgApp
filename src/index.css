@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tg-primary: #0088CC;
+  --color-tg-secondary: #F0F0F0;
+  --color-tg-success: #4CAF50;
+  --color-tg-warning: #FF9800;
+  --color-tg-error: #F44336;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  #root {
+    height: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Поддержка безопасных зон для iOS */
+  @supports (padding: max(0px)) {
+    .safe-area-top {
+      padding-top: max(env(safe-area-inset-top), 0px);
+    }
+    
+    .safe-area-bottom {
+      padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    }
+    
+    .safe-area-left {
+      padding-left: max(env(safe-area-inset-left), 0px);
+    }
+    
+    .safe-area-right {
+      padding-right: max(env(safe-area-inset-right), 0px);
+    }
+  }
+
+  /* Анимации для ProfileTab */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .animation-delay-150 {
+    animation-delay: 0.15s;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animation-delay-250 {
+    animation-delay: 0.25s;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .animation-delay-350 {
+    animation-delay: 0.35s;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 0.6s;
+  }
+
+  .animation-delay-700 {
+    animation-delay: 0.7s;
+  }
+
+  /* Анимация для Toast */
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3) translateY(20px);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05) translateY(0);
+    }
+    70% {
+      transform: scale(0.9) translateY(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out;
+  }
+}
+
+@layer components {
+  .tg-button {
+    @apply bg-[#0088CC] text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 active:scale-95;
+  }
+  
+  .tg-button-secondary {
+    @apply bg-[#F0F0F0] text-gray-800 font-medium py-3 px-6 rounded-lg transition-all duration-200 active:scale-95;
+  }
+  
+  .tg-input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088CC] focus:border-transparent;
+  }
+  
+  .tg-card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-4;
+  }
+}
