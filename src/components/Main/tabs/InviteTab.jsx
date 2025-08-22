@@ -145,7 +145,7 @@ const InviteTab = ({ locale = "ru", refCode }) => {
       </SectionCard>
 
       {/* Bottom actions */}
-      <div className="sticky bottom-2 z-30 px-3 pb-[env(safe-area-inset-bottom)]">
+      <div className="sticky bottom-2 z-0 px-3 pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-stretch gap-3 rounded-2xl border border-gray-200/60 bg-white/70 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-2">
           <CTAButton
             onClick={onInvite}

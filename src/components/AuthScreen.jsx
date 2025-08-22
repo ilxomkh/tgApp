@@ -5,8 +5,9 @@ import { useAuth } from '../contexts/AuthContext';
 
 const OTP_LENGTH = 6;
 
-/** Формат отображения: +998 99 999 99 99 */
+/** Формат отображения: 99 999 99 99 (только 9 цифр) */
 const formatUzPhone = (rawDigits) => {
+  // Берем только первые 9 цифр
   const d = rawDigits.slice(0, 9);
   const p1 = d.slice(0, 2);
   const p2 = d.slice(2, 5);
@@ -17,14 +18,13 @@ const formatUzPhone = (rawDigits) => {
   else if (d.length <= 5) tail = `${p1} ${p2}`;
   else if (d.length <= 7) tail = `${p1} ${p2} ${p3}`;
   else tail = `${p1} ${p2} ${p3} ${p4}`;
-  return `+998${tail ? ' ' + tail : ''}`;
+  return tail;
 };
 
-/** Достаём только 9 локальных цифр после 998 */
+/** Достаём только 9 цифр для номера */
 const extractUzDigits = (val) => {
   const digits = (val || '').replace(/\D/g, '');
-  if (digits.startsWith('998')) return digits.slice(3, 12);
-  if (digits.length === 12 && digits.startsWith('8')) return digits.slice(1, 10);
+  // Возвращаем только первые 9 цифр
   return digits.slice(0, 9);
 };
 
@@ -46,7 +46,7 @@ const AuthScreen = () => {
       back: 'Orqaga',
       title: 'Avtorizatsiya',
       phoneInstruction: 'Telefon raqamingizni kiriting, unga tekshiruv SMS kodi keladi',
-      phonePlaceholder: '99 999 99 99',
+      phonePlaceholder: '99 999 99 99 (9 ta raqam)',
       privacyText1: '"Avtorizatsiya qilish" tugmasini bosish orqali siz ',
       privacyLink: 'maxfiylik siyosati',
       privacyText2: ' bilan tanishganingizni tasdiqlaysiz',
@@ -67,7 +67,7 @@ const AuthScreen = () => {
       back: 'Назад',
       title: 'Авторизация',
       phoneInstruction: 'Введите номер телефона, на него придет проверочный SMS-код',
-      phonePlaceholder: '99 999 99 99',
+      phonePlaceholder: '99 999 99 99 (9 цифр)',
       privacyText1: 'Нажимая на кнопку «Авторизоваться», вы соглашаетесь с ',
       privacyLink: 'политикой конфиденциальности',
       privacyText2: '',
@@ -87,6 +87,7 @@ const AuthScreen = () => {
   }[language];
 
   const phoneFormatted = formatUzPhone(phoneLocalDigits);
+  // Формируем полный номер для отправки - всегда +998 + 9 цифр
   const phoneE164 = `+998${phoneLocalDigits}`;
 
   // OTP helpers
@@ -115,6 +116,7 @@ const AuthScreen = () => {
 
   // Actions
   const handleSendOtp = async () => {
+    // Проверяем что введено ровно 9 цифр
     if (phoneLocalDigits.length !== 9) {
       setError(t.badPhone);
       return;
