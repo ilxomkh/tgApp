@@ -19,9 +19,14 @@ const MainScreen = () => {
   // Проверяем URL параметры для показа профиля
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get('tab') === 'profile') {
-      setActiveTab('profile');
-      setShowProfile(true);
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+      if (tabParam === 'profile') {
+        setShowProfile(true);
+      } else {
+        setShowProfile(false);
+      }
     }
   }, [location.search]);
 

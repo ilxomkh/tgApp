@@ -1,4 +1,6 @@
 import React from 'react';
+import ProSVG from '../../assets/Pro.svg';
+import WaveOverlay from '../WaveOverlay';
 
 export const SectionCard = ({ children, className = '' }) => (
   <div className={`bg-white rounded-2xl border border-[#ECECFA] shadow-[0_8px_28px_rgba(40,40,80,0.08)] ${className}`}>
@@ -41,19 +43,17 @@ export const SuccessModal = ({ isOpen, onClose, surveyResult, t }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Фон с градиентом как в onboarding */}
+    <>
+    <img src={ProSVG} className='absolute w-[250px] top-1/4 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+    <div className="fixed inset-0 z-50 flex items-end justify-end">
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]" />
-      
-      {/* WaveOverlay для анимации */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-90" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-80" />
-      </div>
+      <WaveOverlay />
+      {/* Упрощаем слои фона */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-0" />
 
       {/* Модальное окно */}
-      <div className="relative z-10 mx-4 w-full max-w-sm">
-        <div className="bg-white rounded-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
+      <div className="relative z-10 w-full">
+        <div className="bg-white rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
           {/* Иконка успеха */}
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-green-600">
@@ -81,5 +81,6 @@ export const SuccessModal = ({ isOpen, onClose, surveyResult, t }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };

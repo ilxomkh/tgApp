@@ -1,23 +1,25 @@
 import React from 'react';
 
 /**
- * Волновой оверлей: полукруги вырастают и исчезают по очереди.
- * Параметры можно менять через props.
+ * Волновой оверлей: полукруги появляются мгновенно за счёт отрицательных задержек.
  */
 const WaveOverlay = ({
-  count = 5,              // сколько полукругов
-  baseSize = 500,         // начальный диаметр (px)
-  step = 250,             // на сколько увеличивать следующий (px)
-  duration = 3,           // длительность одного цикла (сек)
-  topOffset = '-50vh',    // вертикальное смещение всей волны
+  count = 5,               // сколько полукругов
+  baseSize = 500,          // начальный диаметр (px)
+  step = 250,              // инкремент диаметра (px)
+  duration = 3,            // длительность одного цикла (сек)
+  topOffset = '-50vh',     // вертикальное смещение всей волны
   borderColor = 'rgba(255,255,255,0.3)' // цвет границ
 }) => {
-  // Генерируем круги: равномерно распределяем по времени
+  // Распределяем фазы по окружности и запускаем их НЕМЕДЛЕННО (отрицательный delay)
   const circles = React.useMemo(() => {
-    return Array.from({ length: count }).map((_, i) => ({
-      size: `${baseSize + i * step}px`,
-      delay: (i * duration) / count // равномерный «конвейер»
-    }));
+    return Array.from({ length: count }).map((_, i) => {
+      const phase = (i * duration) / count; // сдвиг фазы
+      return {
+        size: `${baseSize + i * step}px`,
+        delay: -phase // отрицательная задержка => мгновенный старт с середины цикла
+      };
+    });
   }, [count, baseSize, step, duration]);
 
   return (
@@ -27,23 +29,23 @@ const WaveOverlay = ({
           key={index}
           className="absolute left-1/2"
           style={{
-            // позиционируем верхнюю точку дуги
             top: topOffset,
-            // ширина/высота круга
             width: circle.size,
             height: circle.size,
-            // исходное положение: по оси X центрируем, по Y не трогаем
-            transform: 'translateX(-50%) scale(0.3)',
-            // анимация
+            // начальное состояние не важно, т.к. мы стартуем с отрицательной задержки:
+            transform: 'translateX(-50%)',
             animation: `waveMove ${duration}s ease-in-out infinite`,
             animationDelay: `${circle.delay}s`,
-            willChange: 'transform, opacity'
+            // чуть-чуть производительности:
+            willChange: 'transform, opacity',
+            contain: 'layout paint',
+            backfaceVisibility: 'hidden',
+            transformStyle: 'preserve-3d'
           }}
         >
           <div
             className="w-full h-full rounded-b-full border-2"
             style={{
-              // Рисуем только нижнюю половину «круга»
               borderTopColor: 'transparent',
               borderLeftColor: borderColor,
               borderRightColor: borderColor,
@@ -72,6 +74,15 @@ const WaveOverlay = ({
           100% {
             transform: translateX(-50%) scale(1.2);
             opacity: 0;
+          }
+        }
+
+        /* Уважение к reduce-motion (по желанию можно убрать) */
+        @media (prefers-reduced-motion: reduce) {
+          .fixed > div {
+            animation: none !important;
+            opacity: 0.3;
+            transform: translateX(-50%) scale(0.7);
           }
         }
       `}</style>

@@ -159,6 +159,10 @@ const WithdrawScreen = () => {
   const handleTabChange = (tabId) => {
     if (tabId === 'home') {
       navigate('/main');
+    } else if (tabId === 'invite') {
+      navigate('/main?tab=invite');
+    } else if (tabId === 'lottery') {
+      navigate('/main?tab=lottery');
     } else if (tabId === 'profile') {
       navigate('/main?tab=profile');
     }

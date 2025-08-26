@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { SuccessModal } from './ui';
+import WaveOverlay from '../WaveOverlay';
+import ProSVG from '../../assets/Pro.svg';
 
 const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -66,13 +68,14 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Фон с градиентом как в onboarding */}
+    <>
+    <img src={ProSVG} className='absolute w-[250px] top-1/4 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+    <div className="fixed inset-0 z-50 flex items-end justify-end">
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]" />
-      
+      <WaveOverlay />
       {/* Модальное окно */}
-      <div className="relative z-10 mx-4 w-full max-w-lg">
-        <div className="bg-white rounded-3xl p-8 shadow-2xl">
+      <div className="relative z-10 w-full">
+        <div className="bg-white rounded-t-3xl p-8 shadow-2xl">
           {/* Прогресс */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
@@ -158,6 +161,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

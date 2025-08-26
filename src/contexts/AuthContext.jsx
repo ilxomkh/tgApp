@@ -11,8 +11,15 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(() => {
+    // Пытаемся получить пользователя из localStorage
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Проверяем наличие пользователя в localStorage
+    return !!localStorage.getItem('user');
+  });
 
   const sendOtp = async (phoneNumber) => {
     try {
@@ -40,6 +47,8 @@ export const AuthProvider = ({ children }) => {
         };
         setUser(newUser);
         setIsAuthenticated(true);
+        // Сохраняем пользователя в localStorage
+        localStorage.setItem('user', JSON.stringify(newUser));
         return true;
       }
       return false;
@@ -52,6 +61,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
+    // Удаляем пользователя из localStorage
+    localStorage.removeItem('user');
   };
 
   const updateProfile = (data) => {

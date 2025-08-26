@@ -1,12 +1,21 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
 import PRO from "../assets/Pro.svg";
 import WaveOverlay from "./WaveOverlay";
 
 const WelcomeScreen = () => {
   const navigate = useNavigate();
   const { language, openLanguageModal } = useLanguage();
+  const { isAuthenticated } = useAuth();
+
+  // Проверяем авторизацию при загрузке
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/main");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleStart = () => {
     navigate("/onboarding");
