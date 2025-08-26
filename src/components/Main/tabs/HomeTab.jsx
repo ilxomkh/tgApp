@@ -1,40 +1,125 @@
 // tg-app/src/components/Main/tabs/HomeTab.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GradientCard, SoftButton } from '../ui';
+import { EarthIcon, SettingsIcon, WalletIcon } from '../icons';
 import SurveyCard from '../SurveyCard';
+import SurveyModal from '../SurveyModal';
+import { useSurvey } from '../../../hooks/useSurvey';
 
-const HomeTab = ({ t }) => {
+
+const HomeTab = ({ t, onOpenProfile }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [selectedSurvey, setSelectedSurvey] = useState(null);
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
+  const { getSurvey, submitSurvey, loading } = useSurvey();
+
+  // Моковые данные опросов (замените на реальные данные с бекенда)
+  const surveys = [
+    {
+      id: 'intro',
+      title: t.themeIntro,
+      lines: [t.g12k],
+      type: 'prize'
+    },
+    {
+      id: 'shops',
+      title: t.themeShop,
+      lines: [t.g12k, t.l3m],
+      type: 'mixed'
+    },
+    {
+      id: 'banks',
+      title: t.themeBank,
+      lines: [t.g10k_l1m],
+      type: 'lottery'
+    }
+  ];
+
+  const handleSurveyStart = async (surveyId) => {
+    try {
+      // Загружаем опрос с бекенда
+      const survey = await getSurvey(surveyId);
+      setSelectedSurvey(survey);
+      setIsSurveyModalOpen(true);
+    } catch (error) {
+      console.error('Error loading survey:', error);
+      // Здесь можно показать уведомление об ошибке
+    }
+  };
+
+  const handleSurveyComplete = async (surveyId, answers) => {
+    try {
+      // Отправляем ответы на бекенд
+      const result = await submitSurvey(surveyId, answers);
+      return result;
+    } catch (error) {
+      console.error('Error completing survey:', error);
+      throw error;
+    }
+  };
+
+  const closeSurveyModal = () => {
+    setIsSurveyModalOpen(false);
+    setSelectedSurvey(null);
+  };
+
+  const openProfile = () => {
+    onOpenProfile();
+  };
 
   return (
     <div className="space-y-5">
-      <GradientCard className="px-5 py-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-white/90">{t.balance}</p>
-            <p className="text-3xl font-extrabold mt-1 tracking-tight">
-              {user?.bonusBalance || 0} {t.sum}
-            </p>
+      <GradientCard className="px-5 py-6 relative">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center">
+              <EarthIcon />
+            </div>
+            <div>
+              <p className="text-white/90 text-sm">{t.balance}</p>
+              <p className="text-3xl font-extrabold tracking-tight">
+                {user?.bonusBalance || 0} {t.sum}
+              </p>
+            </div>
           </div>
-          <div className="h-12 w-12 grid place-items-center rounded-xl bg-white/15 border border-white/20 shadow-inner">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-white">
-              <path d="M3 7h18M3 12h18M3 17h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </div>
+          <button 
+            onClick={openProfile}
+            className="h-12 w-12 grid place-items-center absolute top-3 right-3 transition-colors"
+          >
+            <SettingsIcon />
+          </button>
         </div>
-        <SoftButton onClick={() => navigate('/withdraw')} className="mt-4 bg-white/10 text-white hover:bg-white/20">
-          {t.withdraw}
+        <SoftButton onClick={() => navigate('/withdraw')} className="w-full bg-[#8888FC] text-white hover:bg-white/20 flex items-center justify-center gap-2">
+          <WalletIcon />
+          <span>{t.withdraw}</span>
         </SoftButton>
       </GradientCard>
 
       <div className="space-y-4">
-        <SurveyCard title={t.themeIntro} subtitle={t.g12k} ctaLabel={t.survey} onStart={() => navigate('/survey/intro')} />
-        <SurveyCard title={t.themeShop} subtitle={t.l3m} ctaLabel={t.survey} onStart={() => navigate('/survey/shops')} />
-        <SurveyCard title={t.themeBank} subtitle={t.g10k_l1m} ctaLabel={t.survey} onStart={() => navigate('/survey/banks')} />
+        {surveys.map((survey) => (
+          <SurveyCard 
+            key={survey.id}
+            title={survey.title} 
+            lines={survey.lines} 
+            ctaLabel={t.survey} 
+            onStart={() => handleSurveyStart(survey.id)} 
+          />
+        ))}
       </div>
+
+      {/* Модальное окно опроса */}
+      <SurveyModal
+        isOpen={isSurveyModalOpen}
+        onClose={closeSurveyModal}
+        survey={selectedSurvey}
+        onComplete={handleSurveyComplete}
+        t={t}
+      />
+
+
     </div>
   );
 };

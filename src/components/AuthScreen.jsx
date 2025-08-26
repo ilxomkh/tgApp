@@ -1,312 +1,318 @@
-import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../contexts/LanguageContext';
-import { useAuth } from '../contexts/AuthContext';
+// src/screens/AuthScreen.jsx
+import React, { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
+import PRO from "../assets/Pro.svg";
+import error from "../assets/X.svg";
 
 const OTP_LENGTH = 6;
 
-/** Формат отображения: 99 999 99 99 (только 9 цифр) */
+const extractUzDigits = (val) => (val || "").replace(/\D/g, "").slice(0, 9);
+/** 99 999 99 99 */
 const formatUzPhone = (rawDigits) => {
-  // Берем только первые 9 цифр
   const d = rawDigits.slice(0, 9);
   const p1 = d.slice(0, 2);
   const p2 = d.slice(2, 5);
   const p3 = d.slice(5, 7);
   const p4 = d.slice(7, 9);
-  let tail = '';
-  if (d.length <= 2) tail = p1;
-  else if (d.length <= 5) tail = `${p1} ${p2}`;
-  else if (d.length <= 7) tail = `${p1} ${p2} ${p3}`;
-  else tail = `${p1} ${p2} ${p3} ${p4}`;
-  return tail;
-};
-
-/** Достаём только 9 цифр для номера */
-const extractUzDigits = (val) => {
-  const digits = (val || '').replace(/\D/g, '');
-  // Возвращаем только первые 9 цифр
-  return digits.slice(0, 9);
+  if (!d) return "";
+  if (d.length <= 2) return p1;
+  if (d.length <= 5) return `${p1} ${p2}`;
+  if (d.length <= 7) return `${p1} ${p2} ${p3}`;
+  return `${p1} ${p2} ${p3} ${p4}`;
 };
 
 const AuthScreen = () => {
   const navigate = useNavigate();
-  const { language, openLanguageModal } = useLanguage();
+  const { language } = useLanguage();
   const { sendOtp, login } = useAuth();
 
-  const [phoneLocalDigits, setPhoneLocalDigits] = useState('');
-  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
-  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [phoneDigits, setPhoneDigits] = useState("");
+  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
+  const [step, setStep] = useState("phone"); // 'phone' | 'otp'
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [errorText, setErrorText] = useState("");
 
   const otpRefs = useRef(Array.from({ length: OTP_LENGTH }, () => React.createRef()));
 
-  const t = {
-    uz: {
-      back: 'Orqaga',
-      title: 'Avtorizatsiya',
-      phoneInstruction: 'Telefon raqamingizni kiriting, unga tekshiruv SMS kodi keladi',
-      phonePlaceholder: '99 999 99 99 (9 ta raqam)',
-      privacyText1: '"Avtorizatsiya qilish" tugmasini bosish orqali siz ',
-      privacyLink: 'maxfiylik siyosati',
-      privacyText2: ' bilan tanishganingizni tasdiqlaysiz',
-      sendOtp: 'Avtorizatsiya qilish',
-      sending: 'Yuborilmoqda...',
-      otpInstruction: 'Raqamga yuborilgan kodni kiriting',
-      resendText: 'Kod kelmadimi?',
-      resendLink: 'Qayta yuborish',
-      confirm: 'Tasdiqlash',
-      verifying: 'Tekshirilmoqda...',
-      wrongOtp: "Noto'g'ri OTP kodi",
-      badPhone: "Telefon raqamini to'g'ri kiriting",
-      error: 'Xatolik yuz berdi',
-      langAria: 'Tilni tanlash',
-      phoneLabel: 'Telefon raqami'
-    },
-    ru: {
-      back: 'Назад',
-      title: 'Авторизация',
-      phoneInstruction: 'Введите номер телефона, на него придет проверочный SMS-код',
-      phonePlaceholder: '99 999 99 99 (9 цифр)',
-      privacyText1: 'Нажимая на кнопку «Авторизоваться», вы соглашаетесь с ',
-      privacyLink: 'политикой конфиденциальности',
-      privacyText2: '',
-      sendOtp: 'Авторизоваться',
-      sending: 'Отправляется...',
-      otpInstruction: 'Введите код, отправленный на номер',
-      resendText: 'Не получили код?',
-      resendLink: 'Отправить повторно',
-      confirm: 'Подтвердить',
-      verifying: 'Проверяется...',
-      wrongOtp: 'Неверный код OTP',
-      badPhone: 'Введите правильный номер телефона',
-      error: 'Произошла ошибка',
-      langAria: 'Выбор языка',
-      phoneLabel: 'Номер телефона'
-    }
-  }[language];
+  const T =
+    {
+      ru: {
+        title: "Авторизоваться",
+        phoneHint: "Введите номер телефона,\nна него придет проверочный SMS-код",
+        phonePlaceholder: "99 999 99 99",
+        send: "Отправить код",
+        sending: "Отправляется...",
+        otpHint: "Введите код, отправленный на номер",
+        resendQ: "Не получили код?",
+        resend: "Отправить код повторно",
+        confirm: "Авторизоваться",
+        confirming: "Проверяется...",
+        privacy1: "Нажимая на кнопку “Авторизоваться”, вы соглашаетесь с ",
+        privacyLink: "политикой конфиденциальности",
+        wrongOtp:
+          "Введён неверный код или срок его действия истёк. Пожалуйста, запросите новый код",
+        back: "Назад",
+        phoneLabel: "Номер телефона",
+      },
+      uz: {
+        title: "Avtorizatsiya",
+        phoneHint: "Telefon raqamini kiriting,\nunga tekshiruv SMS kodi keladi",
+        phonePlaceholder: "99 999 99 99",
+        send: "Kod yuborish",
+        sending: "Yuborilmoqda...",
+        otpHint: "Ushbu raqamga yuborilgan kodni kiriting",
+        resendQ: "Kod kelmadimi?",
+        resend: "Qayta yuborish",
+        confirm: "Avtorizatsiya qilish",
+        confirming: "Tekshirilmoqda...",
+        privacy1: "“Avtorizatsiya qilish” tugmasini bosish orqali siz ",
+        privacyLink: "maxfiylik siyosati",
+        wrongOtp:
+          "Noto‘g‘ri kod yoki uning amal qilish muddati tugagan. Iltimos, yangi kod so‘rang",
+        back: "Orqaga",
+        phoneLabel: "Telefon raqami",
+      },
+    }[language || "ru"];
 
-  const phoneFormatted = formatUzPhone(phoneLocalDigits);
-  // Формируем полный номер для отправки - всегда +998 + 9 цифр
-  const phoneE164 = `+998${phoneLocalDigits}`;
+  const phoneE164 = `+998${phoneDigits}`;
 
-  // OTP helpers
-  const otpToString = () => otp.join('');
+  const otpToString = () => otp.join("");
   const handleOtpChange = (i, v) => {
-    const val = v.replace(/\D/g, '').slice(0, 1);
+    const val = v.replace(/\D/g, "").slice(0, 1);
     const next = [...otp];
     next[i] = val;
     setOtp(next);
     if (val && i < OTP_LENGTH - 1) otpRefs.current[i + 1]?.current?.focus();
   };
   const handleOtpKeyDown = (i, e) => {
-    if (e.key === 'Backspace' && !otp[i] && i > 0) otpRefs.current[i - 1]?.current?.focus();
-    if (e.key === 'ArrowLeft' && i > 0) otpRefs.current[i - 1]?.current?.focus();
-    if (e.key === 'ArrowRight' && i < OTP_LENGTH - 1) otpRefs.current[i + 1]?.current?.focus();
+    if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1]?.current?.focus();
+    if (e.key === "ArrowLeft" && i > 0) otpRefs.current[i - 1]?.current?.focus();
+    if (e.key === "ArrowRight" && i < OTP_LENGTH - 1) otpRefs.current[i + 1]?.current?.focus();
   };
   const handleOtpPaste = (e) => {
-    const paste = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
+    const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
     if (!paste) return;
     e.preventDefault();
-    const next = Array(OTP_LENGTH).fill('');
+    const next = Array(OTP_LENGTH).fill("");
     for (let i = 0; i < paste.length; i++) next[i] = paste[i];
     setOtp(next);
     otpRefs.current[Math.min(paste.length, OTP_LENGTH - 1)]?.current?.focus();
   };
 
-  // Actions
-  const handleSendOtp = async () => {
-    // Проверяем что введено ровно 9 цифр
-    if (phoneLocalDigits.length !== 9) {
-      setError(t.badPhone);
-      return;
-    }
+  const onSendOtp = async () => {
+    if (phoneDigits.length !== 9) return;
     setIsLoading(true);
-    setError('');
+    setErrorText("");
     try {
       const ok = await sendOtp(phoneE164);
-      if (ok) setIsOtpSent(true);
-      else setError(t.error);
+      if (ok) setStep("otp");
+      else setErrorText("Ошибка отправки кода");
     } catch {
-      setError(t.error);
+      setErrorText("Ошибка отправки кода");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleVerifyOtp = async () => {
+  const onVerify = async () => {
     const code = otpToString();
-    if (code.length < OTP_LENGTH) {
-      setError(t.wrongOtp);
-      return;
-    }
+    if (code.length !== OTP_LENGTH) return;
     setIsLoading(true);
-    setError('');
+    setErrorText("");
     try {
       const ok = await login(phoneE164, code);
-      if (ok) navigate('/privacy');
-      else setError(t.wrongOtp);
+      if (ok) navigate("/main");
+      else setErrorText(T.wrongOtp);
     } catch {
-      setError(t.error);
+      setErrorText(T.wrongOtp);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Плавающие экшены сверху */}
-      <div className="absolute top-4 left-4 z-10">
-        <button
-          onClick={() => navigate(-1)}
-          className="h-10 px-4 rounded-full border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 shadow-sm active:scale-95 transition flex items-center gap-2"
+    <div className="min-h-screen bg-[#FAFAFF] flex flex-col">
+      {/* Шапка */}
+      <header className="h-36 bg-gradient-to-b from-[#6A4CFF] to-[#5936F2] text-white shadow-md">
+        <div className="h-full max-w-[480px] mx-auto flex items-end justify-center pb-3">
+          <img src={PRO} alt="Pro Survey" className="h-9" />
+        </div>
+      </header>
+
+      {/* Контент */}
+      <main className="flex-1 max-w-[480px] w-full mx-auto px-6 flex flex-col">
+        {/* Заголовок сверху */}
+        <h1
+          className={[
+            "text-center font-bold pt-20",
+            "text-[32px] leading-[32px]",
+            step === "otp" && errorText ? "text-[#C6C2FF]" : "text-[#5E5AF6]",
+          ].join(" ")}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M15 6L9 12L15 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span className="text-sm font-medium">{t.back}</span>
-        </button>
-      </div>
+          {T.title}
+        </h1>
 
-      <button
-        onClick={openLanguageModal}
-        className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-emerald-600 text-white text-lg grid place-items-center shadow-lg active:scale-95 transition"
-        aria-label={t.langAria}
-        title={t.langAria}
-      >
-        {language === 'uz' ? '🇺🇿' : '🇷🇺'}
-      </button>
-
-      {/* Контент: делим экран на центр и нижнюю панель */}
-      <div className="flex flex-col min-h-screen px-6 pt-6 pb-6">
-        {!isOtpSent ? (
+        {/* PHONE STEP — середина экрана */}
+        {step === "phone" && (
           <>
-            {/* Центр: заголовок опущен ниже, поле строго по центру */}
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="text-center mb-6">
-                <h1 className="text-3xl font-bold text-blue-600 mb-2">{t.title}</h1>
-                <p className="text-gray-600 text-lg">{t.phoneInstruction}</p>
-              </div>
-
-              {/* Поле — в центре */}
-              <div className="w-full max-w-sm">
-                <div className="bg-white rounded-2xl p-4 border border-gray-100 ">
-                  <label className="block text-xs text-gray-500 mb-2">{t.phoneLabel}</label>
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-emerald-50 border border-emerald-100 text-xl">
-                      🇺🇿
-                    </span>
-                    <div className="relative flex-1">
-                      <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 select-none">
-                        +998
-                      </div>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={phoneFormatted}
-                        onChange={(e) => setPhoneLocalDigits(extractUzDigits(e.target.value))}
-                        onFocus={(e) => {
-                          if (!phoneLocalDigits) setPhoneLocalDigits('');
-                          setTimeout(() => e.target.setSelectionRange(e.target.value.length, e.target.value.length), 0);
-                        }}
-                        placeholder={t.phonePlaceholder}
-                        className="w-full h-12 pl-16 pr-4 rounded-xl border-2 border-transparent bg-gray-50 text-lg font-medium text-gray-900
-                                   focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
-                        autoComplete="tel"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Низ: политика + кнопка */}
-            <div className="mt-8">
-              <p className="text-gray-600 text-sm text-center mb-4">
-                {t.privacyText1}
-                <button
-                  type="button"
-                  onClick={() => navigate('/privacy')}
-                  className="text-blue-600 underline underline-offset-4 hover:text-blue-700"
-                >
-                  {t.privacyLink}
-                </button>
-                {t.privacyText2}
-              </p>
-              <button
-                onClick={handleSendOtp}
-                disabled={isLoading}
-                className="w-full h-12 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-[0.99] transition disabled:opacity-50"
-              >
-                {isLoading ? t.sending : t.sendOtp}
-              </button>
-              {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-red-600 text-center">{error}</p>
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          /* Шаг OTP: центр и низ сохранены в той же логике */
-          <>
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="text-center mb-6">
-                <h1 className="text-3xl font-bold text-blue-600 mb-2">{t.title}</h1>
-                <p className="text-gray-600 text-lg">
-                  {t.otpInstruction} <span className="font-semibold">{phoneFormatted}</span>
+            <div className="flex-1 flex items-center justify-center">
+              <div className="w-full max-w-[320px]">
+                <p className="whitespace-pre-line text-center text-[14px] leading-5 text-[#8B8B99] mb-2">
+                  {T.phoneHint}
                 </p>
-              </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-13 px-2 rounded-xl border border-[#E7E7F5] flex items-center gap-2 text-[#2B2B33]">
+                    <span className="text-[24px] leading-none">🇺🇿</span>
+                    <span className="font-semibold text-[24px]">+998</span>
+                  </div>
 
-              <div className="flex justify-center gap-3" onPaste={handleOtpPaste}>
-                {otp.map((val, i) => (
                   <input
-                    key={i}
-                    ref={otpRefs.current[i]}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
-                    value={val}
-                    onChange={(e) => handleOtpChange(i, e.target.value)}
-                    onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                    className="w-12 h-12 border-2 border-gray-300 rounded-xl text-center text-2xl font-bold
-                               focus:border-blue-500 focus:outline-none"
-                    maxLength={1}
-                    autoComplete="one-time-code"
+                    placeholder={T.phonePlaceholder}
+                    value={formatUzPhone(phoneDigits)}
+                    onChange={(e) => setPhoneDigits(extractUzDigits(e.target.value))}
+                    className="flex-1 h-13 w-full rounded-xl border border-[#E7E7F5] px-2 text-[24px] font-medium placeholder:text-[#D7D7E6] text-[#2B2B33] focus:outline-none focus:border-[#6A4CFF]"
+                    autoComplete="tel"
                   />
-                ))}
+                </div>
               </div>
             </div>
 
-            <div className="mt-8">
-              <div className="text-center mb-4">
-                <span className="text-gray-600 text-sm">{t.resendText} </span>
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={isLoading}
-                  className="text-sm text-blue-600 underline underline-offset-4 hover:text-blue-700 disabled:opacity-50"
-                >
-                  {t.resendLink}
-                </button>
-              </div>
-              <button
-                onClick={handleVerifyOtp}
-                disabled={isLoading}
-                className="w-full h-12 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-[0.99] transition disabled:opacity-50"
-              >
-                {isLoading ? t.verifying : t.confirm}
-              </button>
-              {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-red-600 text-center">{error}</p>
-                </div>
-              )}
-            </div>
+            <div className="h-[112px]" />
           </>
         )}
-      </div>
+
+        {/* OTP STEP — середина экрана */}
+        {step === "otp" && (
+          <>
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="w-full max-w-[300px]">
+              <p className="mt-6 text-center text-[14px] leading-5 text-[#8B8B99]">
+                {T.otpHint}{" "}
+                <span className="text-[#5E5AF6] font-semibold">
+                  +998 {formatUzPhone(phoneDigits)}
+                </span>
+              </p>
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <div className="flex gap-3" onPaste={handleOtpPaste}>
+                  {otp.map((val, i) => (
+                    <input
+                      key={i}
+                      ref={otpRefs.current[i]}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={val}
+                      onChange={(e) => handleOtpChange(i, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                      className="w-[48px] h-[48px] rounded-xl border bg-white text-center text-[22px] font-bold text-[#2B2B33] border-[#E1E1F3] focus:border-[#6A4CFF] focus:outline-none"
+                      autoComplete="one-time-code"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-3 text-center">
+                <span className="text-[#8B8B99] text-sm">{T.resendQ} </span>
+                <button
+                  type="button"
+                  onClick={onSendOtp}
+                  disabled={isLoading}
+                  className="text-sm text-[#5E5AF6] hover:opacity-80 underline underline-offset-4 disabled:opacity-50"
+                >
+                  {T.resend}
+                </button>
+              </div>
+
+              
+            </div>
+
+            <div className="h-[112px]" />
+          </>
+        )}
+      </main>
+
+      {/* НИЖНИЕ ПАНЕЛИ */}
+      {/* PHONE: только кнопка снизу, БЕЗ текста про политику */}
+      {step === "phone" && (
+        <div className="fixed left-0 right-0 bottom-0">
+          <div className="mx-auto w-full max-w-[480px] px-6 pb-6">
+            <div className="rounded-2xl w-full bg-[#EDEAFF] p-2">
+              <button
+                onClick={onSendOtp}
+                disabled={isLoading || phoneDigits.length !== 9}
+                className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
+              >
+                {isLoading ? T.sending : T.send}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* OTP: текст политики + кнопка снизу (как на макете) */}
+      {step === "otp" && !errorText && (
+        <div className="fixed left-0 right-0 bottom-0">
+          <div className="mx-auto w-full max-w-[480px] px-6 pb-6">
+            <p className="text-center text-[12px] text-[#8B8B99] mb-3">
+              {T.privacy1}
+              <button
+                type="button"
+                onClick={() => navigate("/privacy")}
+                className="text-[#5E5AF6] underline underline-offset-4"
+              >
+                {T.privacyLink}
+              </button>
+            </p>
+            <div className="rounded-2xl bg-[#EDEAFF] p-2">
+              <button
+                onClick={onVerify}
+                disabled={isLoading || otpToString().length !== OTP_LENGTH}
+                className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
+              >
+                {isLoading ? T.confirming : T.confirm}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* OTP error: текст ошибки + кнопка "Назад" снизу */}
+      {step === "otp" && errorText && (
+        <div className="fixed left-0 right-0 bottom-0">
+          <div className="mx-auto w-full max-w-[480px] px-6 pb-6">
+            {/* Текст ошибки над кнопкой */}
+            <div className="mb-3 w-full max-w-[420px] mx-auto px-2">
+              <div className="rounded-xl border border-[#FFD2D2] bg-[#FFE9E9] p-4 text-[#C03A3A] flex items-center justify-center gap-3">
+                <div className="flex items-center justify-center gap-3">
+                  <img src={error} alt="X" className="w-6 h-6" />
+                  <p className="text-sm leading-[1.45]">{errorText}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="rounded-2xl bg-[#EDEAFF] p-2">
+              <button
+                onClick={() => {
+                  setErrorText("");
+                  setStep("phone");
+                  setOtp(Array(OTP_LENGTH).fill(""));
+                }}
+                className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
+              >
+                {T.back}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

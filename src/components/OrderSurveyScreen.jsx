@@ -1,218 +1,213 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../contexts/LanguageContext.jsx';
+import React from "react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import Header from "./header";
 
 const OrderSurveyScreen = () => {
+  const { language } = useLanguage();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { language, openLanguageModal } = useLanguage();
-  
-  const [formData, setFormData] = useState({
-    fullName: '',
+  const [formData, setFormData] = React.useState({
+    fullName: user?.name || '',
     organization: '',
     position: '',
-    phone: '',
-    email: '',
-    description: ''
+    phone: user?.phoneNumber || '',
+    email: user?.email || '',
+    description: '',
   });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const orderSurveyText = {
-    uz: {
-      title: 'So\'rovnoma buyurtma qilish',
-      fullName: 'F.I.O',
-      organization: 'Tashkilot nomi',
-      position: 'Tashkilotdagi lavozim',
-      phone: 'Telefon raqam',
-      email: 'Email',
-      sendRequest: 'So\'rov yuborish',
-      placeholder: 'Kiriting'
-    },
+  // ---------- Переводы ----------
+  const translations = {
     ru: {
-      title: 'Заказать опрос',
-      fullName: 'ФИО',
-      organization: 'Названия организации',
-      position: 'Должность в организации',
-      phone: 'Номер телефона',
-      email: 'Email',
-      sendRequest: 'Отправить запрос',
-      placeholder: 'Указать'
-    }
+      title: "Заказать опрос",
+      back: "Назад",
+      formTitle: "Заполните форму для заказа опроса",
+      fullName: "ФИО",
+      fullNamePlaceholder: "Введите ваше полное имя",
+      organization: "Организация",
+      organizationPlaceholder: "Название вашей организации",
+      position: "Должность",
+      positionPlaceholder: "Ваша должность в организации",
+      phone: "Телефон",
+      phonePlaceholder: "Ваш номер телефона",
+      email: "Email",
+      emailPlaceholder: "Ваш email адрес",
+      description: "Описание опроса",
+      descriptionPlaceholder: "Опишите, какой опрос вам нужен",
+      submit: "Отправить заявку",
+      submitting: "Отправка...",
+      success: "Заявка успешно отправлена!",
+      error: "Произошла ошибка. Попробуйте еще раз.",
+      required: "Обязательное поле",
+    },
+    uz: {
+      title: "So'rov buyurtma qilish",
+      back: "Orqaga",
+      formTitle: "So'rov buyurtma qilish uchun formani to'ldiring",
+      fullName: "F.I.O",
+      fullNamePlaceholder: "To'liq ismingizni kiriting",
+      organization: "Tashkilot",
+      organizationPlaceholder: "Tashkilotingiz nomi",
+      position: "Lavozim",
+      positionPlaceholder: "Tashkilotdagi lavozimingiz",
+      phone: "Telefon",
+      phonePlaceholder: "Telefon raqamingiz",
+      email: "Email",
+      emailPlaceholder: "Email manzilingiz",
+      description: "So'rov tavsifi",
+      descriptionPlaceholder: "Qanday so'rov kerakligini tasvirlab bering",
+      submit: "Arizani yuborish",
+      submitting: "Yuborilmoqda...",
+      success: "Ariza muvaffaqiyatli yuborildi!",
+      error: "Xatolik yuz berdi. Qaytadan urinib ko'ring.",
+      required: "Majburiy maydon",
+    },
   };
-
-  const currentText = orderSurveyText[language];
+  const t = translations[language || "ru"];
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Здесь будет логика отправки запроса
-    console.log('Survey request:', formData);
-    navigate('/main');
+    if (!formData.fullName.trim() || !formData.phone.trim()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    // Имитация отправки на API
+    setTimeout(() => {
+      setIsSubmitting(false);
+      alert(t.success);
+      navigate(-1);
+    }, 2000);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-600 px-6 py-4 flex items-center justify-center">
-        <h1 className="text-xl font-bold text-white">
-          {currentText.title}
-        </h1>
-      </div>
+    <div className="min-h-screen bg-white">
+      <Header />
+      {/* Основной контент с кастомным скроллбаром */}
+      <div className="px-6 py-8 h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar">
+        {/* Заголовок страницы */}
+        <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
+          {t.title}
+        </h2>
 
-      {/* App header */}
-      <div className="bg-emerald-600 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <span className="text-white text-sm">16:36</span>
-          <button className="text-white text-sm font-medium">
-            X Закрыть
-          </button>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={openLanguageModal}
-            className="text-white text-sm hover:bg-white/20 px-2 py-1 rounded transition-colors"
-          >
-            {language === 'uz' ? '🇺🇿' : '🇷🇺'}
-          </button>
-          <span className="text-white text-sm">LTE</span>
-          <div className="w-6 h-3 bg-white rounded-sm flex items-center justify-center">
-            <span className="text-xs text-emerald-600 font-bold">32</span>
+        {/* Форма */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <h3 className="text-lg font-bold text-[#5E5AF6] mb-4 text-center">
+              {t.formTitle}
+            </h3>
           </div>
-          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110 4 2 2 0 010-4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-          </svg>
-        </div>
-      </div>
 
-      <div className="p-6">
-        {/* Main title */}
-        <div className="bg-emerald-600 rounded-lg p-4 text-white text-center mb-6">
-          <h2 className="text-lg font-semibold">
-            {currentText.title}
-          </h2>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-emerald-600 rounded-lg p-4">
+          {/* ФИО */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t.fullName} *
+            </label>
             <input
               type="text"
               value={formData.fullName}
               onChange={(e) => handleInputChange('fullName', e.target.value)}
-              placeholder={currentText.placeholder}
-              className="w-full bg-transparent text-white placeholder-white/70 outline-none text-lg"
+              placeholder={t.fullNamePlaceholder}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors"
             />
-            <p className="text-white/80 text-sm mt-1">
-              {currentText.fullName}
-            </p>
           </div>
 
-          <div className="bg-emerald-600 rounded-lg p-4">
+          {/* Организация */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t.organization}
+            </label>
             <input
               type="text"
               value={formData.organization}
               onChange={(e) => handleInputChange('organization', e.target.value)}
-              placeholder={currentText.placeholder}
-              className="w-full bg-transparent text-white placeholder-white/70 outline-none text-lg"
+              placeholder={t.organizationPlaceholder}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors"
             />
-            <p className="text-white/80 text-sm mt-1">
-              {currentText.organization}
-            </p>
           </div>
 
-          <div className="bg-emerald-600 rounded-lg p-4">
+          {/* Должность */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t.position}
+            </label>
             <input
               type="text"
               value={formData.position}
               onChange={(e) => handleInputChange('position', e.target.value)}
-              placeholder={currentText.placeholder}
-              className="w-full bg-transparent text-white placeholder-white/70 outline-none text-lg"
+              placeholder={t.positionPlaceholder}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors"
             />
-            <p className="text-white/80 text-sm mt-1">
-              {currentText.position}
-            </p>
           </div>
 
-          <div className="bg-emerald-600 rounded-lg p-4">
+          {/* Телефон */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t.phone} *
+            </label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
-              placeholder={currentText.placeholder}
-              className="w-full bg-transparent text-white placeholder-white/70 outline-none text-lg"
+              placeholder={t.phonePlaceholder}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors"
             />
-            <p className="text-white/80 text-sm mt-1">
-              {currentText.phone}
-            </p>
           </div>
 
-          <div className="bg-emerald-600 rounded-lg p-4">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t.email}
+            </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder={currentText.placeholder}
-              className="w-full bg-transparent text-white placeholder-white/70 outline-none text-lg"
+              placeholder={t.emailPlaceholder}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors"
             />
-            <p className="text-white/80 text-sm mt-1">
-              {currentText.email}
-            </p>
           </div>
 
+          {/* Описание */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t.description}
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder={t.descriptionPlaceholder}
+              rows={4}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors resize-none"
+            />
+          </div>
+
+          {/* Кнопка отправки */}
           <button
             type="submit"
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-4 px-6 rounded-lg transition-all duration-200 text-lg"
+            disabled={isSubmitting}
+            className="w-full bg-[#5E5AF6] text-white py-4 rounded-xl font-semibold hover:bg-[#4A46E8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {currentText.sendRequest}
+            {isSubmitting ? t.submitting : t.submit}
           </button>
         </form>
-      </div>
 
-      {/* Bottom navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-emerald-600 border-t border-emerald-700">
-        <div className="flex">
+        {/* Кнопка "Назад" */}
+        <div className="rounded-2xl bg-[#EDEAFF] p-2 mt-6">
           <button
-            onClick={() => navigate('/main')}
-            className="flex-1 py-4 px-2 text-center text-white/80 hover:text-white hover:bg-emerald-600 transition-all duration-200"
+            onClick={() => navigate('/main?tab=profile')}
+            className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
           >
-            <div className="text-xl mb-1">🏠</div>
-            <div className="text-xs font-medium">
-              {language === 'uz' ? 'Asosiy' : 'Главная'}
-            </div>
-          </button>
-          
-          <button
-            onClick={() => navigate('/main')}
-            className="flex-1 py-4 px-2 text-center text-white/80 hover:text-white hover:bg-emerald-600 transition-all duration-200"
-          >
-            <div className="text-xl mb-1">👥</div>
-            <div className="text-xs font-medium">
-              {language === 'uz' ? 'Do\'stni taklif qilish' : 'Пригласить друга'}
-            </div>
-          </button>
-          
-          <button
-            onClick={() => navigate('/main')}
-            className="flex-1 py-4 px-2 text-center text-white/80 hover:text-white hover:bg-emerald-600 transition-all duration-200"
-          >
-            <div className="text-xl mb-1">🎰</div>
-            <div className="text-xs font-medium">
-              {language === 'uz' ? 'Lotereya natijalari' : 'Итоги розыгрыша'}
-            </div>
-          </button>
-          
-          <button
-            onClick={() => navigate('/main')}
-            className="flex-1 py-4 px-2 text-center text-white bg-emerald-700 transition-all duration-200"
-          >
-            <div className="text-xl mb-1">👤</div>
-            <div className="text-xs font-medium">
-              {language === 'uz' ? 'Profil' : 'Профиль'}
-            </div>
+            {t.back}
           </button>
         </div>
       </div>

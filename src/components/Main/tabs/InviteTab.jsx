@@ -1,63 +1,46 @@
 import React from "react";
-import { CTAButton, GradientCard, SectionCard, StatPill } from "../ui.jsx";
-import BottomSheet from "../BottomSheet.jsx";
+import { useLanguage } from "../../../contexts/LanguageContext";
+import { useNavigate } from "react-router-dom";
 
 const InviteTab = ({ locale = "ru", refCode }) => {
+  const { language } = useLanguage();
+  const navigate = useNavigate();
   const [toast, setToast] = React.useState(null);
-  const [isTermsOpen, setIsTermsOpen] = React.useState(false);
 
   // ---------- Переводы ----------
   const translations = {
     ru: {
-      inviteTitle: "Пригласить друга",
-      inviteSubtitle: "Получите 10 000 сум за каждого приглашённого",
-      whatToDo: "Что надо сделать?",
-      inv1: "Пригласите друга по реферальной ссылке.",
-      inv2: "Приглашённый должен пройти минимум 3 опроса и стать Актив.",
-      inv3: "Выведите заработанные деньги на карту.",
-      more: "Узнать подробнее",
-      stats: "Статистика:",
-      invited: "Кол-во приглашённых",
-      activeInv: "В активе приглашённых",
-      waitSum: "Сумма в ожидании",
-      earned: "Заработанные деньги",
-      sum: "сум",
-      inviteFriend: "Пригласить друга",
-      copyLink: "Скопировать ссылку",
+      inviteTitle: "Пригласите друга и получайте средства",
+      earn: "Зарабатывайте",
+      earnAmount: "10 000 сум",
+      earnSubtitle: "с каждого приглашенного друга",
+      howItWorks: "Как это работает?",
+      invited: "Кол-во приглашенных:",
+      active: "Кол-во активных:",
+      pending: "Сумма в ожидании:",
+      earned: "Заработанные деньги:",
+      invite: "Пригласить",
+      copy: "Копировать",
       copied: "Ссылка скопирована",
       copyFail: "Не удалось скопировать",
-      sharedOk: "Отправлено",
-      termsTitle: "Условия реферальной программы",
-      termsText:
-        "Приглашайте друзей по вашей персональной ссылке. После того как друг выполнит условия (пройдёт минимум 3 опроса), вы получите бонус. Заработанные средства можно вывести на карту.",
-      shareText: "Присоединяйся и зарабатывай вместе со мной!",
     },
     uz: {
-      inviteTitle: "Do'stni taklif qilish",
-      inviteSubtitle: "Har bir taklif qilingan do'st uchun 10 000 so'm oling",
-      whatToDo: "Nima qilish kerak?",
-      inv1: "Do'stingizni referal havola orqali taklif qiling.",
-      inv2: "Taklif qilingan foydalanuvchi kamida 3 ta so'rovda qatnashib Aktiv bo‘lishi kerak.",
-      inv3: "Topilgan pulni kartaga yechib oling.",
-      more: "Batafsil",
-      stats: "Statistika:",
-      invited: "Taklif qilinganlar soni",
-      activeInv: "Aktiv holатdagilar",
-      waitSum: "Kutilayotgan summa",
-      earned: "Topilgan pul",
-      sum: "so'm",
-      inviteFriend: "Do'stni taklif qilish",
-      copyLink: "Havolani nusxalash",
+      inviteTitle: "Do'stingizni taklif qiling va mablag' oling",
+      earn: "Daromad qiling",
+      earnAmount: "10 000 so'm",
+      earnSubtitle: "har bir taklif qilingan do'stdan",
+      howItWorks: "Bu qanday ishlaydi?",
+      invited: "Taklif qilinganlar soni:",
+      active: "Faol soni:",
+      pending: "Kutilayotgan summa:",
+      earned: "Topilgan pul:",
+      invite: "Taklif qilish",
+      copy: "Nusxalash",
       copied: "Havola nusхalandi",
-      copyFail: "Nusхalab bo‘lmadi",
-      sharedOk: "Yuborildi",
-      termsTitle: "Referal dasturi shartlari",
-      termsText:
-        "Do‘stlaringizni shaxsiy havola orqali taklif qiling. Ular kamida 3 ta so‘rovda qatnashsa bonus olasiz. Topilgan mablag‘ni kartaga yechib olish mumkin.",
-      shareText: "Qatnashing va birga daromad qilaylik!",
+      copyFail: "Nusхalab bo'lmadi",
     },
   };
-  const t = translations[locale];
+  const t = translations[language || locale];
 
   // ---------- Реферальная ссылка ----------
   const refLink = React.useMemo(() => {
@@ -81,11 +64,15 @@ const InviteTab = ({ locale = "ru", refCode }) => {
   };
 
   const onInvite = async () => {
-    const shareData = { title: t.inviteTitle, text: t.shareText, url: refLink };
+    const shareData = {
+      title: t.inviteTitle,
+      text: "Присоединяйся и зарабатывай вместе со мной!",
+      url: refLink,
+    };
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-        showToast(t.sharedOk);
+        showToast("Отправлено");
       } else {
         await navigator.clipboard.writeText(refLink);
         showToast(t.copied);
@@ -102,80 +89,126 @@ const InviteTab = ({ locale = "ru", refCode }) => {
     }
   };
 
+  const onHowItWorks = () => {
+    navigate('/referral-program');
+  };
+
   return (
-    <div className="space-y-5 pb-2">
-      {/* Верхний блок */}
-      <SectionCard className="p-5">
-        <div className="text-center">
-          <h3 className="text-xl font-extrabold text-gray-900 mb-3">
-            {t.inviteTitle}
-          </h3>
-          {t.inviteSubtitle && (
-            <p className="text-sm text-gray-600">{t.inviteSubtitle}</p>
-          )}
-        </div>
+    <div className="space-y-6">
+      {/* Заголовок */}
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-[#5E5AF6] mb-2">
+          {t.inviteTitle}
+        </h1>
+      </div>
 
-        <GradientCard
-          from="from-blue-600"
-          to="to-indigo-600"
-          className="p-5 mt-4"
+      {/* Блок заработка */}
+      <div className="bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-6 text-white shadow-lg">
+        <div className="text-start">
+          <p className="text-white text-sm font-medium mb-1">{t.earn}</p>
+          <p className="text-3xl font-bold mb-2">{t.earnAmount}</p>
+          <p className="text-white text-sm">{t.earnSubtitle}</p>
+        </div>
+      </div>
+
+      {/* Кнопка "Как это работает?" */}
+      <button 
+        onClick={onHowItWorks}
+        className="w-full bg-[#8888FC] rounded-2xl p-4 flex items-center justify-between hover:bg-[#8585fc] transition-colors"
+      >
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#8888FC] flex items-center justify-center">
+          <span className='text-3xl'>📖</span>
+          </div>
+          <span className="text-white font-medium">{t.howItWorks}</span>
+        </div>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          className="text-white"
         >
-          <h4 className="font-semibold mb-3 text-white">{t.whatToDo}</h4>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-white/95">
-            <li>{t.inv1}</li>
-            <li>{t.inv2}</li>
-            <li>{t.inv3}</li>
-          </ol>
-        </GradientCard>
-
-        <div className="mt-4">
-          <CTAButton onClick={() => setIsTermsOpen(true)}>{t.more}</CTAButton>
-        </div>
-      </SectionCard>
+          <path
+            d="M9 18l6-6-6-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
 
       {/* Статистика */}
-      <SectionCard className="p-5">
-        <h4 className="font-semibold text-gray-800 mb-3">{t.stats}</h4>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <StatPill label={t.invited} value="20" />
-          <StatPill label={t.activeInv} value="3" />
-          <StatPill label={t.waitSum} value={`170 000 ${t.sum}`} />
-          <StatPill label={t.earned} value={`30 000 ${t.sum}`} />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+          <p className="text-gray-600 text-sm mb-2">{t.invited}</p>
+          <p className="text-[#5E5AF6] text-xl font-bold">17</p>
         </div>
-      </SectionCard>
-
-      {/* Bottom actions */}
-      <div className="sticky bottom-2 z-0 px-3 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-stretch gap-3 rounded-2xl border border-gray-200/60 bg-white/70 backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-2">
-          <CTAButton
-            onClick={onInvite}
-            className="flex-1 h-14 sm:h-16 rounded-xl text-base font-semibold"
-          >
-            {t.inviteFriend}
-          </CTAButton>
-
-          <button
-            onClick={onCopy}
-            className="h-14 sm:h-16 aspect-square rounded-xl bg-emerald-600 text-white
-                 hover:bg-emerald-700 active:scale-[0.98] transition shadow-sm
-                 inline-flex items-center justify-center"
-            aria-label={t.copyLink}
-            title={t.copyLink}
-          >
-            <svg
-              className="w-7 h-7"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="9" y="9" width="10" height="10" rx="2" />
-              <rect x="5" y="5" width="10" height="10" rx="2" />
-            </svg>
-          </button>
+        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+          <p className="text-gray-600 text-sm mb-2">{t.active}</p>
+          <p className="text-[#5E5AF6] text-xl font-bold">10</p>
         </div>
+        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+          <p className="text-gray-600 text-sm mb-2">{t.pending}</p>
+          <p className="text-[#5E5AF6] text-xl font-bold">170 000 сум</p>
+        </div>
+        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+          <p className="text-gray-600 text-sm mb-2">{t.earned}</p>
+          <p className="text-[#5E5AF6] text-xl font-bold">100 000 сум</p>
+        </div>
+      </div>
+
+      {/* Кнопки действий */}
+      <div className="flex gap-3">
+        <button
+          onClick={onInvite}
+          className="flex-1 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white rounded-2xl p-4 flex items-center justify-center gap-2 transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 46 33"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M32.5523 18.675C35.3545 20.5773 37.3182 23.1545 37.3182 26.5909V32.7273H45.5V26.5909C45.5 22.1318 38.1977 19.4932 32.5523 18.675Z"
+              fill="white"
+            />
+            <path
+              d="M29.1364 16.3636C33.6568 16.3636 37.3182 12.7023 37.3182 8.18182C37.3182 3.66136 33.6568 0 29.1364 0C28.175 0 27.275 0.204545 26.4159 0.490909C28.1136 2.59773 29.1364 5.27727 29.1364 8.18182C29.1364 11.0864 28.1136 13.7659 26.4159 15.8727C27.275 16.1591 28.175 16.3636 29.1364 16.3636Z"
+              fill="white"
+            />
+            <path
+              d="M16.8636 16.3636C21.3841 16.3636 25.0455 12.7023 25.0455 8.18182C25.0455 3.66136 21.3841 0 16.8636 0C12.3432 0 8.68182 3.66136 8.68182 8.18182C8.68182 12.7023 12.3432 16.3636 16.8636 16.3636ZM16.8636 4.09091C19.1136 4.09091 20.9545 5.93182 20.9545 8.18182C20.9545 10.4318 19.1136 12.2727 16.8636 12.2727C14.6136 12.2727 12.7727 10.4318 12.7727 8.18182C12.7727 5.93182 14.6136 4.09091 16.8636 4.09091Z"
+              fill="white"
+            />
+            <path
+              d="M16.8636 18.4091C11.4023 18.4091 0.5 21.15 0.5 26.5909V32.7273H33.2273V26.5909C33.2273 21.15 22.325 18.4091 16.8636 18.4091ZM29.1364 28.6364H4.59091V26.6114C5 25.1386 11.3409 22.5 16.8636 22.5C22.3864 22.5 28.7273 25.1386 29.1364 26.5909V28.6364Z"
+              fill="white"
+            />
+          </svg>
+
+          <span className="font-medium">{t.invite}</span>
+        </button>
+        <button
+          onClick={onCopy}
+          className="w-16 h-16 bg-[#8888FC]  border-2 border-[#B1B2FC] text-white rounded-2xl flex items-center justify-center transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 53 60"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M38.7804 0.862061H6.03225C3.03033 0.862061 0.574219 3.27583 0.574219 6.22599V43.7735H6.03225V6.22599H38.7804V0.862061ZM46.9675 11.5899H16.9483C13.9464 11.5899 11.4903 14.0037 11.4903 16.9538V54.5013C11.4903 57.4515 13.9464 59.8652 16.9483 59.8652H46.9675C49.9694 59.8652 52.4255 57.4515 52.4255 54.5013V16.9538C52.4255 14.0037 49.9694 11.5899 46.9675 11.5899ZM46.9675 54.5013H16.9483V16.9538H46.9675V54.5013Z"
+              fill="white"
+            />
+          </svg>
+        </button>
       </div>
 
       {/* Тост */}
@@ -190,20 +223,6 @@ const InviteTab = ({ locale = "ru", refCode }) => {
           </div>
         )}
       </div>
-
-      {/* Bottom Sheet: Условия */}
-      <BottomSheet
-        title={t.termsTitle}
-        open={isTermsOpen}
-        onClose={() => setIsTermsOpen(false)}
-      >
-        <p className="text-sm text-gray-700 leading-relaxed">{t.termsText}</p>
-        <ul className="mt-4 list-disc list-inside text-sm text-gray-700 space-y-1">
-          <li>{t.inv1}</li>
-          <li>{t.inv2}</li>
-          <li>{t.inv3}</li>
-        </ul>
-      </BottomSheet>
     </div>
   );
 };

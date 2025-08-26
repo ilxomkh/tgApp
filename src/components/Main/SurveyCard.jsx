@@ -1,22 +1,34 @@
-// tg-app/src/components/Main/SurveyCard.jsx
 import React from 'react';
-import { GradientCard } from './ui';
 import { ArrowRightIcon } from './icons';
 
-const SurveyCard = ({ title, subtitle, ctaLabel, onStart }) => (
-  <GradientCard from="from-indigo-500" to="to-blue-600" className="relative overflow-hidden">
-    <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10" />
-    <div className="absolute -right-10 top-10 w-36 h-36 rounded-full bg-white/10" />
-    <h4 className="font-semibold text-white/95 mb-1">{title}</h4>
-    <p className="text-lg font-bold mb-4">{subtitle}</p>
+const SurveyCard = ({ title, lines = [], ctaLabel, onStart }) => (
+  <div className="rounded-2xl p-5 text-white bg-gradient-to-tr from-[#5538F9] to-[#7C65FF] shadow-[0_16px_36px_rgba(90,80,230,0.35)] relative overflow-hidden">
+    {/* мягкие блики как на макете */}
+    <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
+    <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
+
+    <h4 className="font-semibold text-white/95 mb-2">{title}</h4>
+    {lines.map((line, idx) => (
+      <p key={idx} className="text-[15px] text-white/90 mb-1">
+        {line}
+      </p>
+    ))}
+
+    {/* CTA кнопка */}
     <button
       onClick={onStart}
-      className="inline-flex items-center gap-2 bg-white text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-50 active:scale-[0.98] transition"
+      className="
+        mt-4 w-full h-12 rounded-xl bg-white text-[#7C65FF]
+        font-semibold px-4 flex items-center justify-between
+        hover:bg-white/30 active:scale-[0.99] transition
+      "
     >
-      {ctaLabel}
-      <ArrowRightIcon />
+      <span>{ctaLabel}</span>
+      <span className="w-8 h-8 rounded-full grid place-items-center bg-white/20">
+        <ArrowRightIcon />
+      </span>
     </button>
-  </GradientCard>
+  </div>
 );
 
 export default SurveyCard;

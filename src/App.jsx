@@ -7,6 +7,10 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import MainScreen from './components/Main/MainScreen';
 import WithdrawScreen from './components/WithdrawScreen';
 import OrderSurveyScreen from './components/OrderSurveyScreen';
+import ReferralProgramScreen from './components/ReferralProgramScreen';
+import ProjectInfoScreen from './components/ProjectInfoScreen';
+import PublicOfferScreen from './components/PublicOfferScreen';
+import SupportScreen from './components/SupportScreen';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 
@@ -24,6 +28,10 @@ function AppContent() {
           <Route path="/main" element={<MainScreen />} />
           <Route path="/withdraw" element={<WithdrawScreen />} />
           <Route path="/order-survey" element={<OrderSurveyScreen />} />
+          <Route path="/referral-program" element={<ReferralProgramScreen />} />
+          <Route path="/project-info" element={<ProjectInfoScreen />} />
+          <Route path="/public-offer" element={<PublicOfferScreen />} />
+          <Route path="/support" element={<SupportScreen />} />
         </Routes>
         
         {/* Language Modal */}

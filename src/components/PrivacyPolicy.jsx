@@ -1,49 +1,17 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../contexts/LanguageContext';
+// src/screens/PrivacyPolicy.jsx
+import React, { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../contexts/LanguageContext";
+import PRO from "../assets/Pro.svg";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
-  const { language, openLanguageModal } = useLanguage();
+  const { language } = useLanguage();
 
-  const [hasAccepted, setHasAccepted] = useState(false);
-  const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
-  const contentRef = useRef(null);
-
-  // Авто-отметка чекбокса при прокрутке до конца
-  useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-
-    const onScroll = () => {
-      const { scrollTop, clientHeight, scrollHeight } = el;
-      const atBottom = scrollTop + clientHeight >= scrollHeight - 4; // небольшой допуск
-      if (atBottom) {
-        setHasScrolledToEnd(true);
-        setHasAccepted(true); // авто-акцепт при полном прочтении
-      }
-    };
-
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const handleAccept = () => {
-    if (hasAccepted) navigate('/main');
-  };
-
-  const handleBrowse = () => {
-    if (contentRef.current) {
-      contentRef.current.scrollTo({
-        top: contentRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
-    }
-  };
-
+  // Текст — как в присланном коде
   const privacyText = {
     uz: {
-      title: 'Maxfiylik siyosati',
+      title: "Maxfiylik siyosati",
       content: `OMMAVIY OFERTA
 
 Ushbu ommaviy oferta (keyingi o'rinlarda - "Oferta") ProSurvey xizmatidan foydalanish shartlarini belgilaydi.
@@ -73,15 +41,10 @@ Ushbu ommaviy oferta (keyingi o'rinlarda - "Oferta") ProSurvey xizmatidan foydal
 5. YAKUNIY QOIDALAR
 5.1. Oferta aksept qilingan paytdan boshlab kuchga kiradi.
 5.2. Barcha savollar yuzasidan qo'llab-quvvatlash xizmatiga murojaat qiling.`,
-      accept: 'Shartlarga roziman',
-      browse: 'Prolist qilish',
-      confirm: 'Tasdiqlash',
-      back: 'Orqaga',
-      langAria: 'Tilni tanlash',
-      readHint: 'Davom etish uchun matnni oxirigacha o‘qing'
+      back: "Orqaga",
     },
     ru: {
-      title: 'Политика конфиденциальности',
+      title: "Политика конфиденциальности",
       content: `ПУБЛИЧНАЯ ОФЕРТА
 
 Настоящая публичная оферта (далее - "Оферта") определяет условия использования сервиса ProSurvey.
@@ -111,97 +74,82 @@ Ushbu ommaviy oferta (keyingi o'rinlarda - "Oferta") ProSurvey xizmatidan foydal
 5. ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ
 5.1. Оферта вступает в силу с момента акцепта.
 5.2. По всем вопросам обращайтесь в службу поддержки.`,
-      accept: 'Принимаю условия',
-      browse: 'Пролистать',
-      confirm: 'Подтвердить',
-      back: 'Назад',
-      langAria: 'Выбор языка',
-      readHint: 'Дочитайте текст до конца, чтобы продолжить'
-    }
-  };
+      back: "Назад",
+    },
+  }[language || "ru"];
 
-  const currentText = privacyText[language];
+  const contentRef = useRef(null);
+  const [atEnd, setAtEnd] = useState(false);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const { scrollTop, clientHeight, scrollHeight } = el;
+      setAtEnd(scrollTop + clientHeight >= scrollHeight - 2);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Плавающие экшены сверху */}
-      <div className="absolute top-4 left-4 z-10">
-        <button
-          onClick={() => navigate(-1)}
-          className="h-10 px-4 rounded-full border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 shadow-sm active:scale-95 transition flex items-center gap-2"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M15 6L9 12L15 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <span className="text-sm font-medium">{currentText.back}</span>
-        </button>
-      </div>
-
-      <button
-        onClick={openLanguageModal}
-        className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-emerald-600 text-white text-lg grid place-items-center shadow-lg active:scale-95 transition"
-        aria-label={currentText.langAria}
-        title={currentText.langAria}
-      >
-        {language === 'uz' ? '🇺🇿' : '🇷🇺'}
-      </button>
-
-      {/* Контент */}
-      <div className="flex flex-col min-h-screen px-6 pt-20 pb-6">
-        {/* Заголовок */}
-        <div className="text-center mb-4">
-          <h1 className="text-3xl font-bold text-blue-600">
-            {currentText.title}
-          </h1>
+    <div className="min-h-screen bg-[#F6F6FF] flex flex-col">
+      {/* Шапка как на макете */}
+      <header className="h-36 bg-gradient-to-b from-[#6A4CFF] to-[#5936F2] text-white shadow-md">
+        <div className="h-full max-w-[480px] mx-auto flex items-end justify-center pb-2">
+          <img src={PRO} alt="Pro Survey" className="h-10" />
         </div>
+      </header>
 
-        {/* Текст политики — основная прокручиваемая область */}
+      {/* Кастомный скроллбар только для области политики */}
+      <style>{`
+        .policy-scroll {
+          scrollbar-width: thin;              /* Firefox */
+          scrollbar-color: #B9B6FF #F1F1FF;   /* Firefox */
+        }
+        .policy-scroll::-webkit-scrollbar { width: 8px; }
+        .policy-scroll::-webkit-scrollbar-track {
+          background: #F1F1FF;
+          border-radius: 12px;
+        }
+        .policy-scroll::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #8F7BFF, #6A4CFF);
+          border-radius: 12px;
+        }
+        .policy-scroll::-webkit-scrollbar-thumb:hover {
+          filter: brightness(0.95);
+        }
+      `}</style>
+
+      {/* Контент страницы */}
+      <main className="flex-1 max-w-[480px] w-full mx-auto px-4 sm:px-6 pt-6 pb-28">
+        {/* Заголовок по центру */}
+        <h1 className="text-center text-[28px] leading-8 font-bold text-[#6A4CFF] mb-4">
+          {privacyText.title}
+        </h1>
+
+        {/* Прокручиваемая область с текстом (на самой странице) */}
         <div
           ref={contentRef}
-          className="flex-1 bg-gray-50 rounded-2xl p-4 border border-gray-100 shadow-[0_6px_20px_rgba(2,6,23,0.06)] overflow-y-auto"
+          className="policy-scroll min-h-[420px] max-h-[62vh] sm:max-h-[66vh] overflow-y-auto rounded-2xl bg-white border border-[#E7E7F5] px-4 py-3 text-[13px] leading-[20px] text-[#4B5563] shadow-[0_6px_20px_rgba(2,6,23,0.06)]"
         >
-          <div className="prose prose-sm max-w-none">
-            <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm">
-              {currentText.content}
-            </p>
+          <pre className="whitespace-pre-wrap font-sans">
+            {privacyText.content}
+          </pre>
+        </div>
+      </main>
+
+      {/* Нижняя панель — кнопка как в экране авторизации */}
+      <div className="fixed left-0 right-0 bottom-0">
+        <div className="mx-auto w-full max-w-[480px] px-4 sm:px-6 pb-5">
+          <div className="rounded-2xl bg-[#EDEAFF] p-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
+            >
+              {privacyText.back}
+            </button>
           </div>
-
-          {!hasScrolledToEnd && (
-            <div className="mt-4 text-xs text-gray-500 text-center select-none">
-              {currentText.readHint}
-            </div>
-          )}
-        </div>
-
-        {/* Чекбокс */}
-        <div className="mt-4 bg-white rounded-xl p-4 border border-gray-200">
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={hasAccepted}
-              onChange={(e) => setHasAccepted(e.target.checked)}
-              className="mt-0.5 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">
-              {currentText.accept}
-            </span>
-          </label>
-        </div>
-
-        {/* Кнопки снизу */}
-        <div className="mt-4 flex gap-3">
-
-          <button
-            onClick={handleAccept}
-            disabled={!hasAccepted}
-            className={`flex-1 py-4 px-6 rounded-xl font-medium text-lg transition-all duration-200 ${
-              hasAccepted
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {currentText.confirm}
-          </button>
         </div>
       </div>
     </div>

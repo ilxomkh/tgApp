@@ -1,22 +1,28 @@
-// tg-app/src/components/Main/BottomNav.jsx
 import React from 'react';
+import { HomeIcon, UsersIcon, TicketIcon, UserIcon } from './icons';
+
+const mapIcon = {
+  home: HomeIcon,
+  invite: UsersIcon,
+  lottery: TicketIcon,
+  profile: UserIcon
+};
 
 const BottomNav = ({ tabs, activeTab, onChange }) => (
   <div className="fixed bottom-0 left-0 right-0 z-20">
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto max-w-md px-3">
       <nav
         className="
-          mx-3 mb-3 rounded-2xl border border-emerald-200/50
-          bg-emerald-600/90 text-white backdrop-blur-md
-          shadow-[0_10px_30px_rgba(16,185,129,0.35)]
+          mb-3 rounded-2xl border border-[#E6E6F5]
+          bg-white text-[#7A7A8F] shadow-[0_10px_30px_rgba(40,40,80,0.12)]
           pb-[env(safe-area-inset-bottom)]
         "
         role="tablist"
         aria-label="Bottom navigation"
       >
-        <div className={`grid grid-cols-4`}>
+        <div className="grid grid-cols-4">
           {tabs.map((tab) => {
-            const Icon = tab.icon;
+            const Icon = mapIcon[tab.id];
             const isActive = activeTab === tab.id;
 
             return (
@@ -28,50 +34,25 @@ const BottomNav = ({ tabs, activeTab, onChange }) => (
                 aria-selected={isActive}
                 title={tab.label}
                 className={`
-                  group relative flex flex-col items-center justify-center
-                  px-2 py-2.5 sm:py-3
-                  transition-colors duration-200
-                  focus:outline-none
-                  focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-600/90
-                  ${isActive ? 'text-white' : 'text-white/85 hover:text-white'}
+                  relative flex flex-col items-center justify-center
+                  py-3 transition-colors
+                  ${isActive ? 'text-[#5E5AF6]' : 'text-[#7A7A8F] hover:text-[#5E5AF6]'}
                 `}
               >
-                {/* Active highlight pill (исправлено: не во всю высоту, не перехватывает клики) */}
+                {/* легкая подсветка активного */}
                 <span
                   aria-hidden
                   className={`
-                    pointer-events-none absolute inset-x-1 top-1 bottom-1
-                    rounded-xl transition-opacity duration-200
-                    ${isActive ? 'opacity-100 bg-white/12' : 'opacity-0 group-hover:opacity-10 bg-white/10'}
+                    pointer-events-none absolute inset-x-6 bottom-1 h-1 rounded-full
+                    ${isActive ? 'bg-[#5E5AF6]' : 'bg-transparent'}
                   `}
                 />
-
-                {/* Icon */}
                 <span className="inline-flex items-center justify-center">
-                  <Icon active={isActive} size={22} className="block" />
+                  <Icon active={isActive} />
                 </span>
-
-                {/* Label (исправлено: перенос до 2 строк, центрирование и компактный line-height) */}
-                <span
-                  className={`
-                    mt-1 text-[10.5px] sm:text-[11px] font-semibold tracking-wide
-                    text-center leading-tight px-1
-                    line-clamp-2
-                    ${isActive ? 'opacity-100' : 'opacity-95'}
-                  `}
-                >
+                <span className="mt-1 text-[11px] font-semibold leading-tight">
                   {tab.label}
                 </span>
-
-                {/* Active underline (исправлено: позиция и видимость) */}
-                <span
-                  aria-hidden
-                  className={`
-                    pointer-events-none absolute left-8 right-8 bottom-1
-                    h-1 rounded-full transition-opacity duration-200
-                    ${isActive ? 'bg-white/90 opacity-100' : 'opacity-0'}
-                  `}
-                />
               </button>
             );
           })}
