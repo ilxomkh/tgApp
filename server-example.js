@@ -14,7 +14,7 @@ app.use(express.json());
 const config = {
   TALLY_WEBHOOK_SECRET: process.env.TALLY_WEBHOOK_SECRET || '',
   // API базовый URL
-  API_BASE_URL: process.env.API_BASE_URL || 'http://10.2.50.27:8010/api',
+  API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:8010/api',
 };
 
 /**
