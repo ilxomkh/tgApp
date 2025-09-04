@@ -1,36 +1,70 @@
 // tg-app/src/components/Main/tabs/ProfileTab/ProfileTab.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useLanguage } from "../../../../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { useApi } from "../../../../hooks/useApi";
+import { formatDate } from "../../../../utils/validation";
 import LanguageSelector from "../../../LanguageSelector";
+import ProfileEditForm from "../../../ProfileEditForm";
 
 const ProfileTab = ({ t = {}, onClose }) => {
-  const { user } = useAuth();
+  const { user, refreshUserProfile } = useAuth();
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
+  const { getUserProfile, loading, error } = useApi();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = React.useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
 
   // ---------- Переводы ----------
   const translations = {
     ru: {
       phoneNumber: "Номер телефона:",
+      fullName: "Полное имя:",
+      email: "Email:",
+      birthDate: "Дата рождения:",
+      balance: "Баланс:",
+      editProfile: "Редактировать профиль",
       projectInfo: "Информация о проекте",
       publicOffer: "Публичная оферта",
       changeLang: "Изменить язык",
       support: "Служба поддержки",
       orderSurvey: "Заказать опрос",
+      loading: "Загрузка...",
+      error: "Ошибка загрузки профиля",
     },
     uz: {
       phoneNumber: "Telefon raqami:",
+      fullName: "To'liq ism:",
+      email: "Email:",
+      birthDate: "Tug'ilgan sana:",
+      balance: "Balans:",
+      editProfile: "Profilni tahrirlash",
       projectInfo: "Loyiha haqida ma'lumot",
       publicOffer: "Ochiq taklif",
       changeLang: "Tilni o'zgartirish",
       support: "Qo'llab-quvvatlash xizmati",
       orderSurvey: "So'rov buyurtma qilish",
+      loading: "Yuklanmoqda...",
+      error: "Profilni yuklashda xatolik",
     },
   };
   const localT = translations[language || "ru"];
+
+  // Загружаем профиль пользователя при монтировании
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (user) {
+        const result = await getUserProfile();
+        if (result.success) {
+          setUserProfile(result.data);
+        }
+      }
+    };
+
+    loadProfile();
+  }, [user, getUserProfile]);
 
   const handleMenuClick = (route) => {
     if (route === "/change-language") {
@@ -38,6 +72,20 @@ const ProfileTab = ({ t = {}, onClose }) => {
     } else {
       navigate(route);
     }
+  };
+
+  const handleEditProfile = () => {
+    setIsEditMode(true);
+  };
+
+  const handleSaveProfile = async () => {
+    setIsEditMode(false);
+    // Обновляем профиль в контексте
+    await refreshUserProfile();
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
   };
 
   const handleLanguageClose = () => {
@@ -67,9 +115,67 @@ const ProfileTab = ({ t = {}, onClose }) => {
               </svg>
             </div>
 
-            {/* Номер телефона */}
-            <p className="text-white/90 text-sm mb-1">{localT.phoneNumber}</p>
-            <p className="text-xl font-bold">+998 94 666 46 74</p>
+            {/* Индикатор загрузки */}
+            {loading && (
+              <div className="text-center py-4">
+                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                <p className="text-white/80 text-sm mt-2">{localT.loading}</p>
+              </div>
+            )}
+
+            {/* Ошибка загрузки */}
+            {error && (
+              <div className="text-center py-4">
+                <p className="text-red-200 text-sm">{localT.error}</p>
+              </div>
+            )}
+
+            {/* Данные профиля */}
+            {userProfile && !loading && !error && (
+              <>
+                {/* Полное имя */}
+                {userProfile.full_name && (
+                  <>
+                    <p className="text-white/90 text-sm mb-1">{localT.fullName}</p>
+                    <p className="text-xl font-bold mb-3">{userProfile.full_name}</p>
+                  </>
+                )}
+
+                {/* Номер телефона */}
+                <p className="text-white/90 text-sm mb-1">{localT.phoneNumber}</p>
+                <p className="text-xl font-bold mb-3">{userProfile.phone_number}</p>
+
+                {/* Email */}
+                {userProfile.email && (
+                  <>
+                    <p className="text-white/90 text-sm mb-1">{localT.email}</p>
+                    <p className="text-lg font-semibold mb-3">{userProfile.email}</p>
+                  </>
+                )}
+
+                {/* Дата рождения */}
+                {userProfile.birth_date && (
+                  <>
+                    <p className="text-white/90 text-sm mb-1">{localT.birthDate}</p>
+                    <p className="text-lg font-semibold mb-3">{formatDate(userProfile.birth_date)}</p>
+                  </>
+                )}
+
+                {/* Баланс */}
+                <p className="text-white/90 text-sm mb-1">{localT.balance}</p>
+                <p className="text-2xl font-bold">{userProfile.balance?.toLocaleString()} сум</p>
+              </>
+            )}
+
+            {/* Кнопка редактирования */}
+            {userProfile && !loading && !error && (
+              <button
+                onClick={handleEditProfile}
+                className="mt-4 px-6 py-2 bg-white/20 rounded-lg text-white hover:bg-white/30 transition-colors"
+              >
+                {localT.editProfile}
+              </button>
+            )}
           </div>
         </div>
 
@@ -392,6 +498,18 @@ const ProfileTab = ({ t = {}, onClose }) => {
         isOpen={isLanguageModalOpen} 
         onClose={handleLanguageClose} 
       />
+
+      {/* Модальное окно редактирования профиля */}
+      {isEditMode && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <ProfileEditForm 
+              onSave={handleSaveProfile}
+              onCancel={handleCancelEdit}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

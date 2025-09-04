@@ -1,11 +1,19 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
+import { useApi } from "../../../hooks/useApi";
 
-const InviteTab = ({ locale = "ru", refCode }) => {
+const InviteTab = ({ locale = "ru", user }) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const { getInviteStats, loading, error } = useApi();
   const [toast, setToast] = React.useState(null);
+  const [inviteStats, setInviteStats] = useState({
+    invited: 0,
+    active: 0,
+    waiting_amount: 0,
+    profit: 0
+  });
 
   // ---------- Переводы ----------
   const translations = {
@@ -23,6 +31,9 @@ const InviteTab = ({ locale = "ru", refCode }) => {
       copy: "Копировать",
       copied: "Ссылка скопирована",
       copyFail: "Не удалось скопировать",
+      loading: "Загрузка...",
+      error: "Ошибка загрузки статистики",
+      currency: "сум",
     },
     uz: {
       inviteTitle: "Do'stingizni taklif qiling va mablag' oling",
@@ -38,23 +49,36 @@ const InviteTab = ({ locale = "ru", refCode }) => {
       copy: "Nusxalash",
       copied: "Havola nusхalandi",
       copyFail: "Nusхalab bo'lmadi",
+      loading: "Yuklanmoqda...",
+      error: "Statistikani yuklashda xatolik",
+      currency: "so'm",
     },
   };
   const t = translations[language || locale];
 
+  // Загружаем статистику приглашений при монтировании
+  useEffect(() => {
+    const loadInviteStats = async () => {
+      const result = await getInviteStats();
+      if (result.success) {
+        setInviteStats(result.data);
+      } else {
+        console.error('Failed to load invite stats:', result.error);
+      }
+    };
+
+    loadInviteStats();
+  }, [getInviteStats]);
+
   // ---------- Реферальная ссылка ----------
   const refLink = React.useMemo(() => {
-    const code =
-      refCode ||
-      localStorage.getItem("ref_code") ||
-      localStorage.getItem("user_ref_code") ||
-      "demo123";
+    const code = user?.referral_code || "demo123";
     const origin =
       typeof window !== "undefined"
         ? window.location.origin
         : "https://example.com";
     return `${origin}/invite/${code}`;
-  }, [refCode]);
+  }, [user?.referral_code]);
 
   const showToast = (msg) => {
     if (!msg) return;
@@ -141,22 +165,46 @@ const InviteTab = ({ locale = "ru", refCode }) => {
 
       {/* Статистика */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
-          <p className="text-gray-600 text-sm mb-2">{t.invited}</p>
-          <p className="text-[#5E5AF6] text-xl font-bold">17</p>
-        </div>
-        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
-          <p className="text-gray-600 text-sm mb-2">{t.active}</p>
-          <p className="text-[#5E5AF6] text-xl font-bold">10</p>
-        </div>
-        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
-          <p className="text-gray-600 text-sm mb-2">{t.pending}</p>
-          <p className="text-[#5E5AF6] text-xl font-bold">170 000 сум</p>
-        </div>
-        <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
-          <p className="text-gray-600 text-sm mb-2">{t.earned}</p>
-          <p className="text-[#5E5AF6] text-xl font-bold">100 000 сум</p>
-        </div>
+        {/* Индикатор загрузки */}
+        {loading && (
+          <div className="col-span-2 text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5E5AF6]"></div>
+            <p className="text-gray-500 mt-2">{t.loading}</p>
+          </div>
+        )}
+
+        {/* Ошибка загрузки */}
+        {error && (
+          <div className="col-span-2 bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-600 text-sm">{t.error}: {error}</p>
+          </div>
+        )}
+
+        {/* Статистика */}
+        {!loading && !error && (
+          <>
+            <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+              <p className="text-gray-600 text-sm mb-2">{t.invited}</p>
+              <p className="text-[#5E5AF6] text-xl font-bold">{inviteStats.invited}</p>
+            </div>
+            <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+              <p className="text-gray-600 text-sm mb-2">{t.active}</p>
+              <p className="text-[#5E5AF6] text-xl font-bold">{inviteStats.active}</p>
+            </div>
+            <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+              <p className="text-gray-600 text-sm mb-2">{t.pending}</p>
+              <p className="text-[#5E5AF6] text-xl font-bold">
+                {inviteStats.waiting_amount?.toLocaleString()} {t.currency}
+              </p>
+            </div>
+            <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
+              <p className="text-gray-600 text-sm mb-2">{t.earned}</p>
+              <p className="text-[#5E5AF6] text-xl font-bold">
+                {inviteStats.profit?.toLocaleString()} {t.currency}
+              </p>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Кнопки действий */}

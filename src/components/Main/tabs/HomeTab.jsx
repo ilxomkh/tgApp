@@ -1,5 +1,5 @@
 // tg-app/src/components/Main/tabs/HomeTab.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GradientCard, SoftButton } from '../ui';
@@ -9,34 +9,32 @@ import SurveyModal from '../SurveyModal';
 import { useSurvey } from '../../../hooks/useSurvey';
 
 
-const HomeTab = ({ t, onOpenProfile }) => {
+const HomeTab = ({ t, onOpenProfile, user }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
-  const { getSurvey, submitSurvey, loading } = useSurvey();
+  const [surveys, setSurveys] = useState([]);
+  const [surveysLoading, setSurveysLoading] = useState(true);
+  const { getSurvey, submitSurvey, getAvailableSurveys, loading } = useSurvey();
 
-  // Моковые данные опросов (замените на реальные данные с бекенда)
-  const surveys = [
-    {
-      id: 'intro',
-      title: t.themeIntro,
-      lines: [t.g12k],
-      type: 'prize'
-    },
-    {
-      id: 'shops',
-      title: t.themeShop,
-      lines: [t.g12k, t.l3m],
-      type: 'mixed'
-    },
-    {
-      id: 'banks',
-      title: t.themeBank,
-      lines: [t.g10k_l1m],
-      type: 'lottery'
-    }
-  ];
+  // Загружаем опросы из Tally при монтировании компонента
+  useEffect(() => {
+    const loadSurveys = async () => {
+      try {
+        setSurveysLoading(true);
+        const availableSurveys = await getAvailableSurveys();
+        setSurveys(availableSurveys);
+      } catch (error) {
+        console.error('Error loading surveys:', error);
+        // В случае ошибки показываем пустой список
+        setSurveys([]);
+      } finally {
+        setSurveysLoading(false);
+      }
+    };
+
+    loadSurveys();
+  }, [getAvailableSurveys]);
 
   const handleSurveyStart = async (surveyId) => {
     try {
@@ -81,7 +79,7 @@ const HomeTab = ({ t, onOpenProfile }) => {
             <div>
               <p className="text-white/90 text-sm">{t.balance}</p>
               <p className="text-3xl font-extrabold tracking-tight">
-                {user?.bonusBalance || 0} {t.sum}
+                {user?.balance || 0} {t.sum}
               </p>
             </div>
           </div>
@@ -99,15 +97,28 @@ const HomeTab = ({ t, onOpenProfile }) => {
       </GradientCard>
 
       <div className="space-y-4">
-        {surveys.map((survey) => (
-          <SurveyCard 
-            key={survey.id}
-            title={survey.title} 
-            lines={survey.lines} 
-            ctaLabel={t.survey} 
-            onStart={() => handleSurveyStart(survey.id)} 
-          />
-        ))}
+        {surveysLoading ? (
+          // Показываем загрузку
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7C65FF]"></div>
+          </div>
+        ) : surveys.length > 0 ? (
+          // Показываем опросы
+          surveys.map((survey) => (
+            <SurveyCard 
+              key={survey.id}
+              title={survey.title} 
+              lines={survey.displayInfo?.lines || []} 
+              ctaLabel={t.survey} 
+              onStart={() => handleSurveyStart(survey.id)} 
+            />
+          ))
+        ) : (
+          // Показываем сообщение, если нет опросов
+          <div className="text-center py-8 text-gray-500">
+            {t.noSurveys || 'Нет доступных опросов'}
+          </div>
+        )}
       </div>
 
       {/* Модальное окно опроса */}

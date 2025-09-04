@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { SuccessModal } from './ui';
 import WaveOverlay from '../WaveOverlay';
 import ProSVG from '../../assets/Pro.svg';
+import TallySurvey from '../TallySurvey';
 
 const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -55,6 +56,25 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const question = survey.questions[currentQuestion];
   const isLastQuestion = currentQuestion === survey.questions.length - 1;
   const canProceed = answers[question?.id];
+
+  // Если это Tally форма, показываем специальный компонент
+  if (survey?.type === 'tally') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
+        <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+          <TallySurvey
+            surveyId={survey.id}
+            onComplete={(result) => {
+              setSurveyResult(result);
+              setIsCompleted(true);
+            }}
+            onClose={onClose}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (isCompleted && surveyResult) {
     return (

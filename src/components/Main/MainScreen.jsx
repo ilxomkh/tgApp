@@ -11,7 +11,7 @@ import Header from '../header';
 
 const MainScreen = () => {
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, refreshUserProfile } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('home');
   const [showProfile, setShowProfile] = useState(false);
@@ -29,6 +29,17 @@ const MainScreen = () => {
       }
     }
   }, [location.search]);
+
+  // Загружаем актуальные данные пользователя при монтировании
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user) {
+        await refreshUserProfile();
+      }
+    };
+
+    loadUserProfile();
+  }, [user, refreshUserProfile]);
 
   const t = useMemo(() => ({
     ru: {
@@ -49,6 +60,7 @@ const MainScreen = () => {
       lottery: "Итоги",
       profile: "Профиль",
       sum: "сум",
+      noSurveys: "Нет доступных опросов",
       // Новые переводы для LotteryTab
       lotThemeIntro: "Тема: Знакомство",
       lotThemeShop: "Тема: Интернет магазины",
@@ -74,6 +86,7 @@ const MainScreen = () => {
       lottery: "Natijalar",
       profile: "Profil",
       sum: "so'm",
+      noSurveys: "Mavjud so'rovlar yo'q",
       // Новые переводы для LotteryTab
       lotThemeIntro: "Mavzu: Tanishuv",
       lotThemeShop: "Mavzu: Internet do'konlar",
@@ -119,8 +132,8 @@ const MainScreen = () => {
           <ProfileTab t={t} onClose={closeProfile} />
         ) : (
           <>
-            {activeTab === 'home' && <HomeTab t={t} onOpenProfile={openProfile} />}
-            {activeTab === 'invite' && <InviteTab locale={language} refCode={user?.referralCode} />}
+            {activeTab === 'home' && <HomeTab t={t} onOpenProfile={openProfile} user={user} />}
+            {activeTab === 'invite' && <InviteTab locale={language} user={user} />}
             {activeTab === 'lottery' && <LotteryTab t={t} />}
           </>
         )}

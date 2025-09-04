@@ -3,6 +3,8 @@ import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
+import { isValidUzbekPhone, isValidOtp, cleanOtp } from "../utils/validation";
+import { getMessage, getApiErrorMessage } from "../constants/messages";
 import PRO from "../assets/Pro.svg";
 import error from "../assets/X.svg";
 
@@ -102,15 +104,27 @@ const AuthScreen = () => {
   };
 
   const onSendOtp = async () => {
-    if (phoneDigits.length !== 9) return;
+    // Валидация номера телефона
+    if (!isValidUzbekPhone(phoneE164)) {
+      setErrorText(getMessage('INVALID_PHONE', language));
+      return;
+    }
+    
     setIsLoading(true);
     setErrorText("");
     try {
       const ok = await sendOtp(phoneE164);
-      if (ok) setStep("otp");
-      else setErrorText("Ошибка отправки кода");
-    } catch {
-      setErrorText("Ошибка отправки кода");
+      if (ok) {
+        setStep("otp");
+        // Очищаем OTP поля при переходе к следующему шагу
+        setOtp(Array(OTP_LENGTH).fill(""));
+      } else {
+        setErrorText(getMessage('NETWORK_ERROR', language));
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      const errorMessage = getApiErrorMessage(error, language);
+      setErrorText(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -118,15 +132,26 @@ const AuthScreen = () => {
 
   const onVerify = async () => {
     const code = otpToString();
-    if (code.length !== OTP_LENGTH) return;
+    
+    // Валидация OTP кода
+    if (!isValidOtp(code)) {
+      setErrorText(getMessage('INVALID_OTP', language));
+      return;
+    }
+    
     setIsLoading(true);
     setErrorText("");
     try {
       const ok = await login(phoneE164, code);
-      if (ok) navigate("/main");
-      else setErrorText(T.wrongOtp);
-    } catch {
-      setErrorText(T.wrongOtp);
+      if (ok) {
+        navigate("/main");
+      } else {
+        setErrorText(T.wrongOtp);
+      }
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      const errorMessage = getApiErrorMessage(error, language);
+      setErrorText(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,14 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useApi } from '../hooks/useApi';
+import { 
+  isValidCardNumber, 
+  getCardType, 
+  maskCardNumber, 
+  formatCardNumber 
+} from '../utils/validation';
 import Header from './header';
 import BottomNav from './Main/BottomNav';
 
@@ -136,7 +143,8 @@ const SuccessModal = ({ isOpen, onClose, t, onContinue }) => {
 const WithdrawScreen = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, refreshUserProfile } = useAuth();
+  const { getCards, addCard, createPayment, loading, error } = useApi();
 
   const [step, setStep] = useState('select-card'); // select-card | enter-card | success | cards-list | enter-amount
   const [cardDigits, setCardDigits] = useState('');
@@ -144,9 +152,26 @@ const WithdrawScreen = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [errorText, setErrorText] = useState('');
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [userCards, setUserCards] = useState([]);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
 
   const cardInputRef = useRef(null);
   const amountInputRef = useRef(null);
+
+  // Загружаем карты пользователя при монтировании
+  useEffect(() => {
+    const loadUserCards = async () => {
+      const result = await getCards();
+      if (result.success) {
+        setUserCards(result.data);
+      } else {
+        console.error('Failed to load cards:', result.error);
+      }
+    };
+
+    loadUserCards();
+  }, [getCards]);
 
   // BottomNav props
   const tabs = [
@@ -188,7 +213,11 @@ const WithdrawScreen = () => {
       cardPlaceholder: "8600 0000 0000 0000",
       amountPlaceholder: "30 000",
       notEnoughBalance: "Sizning balansingizda yetarli mablag' mavjud emas",
-      withdraw: "Chiqarish"
+      withdraw: "Chiqarish",
+      loading: "Yuklanmoqda...",
+      error: "Xatolik yuz berdi",
+      invalidCard: "Noto'g'ri karta raqami",
+      cardExists: "Bu karta allaqachon qo'shilgan"
     },
     ru: {
       balance: "Мой баланс",
@@ -209,11 +238,19 @@ const WithdrawScreen = () => {
       cardPlaceholder: "8600 0000 0000 0000",
       amountPlaceholder: "30 000",
       notEnoughBalance: "У вас недостаточно средств на балансе для вывода",
-      withdraw: "Вывести"
+      withdraw: "Вывести",
+      processing: "Обработка...",
+      paymentSuccess: "Платеж успешно выполнен!",
+      paymentError: "Произошла ошибка при платеже",
+      insufficientFunds: "Недостаточно средств на балансе",
+      loading: "Загрузка...",
+      error: "Произошла ошибка",
+      invalidCard: "Неверный номер карты",
+      cardExists: "Эта карта уже добавлена"
     }
   }[language];
 
-  const bonus = Number(user?.bonusBalance || 0);
+  const bonus = Number(user?.balance || 0);
 
   const savedCards = useMemo(() => ([
     {
@@ -231,7 +268,10 @@ const WithdrawScreen = () => {
   ]), [user?.name]);
 
   // ---- Validation ----
-  const validateCard = () => cardDigits.length === 16;
+  const validateCard = () => {
+    if (cardDigits.length < 13) return false;
+    return isValidCardNumber(cardDigits);
+  };
   const amountNum = Number(amountDigits || 0);
   const validateAmount = () => amountNum >= MIN_WITHDRAW && amountNum <= bonus;
 
@@ -281,22 +321,41 @@ const WithdrawScreen = () => {
     setErrorText('');
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (step === 'enter-card') {
       if (!validateCard()) {
-        setErrorText('Некорректный номер карты');
+        setErrorText(t.invalidCard);
         return;
       }
-      const brand = detectBrand(cardDigits);
-      const newCard = {
-        digits: cardDigits,
-        holder: user?.name || 'Ergashev Ahmad',
-        brand: brand,
-        color: getCardColor(brand)
-      };
-      setSelectedCard(newCard);
-      setStep('success');
-      setIsSuccessModalOpen(true);
+
+      try {
+        const result = await addCard(cardDigits);
+        if (result.success) {
+          const brand = getCardType(cardDigits);
+          const newCard = {
+            id: result.data.id,
+            digits: result.data.card_number,
+            holder: user?.full_name || user?.name || 'User',
+            brand: brand,
+            color: getCardColor(brand),
+            card_type: result.data.card_type
+          };
+          setSelectedCard(newCard);
+          setStep('success');
+          setIsSuccessModalOpen(true);
+          
+          // Обновляем список карт
+          const cardsResult = await getCards();
+          if (cardsResult.success) {
+            setUserCards(cardsResult.data);
+          }
+        } else {
+          setErrorText(result.error || t.error);
+        }
+      } catch (error) {
+        console.error('Error adding card:', error);
+        setErrorText(t.error);
+      }
       return;
     }
     if (step === 'cards-list') {
@@ -309,6 +368,40 @@ const WithdrawScreen = () => {
     setCardDigits(card.digits);
     setStep('enter-amount');
     setErrorText('');
+  };
+
+  const handlePayment = async () => {
+    if (!validateAmount()) {
+      return;
+    }
+
+    setIsPaymentProcessing(true);
+    setPaymentError('');
+
+    try {
+      const paymentData = {
+        card_number: selectedCard?.digits || cardDigits,
+        amount: Number(amountDigits)
+      };
+
+      const result = await createPayment(paymentData);
+
+      if (result.success) {
+        // Показываем успешное сообщение
+        alert(t.paymentSuccess);
+        // Обновляем баланс пользователя
+        await refreshUserProfile();
+        // Переходим обратно к списку карт
+        setStep('cards-list');
+      } else {
+        setPaymentError(result.error || t.paymentError);
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      setPaymentError(t.paymentError);
+    } finally {
+      setIsPaymentProcessing(false);
+    }
   };
 
   // ---- UI atoms ----
@@ -380,7 +473,7 @@ const WithdrawScreen = () => {
   );
 
   const renderEnterCard = () => {
-    const brand = detectBrand(cardDigits);
+    const brand = getCardType(cardDigits);
     const cardColor = getCardColor(brand);
     const cardIcon = getCardIcon(brand);
     
@@ -454,9 +547,44 @@ const WithdrawScreen = () => {
 
       <div>
         <h4 className="text-sm font-semibold text-gray-500 mb-4">{t.myCards}</h4>
+        
+        {/* Индикатор загрузки */}
+        {loading && (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5E5AF6]"></div>
+            <p className="text-gray-500 mt-2">{t.loading}</p>
+          </div>
+        )}
+
+        {/* Ошибка загрузки */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-600 text-sm">{t.error}: {error}</p>
+          </div>
+        )}
+
         <div className="space-y-4">
+          {/* Карты пользователя */}
+          {userCards.map((card) => (
+            <PrettyCard
+              key={card.id}
+              digits={card.card_number}
+              holder={user?.full_name || user?.name || 'User'}
+              brand={card.card_type?.toUpperCase() || getCardType(card.card_number)?.toUpperCase()}
+              color={getCardColor(card.card_type?.toUpperCase() || getCardType(card.card_number)?.toUpperCase())}
+              onClick={() => handleCardSelect({
+                id: card.id,
+                digits: card.card_number,
+                holder: user?.full_name || user?.name || 'User',
+                brand: card.card_type?.toUpperCase() || getCardType(card.card_number)?.toUpperCase(),
+                color: getCardColor(card.card_type?.toUpperCase() || getCardType(card.card_number)?.toUpperCase())
+              })}
+              showMask={true}
+            />
+          ))}
+          
           {/* Новая добавленная карта (если есть) */}
-          {selectedCard && (
+          {selectedCard && !userCards.find(card => card.id === selectedCard.id) && (
             <PrettyCard
               digits={selectedCard.digits}
               holder={selectedCard.holder}
@@ -466,31 +594,23 @@ const WithdrawScreen = () => {
               showMask={true}
             />
           )}
-          
-          {/* Остальные карты для выбора */}
-          {[1, 2, 3].map((i) => (
-            <PrettyCard
-              key={i}
-              digits="8600123412345678"
-              holder="Ergashev Ahmad"
-              brand="UZCARD"
-              color={getCardColor('UZCARD')}
-              onClick={() => handleCardSelect({
-                digits: '8600123412345678',
-                holder: 'Ergashev Ahmad',
-                brand: 'UZCARD',
-                color: getCardColor('UZCARD')
-              })}
-              showMask={true}
-            />
-          ))}
         </div>
+
+        {/* Кнопка добавления новой карты */}
+        <button 
+          onClick={handleNewCard}
+          className="w-full mt-4 p-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-[#5E5AF6] hover:text-[#5E5AF6] transition-colors"
+        >
+          <div className="flex flex-col items-center">
+            <span className="text-lg font-medium">{t.addCard}</span>
+          </div>
+        </button>
       </div>
     </div>
   );
 
   const renderEnterAmount = () => {
-    const brand = detectBrand(cardDigits);
+    const brand = getCardType(cardDigits);
     const color = getCardColor(brand);
     const amountNum = Number(amountDigits || 0);
     
@@ -578,22 +698,24 @@ const WithdrawScreen = () => {
           </p>
         </div>
 
+        {/* Ошибка платежа */}
+        {paymentError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-600 text-sm">{paymentError}</p>
+          </div>
+        )}
+
         {/* Кнопка вывода */}
         <button
-          onClick={() => {
-            if (amountNum >= MIN_WITHDRAW && amountNum <= bonus) {
-              // TODO: Здесь будет логика вывода средств
-              console.log('Вывод средств:', amountNum, 'на карту:', maskCard(cardDigits));
-            }
-          }}
-          disabled={!validateAmount()}
+          onClick={handlePayment}
+          disabled={!validateAmount() || isPaymentProcessing}
           className={`w-full h-12 rounded-xl font-medium transition ${
-            validateAmount()
+            validateAmount() && !isPaymentProcessing
               ? 'bg-[#5E5AF6] text-white hover:bg-[#4A46E8] active:scale-[0.99]'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >
-          {t.withdraw} {amountDigits ? formatMoneyStr(amountDigits) : ''} {t.currency}
+          {isPaymentProcessing ? t.processing : `${t.withdraw} ${amountDigits ? formatMoneyStr(amountDigits) : ''} ${t.currency}`}
         </button>
       </div>
     );
