@@ -1,5 +1,6 @@
 import config from '../config.js';
 import { API_ENDPOINTS, ERROR_MESSAGES } from '../types/api.js';
+import { getTelegramUserId } from '../utils/telegram.js';
 
 // API конфигурация
 const API_BASE_URL = config.API_BASE_URL;
@@ -7,11 +8,27 @@ const API_BASE_URL = config.API_BASE_URL;
 // Базовые заголовки для запросов
 const getHeaders = () => {
   const token = localStorage.getItem('auth_token');
-  return {
+  const telegramId = getTelegramUserId();
+  
+  const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` })
   };
+
+  // Добавляем X-Telegram-Id заголовок если доступен ID пользователя Telegram
+  if (telegramId) {
+    headers['X-Telegram-Id'] = telegramId;
+    if (config.DEBUG_MODE) {
+      console.log('Added X-Telegram-Id header:', telegramId);
+    }
+  } else {
+    if (config.DEBUG_MODE) {
+      console.warn('Telegram ID not available, X-Telegram-Id header not added');
+    }
+  }
+
+  return headers;
 };
 
 // Обработка ошибок

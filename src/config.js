@@ -6,6 +6,9 @@ export const config = {
   // Режим отладки
   DEBUG_MODE: import.meta.env.VITE_DEBUG_MODE === 'true',
   
+  // Telegram ID для режима разработки (когда не в Telegram)
+  DEV_TELEGRAM_ID: import.meta.env.VITE_DEV_TELEGRAM_ID || null,
+  
   // Таймауты для запросов
   REQUEST_TIMEOUT: 10000, // 10 секунд
   
