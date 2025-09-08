@@ -5,28 +5,32 @@ import { API_ENDPOINTS, ERROR_MESSAGES } from '../types/api.js';
 // =======================
 // Telegram helpers
 // =======================
-const readTelegramContext = () => {
-  try {
-    const tg = window?.Telegram?.WebApp;
-    if (!tg) return { initData: null, telegramId: null };
+// helpers/telegram.js (новый маленький хелпер)
+export const readTelegramContext = () => {
+  const tg = window?.Telegram?.WebApp;
+  try { tg?.ready?.(); } catch (_) {}
+  const initData = tg?.initData || null;
+  const telegramIdWebApp = tg?.initDataUnsafe?.user?.id ?? null;
 
-    // Сигнализируем Telegram, что WebApp готов (безопасно вызывать много раз)
-    try { tg.ready?.(); } catch (_) {}
+  // fallback: ?tg_id=123...
+  const qsId = new URLSearchParams(window.location.search).get('tg_id');
 
-    const initData = tg.initData || null;                          // подписанная строка для бэка
-    const telegramId = tg.initDataUnsafe?.user?.id ?? null;        // ID пользователя (fallback)
-    return { initData, telegramId };
-  } catch {
-    return { initData: null, telegramId: null };
-  }
+  // запомним dev id в localStorage (можно заранее положить руками)
+  if (qsId) localStorage.setItem('dev_tg_id', qsId);
+  const devId = localStorage.getItem('dev_tg_id');
+
+  const telegramId =
+    telegramIdWebApp ??
+    (qsId ? Number(qsId) : null) ??
+    (devId ? Number(devId) : null);
+
+  return { initData, telegramId };
 };
 
-const getTelegramHeaders = () => {
+export const getTelegramHeaders = () => {
   const { initData, telegramId } = readTelegramContext();
-  // Предпочитаем initData — на бэке она проверяется по подписи
-  if (initData) return { 'X-Telegram-Init-Data': initData };
-  if (telegramId) return { 'X-Telegram-Id': String(telegramId) };
-  // Вне Telegram (обычный браузер) ничего не добавляем — бэк вернёт 400
+  if (initData) return { 'X-Telegram-Init-Data': initData };   // правильный путь
+  if (telegramId) return { 'X-Telegram-Id': String(telegramId) }; // dev/браузер
   return {};
 };
 
