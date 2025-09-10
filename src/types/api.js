@@ -31,6 +31,7 @@
  * @property {number} bonus_balance - Баланс бонусов
  * @property {string} referral_code - Реферальный код
  * @property {string} token - JWT токен для авторизации
+ * @property {string} session_id - ID сессии для авторизации
  */
 
 /**
@@ -209,9 +210,9 @@ export const API_ENDPOINTS = {
   GET_RAFFLES: '/raffles/',
   GET_CARDS: '/payments/cards',
   ADD_CARD: '/payments/cards',
-  GET_INVITE_STATS: '/invite',
+  GET_INVITE_STATS: '/referrals/stats',
   CREATE_ORDER: '/order',
-  CREATE_PAYMENT: '/payment',
+  CREATE_PAYMENT: '/payments/take_off',
   // Tally webhook endpoints
   TALLY_WEBHOOK: '/webhook/tally',
   GET_SURVEY_RESPONSES: '/surveys/responses',

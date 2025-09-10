@@ -1,7 +1,7 @@
 // Конфигурация приложения
 export const config = {
   // API базовый URL - можно переопределить через переменные окружения
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8010/api',
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://api.prosurvey.uz/api',
   
   // Режим отладки
   DEBUG_MODE: import.meta.env.VITE_DEBUG_MODE === 'true',
@@ -23,7 +23,7 @@ export const config = {
       uz: '3xqyg9', // Registration Pro Survey Uz (используем тот же ID, но с разными языками)
     },
     // Webhook URL для получения данных от Tally
-    WEBHOOK_URL: import.meta.env.VITE_TALLY_WEBHOOK_URL || 'http://localhost/api/webhook/tally',
+    WEBHOOK_URL: import.meta.env.VITE_TALLY_WEBHOOK_URL || 'https://api.prosurvey.uz/api/webhook/tally',
     // Секретный ключ для верификации webhook (если используется)
     WEBHOOK_SECRET: import.meta.env.VITE_TALLY_WEBHOOK_SECRET || '',
   },

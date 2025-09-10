@@ -142,7 +142,7 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
   }[language];
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="p-6">
       <h2 className="text-2xl font-bold text-center mb-6 text-[#5E5AF6]">
         {t.title}
       </h2>

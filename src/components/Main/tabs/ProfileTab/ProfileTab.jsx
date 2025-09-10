@@ -6,15 +6,15 @@ import { useNavigate } from "react-router-dom";
 import { useApi } from "../../../../hooks/useApi";
 import { formatDate } from "../../../../utils/validation";
 import LanguageSelector from "../../../LanguageSelector";
-import ProfileEditForm from "../../../ProfileEditForm";
+import UserAvatar from "../../../UserAvatar";
+import { EditIcon, Pencil, PencilIcon } from "lucide-react";
 
 const ProfileTab = ({ t = {}, onClose }) => {
-  const { user, refreshUserProfile } = useAuth();
+  const { user, refreshUserProfile, logout } = useAuth();
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const { getUserProfile, loading, error } = useApi();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = React.useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
 
   // ---------- Переводы ----------
@@ -56,9 +56,14 @@ const ProfileTab = ({ t = {}, onClose }) => {
   useEffect(() => {
     const loadProfile = async () => {
       if (user) {
-        const result = await getUserProfile();
-        if (result.success) {
-          setUserProfile(result.data);
+        try {
+          const result = await getUserProfile();
+          if (result.success) {
+            setUserProfile(result.data);
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+          // 401 ошибка уже обрабатывается глобально в API сервисе
         }
       }
     };
@@ -75,17 +80,7 @@ const ProfileTab = ({ t = {}, onClose }) => {
   };
 
   const handleEditProfile = () => {
-    setIsEditMode(true);
-  };
-
-  const handleSaveProfile = async () => {
-    setIsEditMode(false);
-    // Обновляем профиль в контексте
-    await refreshUserProfile();
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditMode(false);
+    navigate('/profile-edit');
   };
 
   const handleLanguageClose = () => {
@@ -97,22 +92,16 @@ const ProfileTab = ({ t = {}, onClose }) => {
       {/* Основной контент */}
       <div className="px-2 py-2">
         {/* Карточка профиля */}
-        <div className="bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-8 text-white shadow-lg mb-8">
+        <div className="bg-gradient-to-r relative from-[#5E5AF6] to-[#7C65FF] rounded-2xl px-4 py-2 text-white shadow-lg mb-8">
           <div className="text-center">
-            {/* Иконка Земли */}
-            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="text-white"
-              >
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.94-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
-                  fill="currentColor"
-                />
-              </svg>
+            {/* Аватарка пользователя */}
+            <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 relative">
+              <UserAvatar 
+                avatarUrl={userProfile?.avatar_url} 
+                size="w-full h-full"
+                className="bg-white/20"
+                showBorder={true}
+              />
             </div>
 
             {/* Индикатор загрузки */}
@@ -133,37 +122,9 @@ const ProfileTab = ({ t = {}, onClose }) => {
             {/* Данные профиля */}
             {userProfile && !loading && !error && (
               <>
-                {/* Полное имя */}
-                {userProfile.full_name && (
-                  <>
-                    <p className="text-white/90 text-sm mb-1">{localT.fullName}</p>
-                    <p className="text-xl font-bold mb-3">{userProfile.full_name}</p>
-                  </>
-                )}
-
                 {/* Номер телефона */}
                 <p className="text-white/90 text-sm mb-1">{localT.phoneNumber}</p>
-                <p className="text-xl font-bold mb-3">{userProfile.phone_number}</p>
-
-                {/* Email */}
-                {userProfile.email && (
-                  <>
-                    <p className="text-white/90 text-sm mb-1">{localT.email}</p>
-                    <p className="text-lg font-semibold mb-3">{userProfile.email}</p>
-                  </>
-                )}
-
-                {/* Дата рождения */}
-                {userProfile.birth_date && (
-                  <>
-                    <p className="text-white/90 text-sm mb-1">{localT.birthDate}</p>
-                    <p className="text-lg font-semibold mb-3">{formatDate(userProfile.birth_date)}</p>
-                  </>
-                )}
-
-                {/* Баланс */}
-                <p className="text-white/90 text-sm mb-1">{localT.balance}</p>
-                <p className="text-2xl font-bold">{userProfile.balance?.toLocaleString()} сум</p>
+                <p className="text-xl font-bold">{userProfile.phone_number}</p>
               </>
             )}
 
@@ -171,9 +132,9 @@ const ProfileTab = ({ t = {}, onClose }) => {
             {userProfile && !loading && !error && (
               <button
                 onClick={handleEditProfile}
-                className="mt-4 px-6 py-2 bg-white/20 rounded-lg text-white hover:bg-white/30 transition-colors"
+                className="absolute top-2 right-2 rounded-full bg-white/20 p-2 text-white transition-colors"
               >
-                {localT.editProfile}
+                <PencilIcon />
               </button>
             )}
           </div>
@@ -498,18 +459,6 @@ const ProfileTab = ({ t = {}, onClose }) => {
         isOpen={isLanguageModalOpen} 
         onClose={handleLanguageClose} 
       />
-
-      {/* Модальное окно редактирования профиля */}
-      {isEditMode && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <ProfileEditForm 
-              onSave={handleSaveProfile}
-              onCancel={handleCancelEdit}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

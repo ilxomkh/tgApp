@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const LanguageSelector = ({ isOpen, onClose }) => {
+const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false }) => {
   const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
@@ -40,7 +40,11 @@ const LanguageSelector = ({ isOpen, onClose }) => {
   const confirm = () => {
     setLanguage(selected);
     onClose();
-    navigate('/onboarding');
+    
+    // Перенаправляем на онбординг только если это указано явно
+    if (shouldNavigateToOnboarding) {
+      navigate('/onboarding');
+    }
   };
 
   const closeSoft = () => {

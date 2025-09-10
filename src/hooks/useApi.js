@@ -1,10 +1,14 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import config from '../config';
 
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const requestOtp = useCallback(async (phoneNumber) => {
     setLoading(true);
@@ -48,6 +52,8 @@ export const useApi = () => {
     } catch (err) {
       const errorMessage = err.message || 'Failed to get user profile';
       setError(errorMessage);
+      
+      // 401 ошибка уже обрабатывается глобально в API сервисе
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
@@ -64,6 +70,8 @@ export const useApi = () => {
     } catch (err) {
       const errorMessage = err.message || 'Failed to update user profile';
       setError(errorMessage);
+      
+      // 401 ошибка уже обрабатывается глобально в API сервисе
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);

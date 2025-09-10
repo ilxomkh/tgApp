@@ -39,7 +39,7 @@ const MainScreen = () => {
     };
 
     loadUserProfile();
-  }, [user, refreshUserProfile]);
+  }, []); // Убираем зависимости, чтобы избежать бесконечного цикла
 
   const t = useMemo(() => ({
     ru: {
@@ -67,6 +67,11 @@ const MainScreen = () => {
       lotDate: "Дата проведения",
       lotSum: "Сумма розыгрыша",
       videoPlaceholder: "Здесь будет видео",
+      loadingLottery: "Загрузка лотерей...",
+      errorLoadingLottery: "Ошибка загрузки лотерей",
+      noLotteriesFound: "Лотереи не найдены",
+      completed: "Завершена",
+      browserNotSupportVideo: "Ваш браузер не поддерживает видео",
     },
     uz: {
       balance: "Mening balansim:",
@@ -93,6 +98,11 @@ const MainScreen = () => {
       lotDate: "O'tkazilgan sana",
       lotSum: "Lotereya summası",
       videoPlaceholder: "Bu yerda video bo'ladi",
+      loadingLottery: "Lotereyalar yuklanmoqda...",
+      errorLoadingLottery: "Lotereyalarni yuklashda xatolik",
+      noLotteriesFound: "Lotereyalar topilmadi",
+      completed: "Tugallangan",
+      browserNotSupportVideo: "Sizning brauzeringiz videoni qo'llab-quvvatlamaydi",
     }
   }[language]), [language]);
 

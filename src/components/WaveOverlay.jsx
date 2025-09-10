@@ -55,7 +55,7 @@ const WaveOverlay = ({
         </div>
       ))}
 
-      <style jsx>{`
+      <style>{`
         @keyframes waveMove {
           0% {
             transform: translateX(-50%) scale(0.3);

@@ -51,14 +51,14 @@ const LotteryTab = ({ t }) => {
         {loading && (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5E5AF6]"></div>
-            <p className="text-gray-500 mt-2">Загрузка лотерей...</p>
+            <p className="text-gray-500 mt-2">{t.loadingLottery}</p>
           </div>
         )}
 
         {/* Ошибка загрузки */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p className="text-red-600 text-sm">Ошибка загрузки лотерей: {error}</p>
+            <p className="text-red-600 text-sm">{t.errorLoadingLottery}: {error}</p>
           </div>
         )}
 
@@ -66,7 +66,7 @@ const LotteryTab = ({ t }) => {
         <div className="space-y-6">
           {raffles.length === 0 && !loading && !error && (
             <div className="text-center py-8">
-              <p className="text-gray-500">Лотереи не найдены</p>
+              <p className="text-gray-500">{t.noLotteriesFound}</p>
             </div>
           )}
           
@@ -81,7 +81,7 @@ const LotteryTab = ({ t }) => {
                 <h3 className="font-semibold text-lg">{raffle.title}</h3>
                 {!raffle.is_active && (
                   <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                    Завершена
+                    {t.completed}
                   </span>
                 )}
               </div>
@@ -108,7 +108,7 @@ const LotteryTab = ({ t }) => {
                       poster="/video-placeholder.jpg"
                     >
                       <source src={raffle.video_url} type="video/mp4" />
-                      Ваш браузер не поддерживает видео.
+                      {t.browserNotSupportVideo}
                     </video>
                   </div>
                 ) : (

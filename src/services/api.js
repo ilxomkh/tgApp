@@ -2,6 +2,13 @@
 import config from '../config.js';
 import { API_ENDPOINTS, ERROR_MESSAGES } from '../types/api.js';
 
+// Глобальный флаг для предотвращения перенаправления во время инициализации
+let isInitializing = false;
+
+export const setInitializing = (value) => {
+  isInitializing = value;
+};
+
 // =======================
 // Telegram helpers
 // =======================
@@ -42,10 +49,12 @@ const API_BASE_URL = config.API_BASE_URL;
 // Базовые заголовки для запросов
 const getHeaders = () => {
   const token = localStorage.getItem('auth_token');
+  const sessionId = localStorage.getItem('session_id');
   return {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...(sessionId && { 'x-session-id': sessionId }),
     // <— добавляем заголовки Telegram
     ...getTelegramHeaders()
   };
@@ -67,6 +76,18 @@ const handleResponse = async (response) => {
         break;
       case 401:
         errorMessage = errorMessage || ERROR_MESSAGES?.INVALID_OTP || 'Unauthorized';
+        
+        // Глобальная обработка 401 ошибки - перенаправляем на главную страницу
+        // Но только если не инициализируемся
+        if (!isInitializing) {
+          // Очищаем все данные пользователя
+          localStorage.removeItem('user');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('session_id');
+          
+          // Перенаправляем на главную страницу (которая покажет WelcomeScreen)
+          window.location.href = '/';
+        }
         break;
       case 429:
         errorMessage = errorMessage || ERROR_MESSAGES?.TOO_MANY_ATTEMPTS || 'Too many requests';

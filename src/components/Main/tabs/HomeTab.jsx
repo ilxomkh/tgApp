@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import { GradientCard, SoftButton } from '../ui';
-import { EarthIcon, SettingsIcon, WalletIcon } from '../icons';
+import { SettingsIcon, WalletIcon } from '../icons';
 import SurveyCard from '../SurveyCard';
 import SurveyModal from '../SurveyModal';
 import { useSurvey } from '../../../hooks/useSurvey';
+import UserAvatar from '../../UserAvatar';
 
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
@@ -65,7 +66,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
   };
 
   const openProfile = () => {
-    onOpenProfile();
+    navigate('/profile-edit');
   };
 
   return (
@@ -73,8 +74,13 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       <GradientCard className="px-5 py-6 relative">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center">
-              <EarthIcon />
+            <div className="w-18 h-18 rounded-full bg-white/15 flex items-center justify-center relative">
+              <UserAvatar 
+                avatarUrl={user?.avatar_url} 
+                size="w-full h-full"
+                className="bg-white/15"
+                showBorder={false}
+              />
             </div>
             <div>
               <p className="text-white/90 text-sm">{t.balance}</p>
@@ -129,7 +135,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         onComplete={handleSurveyComplete}
         t={t}
       />
-
 
     </div>
   );

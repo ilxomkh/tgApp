@@ -12,11 +12,14 @@ import ReferralProgramScreen from './components/ReferralProgramScreen';
 import ProjectInfoScreen from './components/ProjectInfoScreen';
 import PublicOfferScreen from './components/PublicOfferScreen';
 import SupportScreen from './components/SupportScreen';
+import ProfileEditPage from './components/ProfileEditPage';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 function AppContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
+  const { isInitializing } = useAuth();
 
   // === ВАЖНО: Инициализация Telegram WebApp и покраска шапки ===
   useEffect(() => {
@@ -31,8 +34,31 @@ function AppContent() {
     tg.setBackgroundColor?.('#6A4CFF');   // Фон под вебвью
   }, []);
 
+  // Показываем индикатор загрузки во время инициализации
+  if (isInitializing) {
+    return (
+      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7C65FF] mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Router>
+      <RouterContent />
+    </Router>
+  );
+}
+
+function RouterContent() {
+  const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
+  const location = useLocation();
+
+  return (
+    <>
       {/* Корневой контейнер с поддержкой safe-area (iOS) и «литым» верхом */}
       <div
         className="
@@ -60,15 +86,17 @@ function AppContent() {
           <Route path="/project-info" element={<ProjectInfoScreen />} />
           <Route path="/public-offer" element={<PublicOfferScreen />} />
           <Route path="/support" element={<SupportScreen />} />
+          <Route path="/profile-edit" element={<ProfileEditPage />} />
         </Routes>
 
         {/* Language Modal */}
         <LanguageSelector
           isOpen={isLanguageModalOpen}
           onClose={closeLanguageModal}
+          shouldNavigateToOnboarding={location.pathname === '/'}
         />
       </div>
-    </Router>
+    </>
   );
 }
 

@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-import api from '../services/api';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import api, { setInitializing } from '../services/api';
 
 const AuthContext = createContext(undefined);
 
@@ -21,6 +21,52 @@ export const AuthProvider = ({ children }) => {
     // Проверяем наличие пользователя в localStorage
     return !!localStorage.getItem('user');
   });
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  // Проверяем валидность токена при инициализации
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem('auth_token');
+      const savedUser = localStorage.getItem('user');
+      
+      if (!token || !savedUser) {
+        setIsInitializing(false);
+        setInitializing(false);
+        return;
+      }
+      
+      // Устанавливаем флаг инициализации
+      setInitializing(true);
+      
+      try {
+        // Проверяем валидность токена через API запрос
+        const userProfile = await api.getUserProfile();
+        console.log('Token is valid, user profile:', userProfile);
+        
+        // Обновляем данные пользователя
+        const updatedUser = { ...JSON.parse(savedUser), ...userProfile };
+        setUser(updatedUser);
+        setIsAuthenticated(true);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+      } catch (error) {
+        console.error('Token validation failed:', error);
+        
+        // Если токен недействителен, очищаем данные
+        setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('session_id');
+      } finally {
+        setIsInitializing(false);
+        setInitializing(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const sendOtp = async (phoneNumber) => {
     try {
@@ -38,6 +84,12 @@ export const AuthProvider = ({ children }) => {
       const response = await api.verifyOtp(phoneNumber, otp);
       console.log('Login successful:', response);
       
+      // Сохраняем session_id если он есть
+      const sessionId = response.session_id;
+      if (sessionId) {
+        localStorage.setItem('session_id', sessionId);
+      }
+      
       // Сохраняем токен если он есть
       const token = response.token || response.access_token;
       if (token) {
@@ -54,6 +106,7 @@ export const AuthProvider = ({ children }) => {
         phone_number: userProfile.phone_number || phoneNumber,
         email: userProfile.email || '',
         birth_date: userProfile.birth_date || '',
+        avatar_url: userProfile.avatar_url || '',
         balance: userProfile.balance || response.bonus_balance || 12000,
         created_at: userProfile.created_at || new Date().toISOString(),
         updated_at: userProfile.updated_at || new Date().toISOString(),
@@ -75,9 +128,13 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    // Удаляем пользователя и токен из localStorage
+    // Удаляем пользователя, токен и session_id из localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('session_id');
+    
+    // Перенаправляем на главную страницу
+    window.location.href = '/';
   };
 
   const updateProfile = async (data) => {
@@ -94,13 +151,17 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error('Error updating profile:', error);
+      
+      // 401 ошибка уже обрабатывается глобально в API сервисе
+      // Здесь просто возвращаем false
       return false;
     }
   };
 
   const refreshUserProfile = async () => {
-    if (!user) return false;
+    if (!user || isLoadingProfile) return false;
     
+    setIsLoadingProfile(true);
     try {
       const userProfile = await api.getUserProfile();
       console.log('Profile refreshed:', userProfile);
@@ -112,13 +173,20 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error('Error refreshing profile:', error);
+      
+      // 401 ошибка уже обрабатывается глобально в API сервисе
+      // Здесь просто возвращаем false
       return false;
+    } finally {
+      setIsLoadingProfile(false);
     }
   };
 
   const value = {
     user,
     isAuthenticated,
+    isLoadingProfile,
+    isInitializing,
     login,
     logout,
     sendOtp,
