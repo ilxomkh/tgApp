@@ -66,6 +66,7 @@ const AuthScreen = () => {
         confirming: "Проверяется...",
         privacy1: "Нажимая на кнопку “Авторизоваться”, вы соглашаетесь с ",
         privacyLink: "политикой конфиденциальности",
+        privacyLink2: "",
         wrongOtp:
           "Введён неверный код или срок его действия истёк. Пожалуйста, запросите новый код",
         back: "Назад",
@@ -86,6 +87,7 @@ const AuthScreen = () => {
         confirming: "Tekshirilmoqda...",
         privacy1: "“Avtorizatsiya qilish” tugmasini bosish orqali siz ",
         privacyLink: "maxfiylik siyosati",
+        privacyLink2: "ga rozi bo'lasiz",
         wrongOtp:
           "Noto'g'ri kod yoki uning amal qilish muddati tugagan. Iltimos, yangi kod so'rang",
         back: "Orqaga",
@@ -373,8 +375,9 @@ const AuthScreen = () => {
               onClick={() => navigate("/privacy")}
               className="text-[#5E5AF6] underline underline-offset-4"
             >
-              {T.privacyLink}
+              {T.privacyLink} 
             </button>
+            <span className="text-gray-400">{T.privacyLink2}</span>
           </p>
           <div className="rounded-2xl bg-[#EDEAFF] p-2">
             <button

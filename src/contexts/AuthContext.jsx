@@ -137,6 +137,18 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/';
   };
 
+  const resetToOnboarding = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    // Удаляем все данные из localStorage
+    localStorage.removeItem('user');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('session_id');
+    
+    // Перенаправляем на онбординг
+    window.location.href = '/onboarding';
+  };
+
   const updateProfile = async (data) => {
     if (!user) return false;
     
@@ -189,6 +201,7 @@ export const AuthProvider = ({ children }) => {
     isInitializing,
     login,
     logout,
+    resetToOnboarding,
     sendOtp,
     updateProfile,
     refreshUserProfile

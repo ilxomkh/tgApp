@@ -8,13 +8,15 @@ import InviteTab from './tabs/InviteTab';
 import LotteryTab from './tabs/LotteryTab';
 import ProfileTab from './tabs/ProfileTab/ProfileTab';
 import Header from '../header';
+import { useKeyboard } from '../../hooks/useKeyboard';
 
 const MainScreen = () => {
   const { language } = useLanguage();
-  const { user, refreshUserProfile } = useAuth();
+  const { user, refreshUserProfile, resetToOnboarding } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('home');
   const [showProfile, setShowProfile] = useState(false);
+  const { isKeyboardOpen } = useKeyboard();
 
   // Проверяем URL параметры для показа профиля
   useEffect(() => {
@@ -72,6 +74,7 @@ const MainScreen = () => {
       noLotteriesFound: "Лотереи не найдены",
       completed: "Завершена",
       browserNotSupportVideo: "Ваш браузер не поддерживает видео",
+      resetToOnboarding: "Выйти",
     },
     uz: {
       balance: "Mening balansim:",
@@ -103,6 +106,7 @@ const MainScreen = () => {
       noLotteriesFound: "Lotereyalar topilmadi",
       completed: "Tugallangan",
       browserNotSupportVideo: "Sizning brauzeringiz videoni qo'llab-quvvatlamaydi",
+      resetToOnboarding: "Chiqish",
     }
   }[language]), [language]);
 
@@ -136,10 +140,10 @@ const MainScreen = () => {
   return (
     <div className="min-h-screen bg-[#F4F4FF]">
       <Header />
-      {/* Отступ под нижнюю навигацию */}
-      <div className="p-4 pb-[calc(90px+env(safe-area-inset-bottom))]">
+      {/* Отступ под нижнюю навигацию - адаптируется к клавиатуре */}
+      <div className={`p-4 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         {showProfile ? (
-          <ProfileTab t={t} onClose={closeProfile} />
+          <ProfileTab t={t} onClose={closeProfile} onResetToOnboarding={resetToOnboarding} />
         ) : (
           <>
             {activeTab === 'home' && <HomeTab t={t} onOpenProfile={openProfile} user={user} />}

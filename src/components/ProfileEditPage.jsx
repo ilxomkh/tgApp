@@ -14,11 +14,13 @@ import Header from './header';
 import BottomNav from './Main/BottomNav';
 import { SettingsIcon, UserIcon } from './Main/icons';
 import UserAvatar from './UserAvatar';
+import { useKeyboard } from '../hooks/useKeyboard';
 
 const ProfileEditPage = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { user, updateProfile, logout } = useAuth();
+  const { isKeyboardOpen } = useKeyboard();
   
   const [formData, setFormData] = useState({
     phone_number: '',
@@ -400,8 +402,8 @@ const ProfileEditPage = () => {
     <div className="min-h-screen bg-[#F4F4FF]">
       <Header />
       
-      {/* Отступ под нижнюю навигацию */}
-      <div className="p-4 pb-[calc(90px+env(safe-area-inset-bottom))]">
+      {/* Отступ под нижнюю навигацию - адаптируется к клавиатуре */}
+      <div className={`p-4 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <div className="max-w-md mx-auto">
           {/* Карточка профиля с фиолетовым градиентом */}
           <div className="bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-6 text-white shadow-lg mb-6">

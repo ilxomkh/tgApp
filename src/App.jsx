@@ -63,15 +63,11 @@ function RouterContent() {
 
   return (
     <>
-      {/* Корневой контейнер с поддержкой safe-area (iOS) и «литым» верхом */}
+      {/* Корневой контейнер */}
       <div
         className="
           min-h-[100dvh]
           bg-gray-50
-          pt-[env(safe-area-inset-top)]
-          pb-[env(safe-area-inset-bottom)]
-          pl-[env(safe-area-inset-left)]
-          pr-[env(safe-area-inset-right)]
         "
         style={{
           // на случай, если телеграм не применит цвет — делаем такой же фон у корня

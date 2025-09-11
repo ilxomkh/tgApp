@@ -7,10 +7,10 @@ import { useApi } from "../../../../hooks/useApi";
 import { formatDate } from "../../../../utils/validation";
 import LanguageSelector from "../../../LanguageSelector";
 import UserAvatar from "../../../UserAvatar";
-import { EditIcon, Pencil, PencilIcon } from "lucide-react";
+import { EditIcon, LogOutIcon, Pencil, PencilIcon } from "lucide-react";
 import { SettingsIcon } from "../../icons";
 
-const ProfileTab = ({ t = {}, onClose }) => {
+const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
   const { user, refreshUserProfile, logout } = useAuth();
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
@@ -32,6 +32,7 @@ const ProfileTab = ({ t = {}, onClose }) => {
       changeLang: "Изменить язык",
       support: "Служба поддержки",
       orderSurvey: "Заказать опрос",
+      resetToOnboarding: "Выйти",
       loading: "Загрузка...",
       error: "Ошибка загрузки профиля",
     },
@@ -47,6 +48,7 @@ const ProfileTab = ({ t = {}, onClose }) => {
       changeLang: "Tilni o'zgartirish",
       support: "Qo'llab-quvvatlash xizmati",
       orderSurvey: "So'rov buyurtma qilish",
+      resetToOnboarding: "Chiqish",
       loading: "Yuklanmoqda...",
       error: "Profilni yuklashda xatolik",
     },
@@ -442,6 +444,35 @@ const ProfileTab = ({ t = {}, onClose }) => {
               viewBox="0 0 24 24"
               fill="none"
               className="text-gray-400"
+            >
+              <path
+                d="M9 18l6-6-6-6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          {/* Кнопка сброса для разработки */}
+          <button
+            onClick={onResetToOnboarding}
+            className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
+          >
+            <div className="flex items-center gap-4">
+              <LogOutIcon className="text-red-600" />
+
+              <span className="text-red-600 font-medium">
+                {localT.resetToOnboarding}
+              </span>
+            </div>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="text-red-400"
             >
               <path
                 d="M9 18l6-6-6-6"
