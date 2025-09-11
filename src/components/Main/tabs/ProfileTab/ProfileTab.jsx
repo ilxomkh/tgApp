@@ -8,6 +8,7 @@ import { formatDate } from "../../../../utils/validation";
 import LanguageSelector from "../../../LanguageSelector";
 import UserAvatar from "../../../UserAvatar";
 import { EditIcon, Pencil, PencilIcon } from "lucide-react";
+import { SettingsIcon } from "../../icons";
 
 const ProfileTab = ({ t = {}, onClose }) => {
   const { user, refreshUserProfile, logout } = useAuth();
@@ -132,9 +133,9 @@ const ProfileTab = ({ t = {}, onClose }) => {
             {userProfile && !loading && !error && (
               <button
                 onClick={handleEditProfile}
-                className="absolute top-2 right-2 rounded-full bg-white/20 p-2 text-white transition-colors"
+                className="absolute top-2 right-2  text-white transition-colors"
               >
-                <PencilIcon />
+                <SettingsIcon />
               </button>
             )}
           </div>

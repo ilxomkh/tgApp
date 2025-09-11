@@ -39,9 +39,9 @@ const LotteryTab = ({ t }) => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       {/* Основной контент с кастомным скроллбаром */}
-      <div className="px-2 py-2 h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar">
+      <div className="px-2 py-2 overflow-y-auto custom-scrollbar">
         {/* Заголовок страницы */}
         <h2 className="text-md font-semibold text-gray-500 mb-6 text-left">
           {t.lottery}

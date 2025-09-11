@@ -1,6 +1,7 @@
 import React from 'react';
 import ProSVG from '../../assets/Pro.svg';
 import WaveOverlay from '../WaveOverlay';
+import { useHapticClick } from '../../utils/hapticFeedback';
 
 export const SectionCard = ({ children, className = '' }) => (
   <div className={`bg-white rounded-2xl border border-[#ECECFA] shadow-[0_8px_28px_rgba(40,40,80,0.08)] ${className}`}>
@@ -14,23 +15,31 @@ export const GradientCard = ({ children, className = '' }) => (
   </div>
 );
 
-export const CTAButton = ({ children, onClick, className = '' }) => (
-  <button
-    onClick={onClick}
-    className={`w-full h-12 rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition ${className}`}
-  >
-    {children}
-  </button>
-);
+export const CTAButton = ({ children, onClick, className = '' }) => {
+  const hapticOnClick = useHapticClick(onClick, 'medium');
+  
+  return (
+    <button
+      onClick={hapticOnClick}
+      className={`w-full h-12 rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition ${className}`}
+    >
+      {children}
+    </button>
+  );
+};
 
-export const SoftButton = ({ children, onClick, className = '' }) => (
-  <button
-    onClick={onClick}
-    className={`px-4 py-2 rounded-lg font-medium active:scale-[0.99] transition ${className}`}
-  >
-    {children}
-  </button>
-);
+export const SoftButton = ({ children, onClick, className = '' }) => {
+  const hapticOnClick = useHapticClick(onClick, 'light');
+  
+  return (
+    <button
+      onClick={hapticOnClick}
+      className={`px-4 py-2 rounded-lg font-medium active:scale-[0.99] transition ${className}`}
+    >
+      {children}
+    </button>
+  );
+};
 
 export const StatPill = ({ label, value, className = '' }) => (
   <div className={`bg-white rounded-xl border border-[#ECECFA] p-4 ${className}`}>

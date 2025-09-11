@@ -23,7 +23,7 @@ export const config = {
       uz: '3xqyg9', // Registration Pro Survey Uz (используем тот же ID, но с разными языками)
     },
     // Webhook URL для получения данных от Tally
-    WEBHOOK_URL: import.meta.env.VITE_TALLY_WEBHOOK_URL || 'https://api.prosurvey.uz/api/webhook/tally',
+    WEBHOOK_URL: import.meta.env.VITE_TALLY_WEBHOOK_URL || 'https://api.prosurvey.uz/api/webhooks/tilda',
     // Секретный ключ для верификации webhook (если используется)
     WEBHOOK_SECRET: import.meta.env.VITE_TALLY_WEBHOOK_SECRET || '',
   },

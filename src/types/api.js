@@ -214,7 +214,7 @@ export const API_ENDPOINTS = {
   CREATE_ORDER: '/order',
   CREATE_PAYMENT: '/payments/take_off',
   // Tally webhook endpoints
-  TALLY_WEBHOOK: '/webhook/tally',
+  TALLY_WEBHOOK: '/webhooks/tilda',
   GET_SURVEY_RESPONSES: '/surveys/responses',
   PROCESS_SURVEY_RESPONSE: '/surveys/process',
 };

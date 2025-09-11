@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useHapticClick } from "../utils/hapticFeedback";
 import PRO from "../assets/Pro.svg";
 import WaveOverlay from "./WaveOverlay";
 
@@ -57,7 +58,7 @@ const WelcomeScreen = () => {
       </div>
       <div className="w-full flex justify-center pb-6">
         <button
-          onClick={handleLanguageSelect}
+          onClick={useHapticClick(handleLanguageSelect, 'light')}
           className="bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 active:scale-95 text-base w-full max-w-xs border border-white/30"
         >
           {currentText.languageButton}

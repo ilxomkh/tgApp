@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
-import tallyWebhookService from '../services/tallyWebhook.js';
+import tildaWebhookService from '../services/tildaWebhook.js';
 import { useSurvey } from '../hooks/useSurvey.js';
+import { useHapticClick } from '../utils/hapticFeedback';
 
 const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const { language } = useLanguage();
@@ -13,20 +14,44 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   useEffect(() => {
     const loadSurvey = async () => {
       try {
-        const surveyData = await getSurvey(surveyId);
-        setSurvey(surveyData);
-        setFormUrl(surveyData.formUrl);
+        // Получаем доступные формы из tildaWebhookService
+        const availableForms = tildaWebhookService.getAvailableForms(language);
+        const surveyData = availableForms.find(form => form.id === surveyId);
+        
+        if (surveyData) {
+          setSurvey(surveyData);
+          setFormUrl(tildaWebhookService.getFormUrl(language));
+        } else {
+          console.error('Survey not found:', surveyId);
+        }
       } catch (err) {
         console.error('Error loading survey:', err);
       }
     };
 
     loadSurvey();
-  }, [surveyId, getSurvey]);
+  }, [surveyId, language]);
 
   const handleFormSubmit = async (answers) => {
     try {
-      const result = await submitSurvey(surveyId, answers);
+      // Создаем данные для webhook в формате Tilda
+      const webhookData = {
+        eventId: `survey_${Date.now()}`,
+        eventType: 'formResponse',
+        createdAt: new Date().toISOString(),
+        payload: {
+          responseId: `response_${Date.now()}`,
+          submissionId: `submission_${Date.now()}`,
+          respondentId: `respondent_${Date.now()}`,
+          formId: survey?.formId || '3xqyg9',
+          formName: survey?.title || 'Registration Survey',
+          answers: answers,
+          createdAt: new Date().toISOString(),
+        }
+      };
+
+      // Отправляем данные через tildaWebhookService
+      const result = await tildaWebhookService.processWebhook(webhookData);
       setIsFormSubmitted(true);
       
       if (onComplete) {
@@ -126,7 +151,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       {onClose && (
         <div className="p-4 border-t border-gray-200">
           <button
-            onClick={onClose}
+            onClick={useHapticClick(onClose, 'light')}
             className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
           >
             {language === 'ru' ? 'Закрыть' : 'Yopish'}

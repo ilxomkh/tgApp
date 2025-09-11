@@ -1,5 +1,6 @@
 import React from 'react';
 import { HomeIcon, UsersIcon, TicketIcon, UserIcon } from './icons';
+import { useHapticClick } from '../../utils/hapticFeedback';
 
 const mapIcon = {
   home: HomeIcon,
@@ -8,7 +9,10 @@ const mapIcon = {
   profile: UserIcon
 };
 
-const BottomNav = ({ tabs, activeTab, onChange }) => (
+const BottomNav = ({ tabs, activeTab, onChange }) => {
+  const hapticOnChange = useHapticClick(onChange, 'selection');
+
+  return (
   <div className="fixed bottom-0 left-0 right-0 z-20">
     <div className="mx-auto max-w-md px-3">
       <nav
@@ -29,7 +33,7 @@ const BottomNav = ({ tabs, activeTab, onChange }) => (
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => onChange(tab.id)}
+                onClick={() => hapticOnChange(tab.id)}
                 role="tab"
                 aria-selected={isActive}
                 title={tab.label}
@@ -60,6 +64,7 @@ const BottomNav = ({ tabs, activeTab, onChange }) => (
       </nav>
     </div>
   </div>
-);
+  );
+};
 
 export default BottomNav;

@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useHapticClick } from "../utils/hapticFeedback";
 import PRO from '../assets/Pro.svg';
 import WaveOverlay from "./WaveOverlay";
-import FileSVG from '../assets/File.svg';
-import MemoSVG from '../assets/Memo.svg';
+import FilePNG from '../assets/File Folder 1.png';
+import MemoPNG from '../assets/Memo 1.png';
+import RocketPNG from '../assets/Rocket 1.png';
+import TrophyPNG from '../assets/Trophy 1.png';
 
 // Небольшой SVG‑логотип (как в макете слева от "Pro Survey")
 const Logo = ({ className = "" }) => (
@@ -34,26 +37,26 @@ const Onboarding = () => {
           },
           {
             title: "Ro'yxatdan o'ting",
-            emoji: "📝",
+            image: MemoPNG,
           },
           {
             title: "So'rovnomalarni o'ting",
-            emoji: "📁",
+            image: FilePNG,
           },
           {
             title:
-              "Kafolatli pul yoki yutuqlar\nro‘yxatidan birini oling",
-            emoji: "🏆",
+              "Kafolatli pul yoki yutuqlar\nro'yxatidan birini oling",
+            image: TrophyPNG,
           },
           {
             title:
-              "Pulni darhol o‘zingizning\nbank kartangizga yechib oling",
-            emoji: "🚀",
+              "Pulni darhol o'zingizning\nbank kartangizga yechib oling",
+            image: RocketPNG,
           },
         ],
         next: "Keyingi",
         start: "Boshlash",
-        skip: "O‘tkazib yuborish",
+        skip: "O'tkazib yuborish",
       },
       ru: {
         slides: [
@@ -62,21 +65,21 @@ const Onboarding = () => {
           },
           {
             title: "Пройдите\nрегистрацию",
-            emoji: "📝",
+            image: MemoPNG,
           },
           {
             title: "Проходите\nопросы",
-            emoji: "📁",
+            image: FilePNG,
           },
           {
             title:
               "Получите гарантированные\nденьги или станьте участником\nрозыгрыша",
-            emoji: "🏆",
+            image: TrophyPNG,
           },
           {
             title:
               "Моментально выведите свои\nсредства на свою банковскую карту",
-            emoji: "🚀",
+            image: RocketPNG,
           },
         ],
         next: "Далее",
@@ -142,12 +145,18 @@ const Onboarding = () => {
         <img src={PRO} alt="Pro Survey" className="w-[204px]" />
       </div>
 
-      {/* Контент с картинкой/эмодзи */}
+      {/* Контент с картинкой */}
       <div className="flex-1 px-8 flex items-center">
         <div className="w-full">
-          {/* Центровка эмодзи как в макете — крупно, по центру */}
+          {/* Центровка изображения как в макете — крупно, по центру */}
           <div className="flex justify-center mt-6 mb-6">
-              <span className="text-[200px] leading-none z-50">{slides[currentSlide].emoji}</span>
+            {slides[currentSlide].image && (
+              <img 
+                src={slides[currentSlide].image} 
+                alt={slides[currentSlide].title}
+                className="w-[200px] h-[200px] object-contain z-50"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -163,7 +172,7 @@ const Onboarding = () => {
             <p className="mt-3 text-white/80">{slides[currentSlide].desc}</p>
           )}
         <button
-          onClick={next}
+          onClick={useHapticClick(next, 'medium')}
           className="w-full h-11 rounded-xl bg-[#F9FAFC] text-[#5527E9] font-semibold shadow-[0_8px_24px_rgba(0,0,0,.15)] active:scale-[0.99] transition"
         >
           {isLast ? t.start : t.next}
@@ -171,7 +180,7 @@ const Onboarding = () => {
 
         {!isLast && (
           <button
-            onClick={skip}
+            onClick={useHapticClick(skip, 'light')}
             className="mt-3 w-full h-11 rounded-xl bg-[#B1B2FC] text-white font-semibold shadow-[0_6px_20px_rgba(0,0,0,.12)] active:scale-[0.99] transition"
           >
             {t.skip}

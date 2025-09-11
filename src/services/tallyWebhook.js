@@ -165,13 +165,13 @@ class TallyWebhookService {
   }
 
   /**
-   * Отправка данных на наш сервер для обработки
+   * Отправка данных на наш сервер для обработки через Tilda webhook
    * @param {Object} surveyData - Данные опроса
    * @returns {Promise<Object>} - Результат обработки
    */
   async sendToServer(surveyData) {
     try {
-      const response = await fetch(`${config.API_BASE_URL}${API_ENDPOINTS.PROCESS_SURVEY_RESPONSE}`, {
+      const response = await fetch(`${config.API_BASE_URL}${API_ENDPOINTS.TALLY_WEBHOOK}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

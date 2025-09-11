@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useHapticClick } from '../utils/hapticFeedback';
 
 const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false }) => {
   const navigate = useNavigate();
   const { language, setLanguage } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [selected, setSelected] = useState(language || 'uz');
+
+  const confirm = () => {
+    setLanguage(selected);
+    onClose();
+    
+    // Перенаправляем на онбординг только если это указано явно
+    if (shouldNavigateToOnboarding) {
+      navigate('/onboarding');
+    }
+  };
+
+  const hapticSetSelected = useHapticClick(setSelected, 'selection');
+  const hapticConfirm = useHapticClick(confirm, 'medium');
 
   // Тексты на двух языках
   const texts = {
@@ -36,16 +50,6 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
       setIsVisible(false);
     }
   }, [isOpen, language]);
-
-  const confirm = () => {
-    setLanguage(selected);
-    onClose();
-    
-    // Перенаправляем на онбординг только если это указано явно
-    if (shouldNavigateToOnboarding) {
-      navigate('/onboarding');
-    }
-  };
 
   const closeSoft = () => {
     setIsVisible(false);
@@ -90,7 +94,7 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
                 {/* Uzbek */}
                 <button
                   type="button"
-                  onClick={() => setSelected('uz')}
+                  onClick={() => hapticSetSelected('uz')}
                   className={[
                     'w-full text-left',
                     'bg-white rounded-2xl',
@@ -112,7 +116,7 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
                 {/* Russian */}
                 <button
                   type="button"
-                  onClick={() => setSelected('ru')}
+                  onClick={() => hapticSetSelected('ru')}
                   className={[
                     'w-full text-left',
                     'bg-white rounded-2xl',
@@ -135,7 +139,7 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
               {/* Кнопка "Продолжить" как на скрине */}
               <button
                 type="button"
-                onClick={confirm}
+                onClick={hapticConfirm}
                 className="w-full h-12 rounded-xl text-white text-[16px] font-medium
                            bg-gradient-to-r from-[#7C5CFF] via-[#7A5AF8] to-[#6D28D9]
                            shadow-[0_6px_18px_rgba(124,92,255,0.35)]

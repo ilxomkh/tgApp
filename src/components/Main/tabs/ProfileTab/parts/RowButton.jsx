@@ -1,9 +1,12 @@
 import React from 'react';
+import { useHapticClick } from '../../../../utils/hapticFeedback';
 
 const RowButton = ({ icon, label, onClick, isLast = false, className = '' }) => {
+  const hapticOnClick = useHapticClick(onClick, 'light');
+
   return (
     <button
-      onClick={onClick}
+      onClick={hapticOnClick}
       className={`w-full p-5 rounded-2xl transition-all duration-300 flex items-center justify-between
         hover:bg-gradient-to-r hover:from-emerald-50 hover:to-blue-50 active:scale-[0.98]
         active:bg-gradient-to-r active:from-emerald-100 active:to-blue-100 group

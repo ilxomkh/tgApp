@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import api from '../services/api';
+import { useHapticClick } from '../utils/hapticFeedback';
 
 const SMSTestComponent = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -95,7 +96,7 @@ const SMSTestComponent = () => {
 
         <div className="space-y-2">
           <button
-            onClick={testSendSMS}
+            onClick={useHapticClick(testSendSMS, 'medium')}
             disabled={isLoading}
             className="w-full bg-blue-500 text-white p-2 rounded-md disabled:opacity-50"
           >
@@ -103,7 +104,7 @@ const SMSTestComponent = () => {
           </button>
 
           <button
-            onClick={testOTPFlow}
+            onClick={useHapticClick(testOTPFlow, 'medium')}
             disabled={isLoading}
             className="w-full bg-green-500 text-white p-2 rounded-md disabled:opacity-50"
           >
@@ -111,7 +112,7 @@ const SMSTestComponent = () => {
           </button>
 
           <button
-            onClick={testGetBalance}
+            onClick={useHapticClick(testGetBalance, 'medium')}
             disabled={isLoading}
             className="w-full bg-gray-500 text-white p-2 rounded-md disabled:opacity-50"
           >

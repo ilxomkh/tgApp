@@ -17,6 +17,7 @@ export const MESSAGES = {
     TOO_MANY_ATTEMPTS: 'Слишком много попыток. Попробуйте позже.',
     INVALID_CREDENTIALS: 'Неверные данные для входа.',
     OTP_EXPIRED: 'Код истек. Запросите новый код.',
+    WRONG_PHONE_NUMBER: 'Неверный номер телефона. Проверьте правильность ввода.',
     
     // Успешные сообщения
     OTP_SENT: 'Код отправлен на ваш номер телефона',
@@ -39,6 +40,8 @@ export const MESSAGES = {
     PHONE_HINT: 'Введите номер телефона,\nна него придет проверочный SMS-код',
     OTP_HINT: 'Введите код, отправленный на номер',
     RESEND_HINT: 'Не получили код?',
+    WRONG_NUMBER_HINT: 'Вы неправильно ввели номер?',
+    BACK_TO_PHONE: 'Нажмите сюда!',
   },
   
   uz: {
@@ -58,6 +61,7 @@ export const MESSAGES = {
     TOO_MANY_ATTEMPTS: 'Juda ko\'p urinishlar. Keyinroq urinib ko\'ring.',
     INVALID_CREDENTIALS: 'Noto\'g\'ri kirish ma\'lumotlari.',
     OTP_EXPIRED: 'Kod muddati tugadi. Yangi kod so\'rang.',
+    WRONG_PHONE_NUMBER: 'Noto\'g\'ri telefon raqami. Kiritishni tekshiring.',
     
     // Успешные сообщения
     OTP_SENT: 'Kod sizning telefon raqamingizga yuborildi',
@@ -80,6 +84,8 @@ export const MESSAGES = {
     PHONE_HINT: 'Telefon raqamini kiriting,\nunga tekshiruv SMS kodi keladi',
     OTP_HINT: 'Ushbu raqamga yuborilgan kodni kiriting',
     RESEND_HINT: 'Kod kelmadimi?',
+    WRONG_NUMBER_HINT: 'Telefon raqamini noto\'g\'ri kiritdingizmi?',
+    BACK_TO_PHONE: 'Bu yerga bosing!',
   }
 };
 

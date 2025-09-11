@@ -77,16 +77,16 @@ const handleResponse = async (response) => {
       case 401:
         errorMessage = errorMessage || ERROR_MESSAGES?.INVALID_OTP || 'Unauthorized';
         
-        // Глобальная обработка 401 ошибки - перенаправляем на главную страницу
-        // Но только если не инициализируемся
-        if (!isInitializing) {
+        // Глобальная обработка 401 ошибки - перенаправляем на страницу авторизации
+        // Но только если не инициализируемся и не находимся уже на странице авторизации
+        if (!isInitializing && !window.location.pathname.includes('/auth')) {
           // Очищаем все данные пользователя
           localStorage.removeItem('user');
           localStorage.removeItem('auth_token');
           localStorage.removeItem('session_id');
           
-          // Перенаправляем на главную страницу (которая покажет WelcomeScreen)
-          window.location.href = '/';
+          // Перенаправляем на страницу авторизации
+          window.location.href = '/auth';
         }
         break;
       case 429:

@@ -11,6 +11,7 @@ import {
 } from "../utils/validation";
 import { getMessage } from "../constants/messages";
 import Header from "./header";
+import BottomNav from "./Main/BottomNav";
 
 const OrderSurveyScreen = () => {
   const { language } = useLanguage();
@@ -28,25 +29,18 @@ const OrderSurveyScreen = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [formErrors, setFormErrors] = React.useState({});
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
+  const [hasFormData, setHasFormData] = React.useState(false);
+  const [isFormSubmitted, setIsFormSubmitted] = React.useState(false);
 
   // ---------- Переводы ----------
   const translations = {
     ru: {
       title: "Заказать опрос",
-      back: "Назад",
-      formTitle: "Заполните форму для заказа опроса",
       fullName: "ФИО",
-      fullNamePlaceholder: "Введите ваше полное имя",
-      organization: "Организация",
-      organizationPlaceholder: "Название вашей организации",
-      position: "Должность",
-      positionPlaceholder: "Ваша должность в организации",
-      phone: "Телефон",
-      phonePlaceholder: "Ваш номер телефона",
+      organization: "Названия организации",
+      position: "Должность в орагнизации",
+      phone: "Номер телефона",
       email: "Email",
-      emailPlaceholder: "Ваш email адрес",
-      description: "Описание опроса",
-      descriptionPlaceholder: "Опишите, какой опрос вам нужен",
       submit: "Отправить заявку",
       submitting: "Отправка...",
       success: "Заявка успешно отправлена!",
@@ -60,20 +54,11 @@ const OrderSurveyScreen = () => {
     },
     uz: {
       title: "So'rov buyurtma qilish",
-      back: "Orqaga",
-      formTitle: "So'rov buyurtma qilish uchun formani to'ldiring",
       fullName: "F.I.O",
-      fullNamePlaceholder: "To'liq ismingizni kiriting",
-      organization: "Tashkilot",
-      organizationPlaceholder: "Tashkilotingiz nomi",
-      position: "Lavozim",
-      positionPlaceholder: "Tashkilotdagi lavozimingiz",
-      phone: "Telefon",
-      phonePlaceholder: "Telefon raqamingiz",
+      organization: "Tashkilot nomi",
+      position: "Tashkilotdagi lavozim",
+      phone: "Telefon raqami",
       email: "Email",
-      emailPlaceholder: "Email manzilingiz",
-      description: "So'rov tavsifi",
-      descriptionPlaceholder: "Qanday so'rov kerakligini tasvirlab bering",
       submit: "Arizani yuborish",
       submitting: "Yuborilmoqda...",
       success: "Ariza muvaffaqiyatli yuborildi!",
@@ -87,6 +72,30 @@ const OrderSurveyScreen = () => {
     },
   };
   const t = translations[language || "ru"];
+
+
+  // BottomNav props
+  const tabs = [
+    { id: "home", label: language === "uz" ? "Asosiy" : "Главная" },
+    { id: "invite", label: language === "uz" ? "Taklif qilish" : "Пригласить" },
+    { id: "lottery", label: language === "uz" ? "Natijalar" : "Итоги" },
+    { id: "profile", label: language === "uz" ? "Profil" : "Профиль" },
+  ];
+
+  const handleTabChange = async (tabId) => {
+    // Автоматически отправляем форму перед переходом
+    await autoSubmitForm();
+    
+    if (tabId === "home") {
+      navigate("/main");
+    } else if (tabId === "invite") {
+      navigate("/main?tab=invite");
+    } else if (tabId === "lottery") {
+      navigate("/main?tab=lottery");
+    } else if (tabId === "profile") {
+      navigate("/main?tab=profile");
+    }
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -116,6 +125,7 @@ const OrderSurveyScreen = () => {
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setHasFormData(true);
     
     // Очищаем ошибку при изменении поля
     if (formErrors[field]) {
@@ -123,15 +133,18 @@ const OrderSurveyScreen = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
+  const autoSubmitForm = React.useCallback(async () => {
+    if (isFormSubmitted || isSubmitting || !hasFormData) {
       return;
     }
 
+    // Проверяем, есть ли хотя бы имя и телефон
+    if (!formData.fullName.trim() || !formData.phone.trim()) {
+      return;
+    }
+
+    setIsFormSubmitted(true);
     setIsSubmitting(true);
-    setFormErrors({});
     
     try {
       const orderData = {
@@ -146,38 +159,46 @@ const OrderSurveyScreen = () => {
       
       if (result.success) {
         setSubmitSuccess(true);
-        setTimeout(() => {
-          navigate('/main?tab=profile');
-        }, 2000);
       } else {
-        setFormErrors({ submit: result.error || t.error });
+        console.error('Auto submit error:', result.error);
       }
     } catch (error) {
-      console.error('Error creating order:', error);
-      setFormErrors({ submit: t.networkError });
+      console.error('Error auto submitting form:', error);
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [isFormSubmitted, isSubmitting, hasFormData, formData, createOrder]);
+
+  // Автоматическая отправка при покидании страницы
+  React.useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasFormData && !isFormSubmitted && !isSubmitting) {
+        // Отправляем форму синхронно при покидании страницы
+        autoSubmitForm();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasFormData, isFormSubmitted, isSubmitting, autoSubmitForm]);
+
 
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      {/* Основной контент с кастомным скроллбаром */}
-      <div className="px-6 py-8 h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar">
+      
+      {/* Content */}
+      <div className="px-6 pt-8 pb-24">
         {/* Заголовок страницы */}
         <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
           {t.title}
         </h2>
 
         {/* Форма */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-4 text-center">
-              {t.formTitle}
-            </h3>
-          </div>
-
+        <form className="space-y-4">
           {/* Сообщение об успехе */}
           {submitSuccess && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
@@ -194,17 +215,14 @@ const OrderSurveyScreen = () => {
 
           {/* ФИО */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.fullName} *
-            </label>
             <input
               type="text"
               value={formData.fullName}
               onChange={(e) => handleInputChange('fullName', e.target.value)}
-              placeholder={t.fullNamePlaceholder}
+              placeholder={t.fullName}
               required
-              className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors ${
-                formErrors.fullName ? 'border-red-300 bg-red-50' : 'border-gray-300'
+              className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none  transition-colors ${
+                formErrors.fullName ? 'border-red-300 bg-red-50' : ''
               }`}
             />
             {formErrors.fullName && (
@@ -214,45 +232,36 @@ const OrderSurveyScreen = () => {
 
           {/* Организация */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.organization}
-            </label>
             <input
               type="text"
               value={formData.organization}
               onChange={(e) => handleInputChange('organization', e.target.value)}
-              placeholder={t.organizationPlaceholder}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors"
+              placeholder={t.organization}
+              className="w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
             />
           </div>
 
           {/* Должность */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.position}
-            </label>
             <input
               type="text"
               value={formData.position}
               onChange={(e) => handleInputChange('position', e.target.value)}
-              placeholder={t.positionPlaceholder}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors"
+              placeholder={t.position}
+              className="w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
             />
           </div>
 
           {/* Телефон */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.phone} *
-            </label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
-              placeholder={t.phonePlaceholder}
+              placeholder={t.phone}
               required
-              className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors ${
-                formErrors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300'
+              className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
+                formErrors.phone ? 'border-red-300 bg-red-50' : ''
               }`}
             />
             {formErrors.phone && (
@@ -262,16 +271,13 @@ const OrderSurveyScreen = () => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.email}
-            </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder={t.emailPlaceholder}
-              className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors ${
-                formErrors.email ? 'border-red-300 bg-red-50' : 'border-gray-300'
+              placeholder={t.email}
+              className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
+                formErrors.email ? 'border-red-300 bg-red-50' : ''
               }`}
             />
             {formErrors.email && (
@@ -279,40 +285,11 @@ const OrderSurveyScreen = () => {
             )}
           </div>
 
-          {/* Описание */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.description}
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder={t.descriptionPlaceholder}
-              rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#5E5AF6] focus:border-transparent transition-colors resize-none"
-            />
-          </div>
-
-          {/* Кнопка отправки */}
-          <button
-            type="submit"
-            disabled={isSubmitting || submitSuccess}
-            className="w-full bg-[#5E5AF6] text-white py-4 rounded-xl font-semibold hover:bg-[#4A46E8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? t.submitting : submitSuccess ? t.orderCreated : t.submit}
-          </button>
         </form>
-
-        {/* Кнопка "Назад" */}
-        <div className="rounded-2xl bg-[#EDEAFF] p-2 mt-6">
-          <button
-            onClick={() => navigate('/main?tab=profile')}
-            className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
-          >
-            {t.back}
-          </button>
-        </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav tabs={tabs} activeTab="profile" onChange={handleTabChange} />
     </div>
   );
 };

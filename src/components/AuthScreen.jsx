@@ -1,10 +1,11 @@
 // src/screens/AuthScreen.jsx
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { isValidUzbekPhone, isValidOtp, cleanOtp } from "../utils/validation";
 import { getMessage, getApiErrorMessage } from "../constants/messages";
+import { useHapticClick } from "../utils/hapticFeedback";
 import PRO from "../assets/Pro.svg";
 import error from "../assets/X.svg";
 
@@ -35,8 +36,20 @@ const AuthScreen = () => {
   const [step, setStep] = useState("phone"); // 'phone' | 'otp'
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
 
   const otpRefs = useRef(Array.from({ length: OTP_LENGTH }, () => React.createRef()));
+
+  // Таймер для кнопки "Отправить код повторно"
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
 
   const T =
     {
@@ -57,6 +70,8 @@ const AuthScreen = () => {
           "Введён неверный код или срок его действия истёк. Пожалуйста, запросите новый код",
         back: "Назад",
         phoneLabel: "Номер телефона",
+        wrongNumberHint: "Вы неправильно ввели номер?",
+        backToPhone: "Нажмите сюда!",
       },
       uz: {
         title: "Avtorizatsiya",
@@ -72,9 +87,11 @@ const AuthScreen = () => {
         privacy1: "“Avtorizatsiya qilish” tugmasini bosish orqali siz ",
         privacyLink: "maxfiylik siyosati",
         wrongOtp:
-          "Noto‘g‘ri kod yoki uning amal qilish muddati tugagan. Iltimos, yangi kod so‘rang",
+          "Noto'g'ri kod yoki uning amal qilish muddati tugagan. Iltimos, yangi kod so'rang",
         back: "Orqaga",
         phoneLabel: "Telefon raqami",
+        wrongNumberHint: "Telefon raqamini noto'g'ri kiritdingizmi?",
+        backToPhone: "Bu yerga bosing!",
       },
     }[language || "ru"];
 
@@ -103,6 +120,10 @@ const AuthScreen = () => {
     otpRefs.current[Math.min(paste.length, OTP_LENGTH - 1)]?.current?.focus();
   };
 
+  const startResendTimer = () => {
+    setResendTimer(60); // 60 секунд = 1 минута
+  };
+
   const onSendOtp = async () => {
     // Валидация номера телефона
     if (!isValidUzbekPhone(phoneE164)) {
@@ -118,13 +139,21 @@ const AuthScreen = () => {
         setStep("otp");
         // Очищаем OTP поля при переходе к следующему шагу
         setOtp(Array(OTP_LENGTH).fill(""));
+        // Запускаем таймер для повторной отправки
+        startResendTimer();
       } else {
         setErrorText(getMessage('NETWORK_ERROR', language));
       }
     } catch (error) {
       console.error('Send OTP error:', error);
       const errorMessage = getApiErrorMessage(error, language);
-      setErrorText(errorMessage);
+      
+      // Если ошибка связана с неправильным номером телефона, показываем специальное сообщение
+      if (errorMessage.includes('phone') || errorMessage.includes('номер') || errorMessage.includes('raqam')) {
+        setErrorText(getMessage('WRONG_PHONE_NUMBER', language));
+      } else {
+        setErrorText(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -157,6 +186,34 @@ const AuthScreen = () => {
     }
   };
 
+  const handleBackToPhone = () => {
+    setStep("phone");
+    setOtp(Array(OTP_LENGTH).fill(""));
+    setErrorText("");
+  };
+
+  const onResendOtp = async () => {
+    if (resendTimer > 0) return; // Не позволяем отправлять, если таймер активен
+    
+    setIsLoading(true);
+    setErrorText("");
+    try {
+      const ok = await sendOtp(phoneE164);
+      if (ok) {
+        // Запускаем таймер заново
+        startResendTimer();
+      } else {
+        setErrorText(getMessage('NETWORK_ERROR', language));
+      }
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      const errorMessage = getApiErrorMessage(error, language);
+      setErrorText(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FAFAFF] flex flex-col">
       {/* Шапка */}
@@ -179,11 +236,11 @@ const AuthScreen = () => {
           {T.title}
         </h1>
 
-        {/* PHONE STEP — середина экрана */}
+        {/* PHONE STEP — поднято выше */}
         {step === "phone" && (
           <>
-            <div className="flex-1 flex items-center justify-center">
-              <div className="w-full max-w-[320px]">
+            <div className="pt-40">
+              <div className="w-full max-w-[320px] mx-auto">
                 <p className="whitespace-pre-line text-center text-[14px] leading-5 text-[#8B8B99] mb-2">
                   {T.phoneHint}
                 </p>
@@ -207,21 +264,21 @@ const AuthScreen = () => {
               </div>
             </div>
 
-            <div className="h-[112px]" />
+            <div className="flex-1" />
           </>
         )}
 
-        {/* OTP STEP — середина экрана */}
+        {/* OTP STEP — адаптивный макет для клавиатуры */}
         {step === "otp" && (
           <>
-            <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="flex-1 flex flex-col items-center justify-start pt-8 pb-4">
               <div className="w-full max-w-[300px]">
-              <p className="mt-6 text-center text-[14px] leading-5 text-[#8B8B99]">
-                {T.otpHint}{" "}
-                <span className="text-[#5E5AF6] font-semibold">
-                  +998 {formatUzPhone(phoneDigits)}
-                </span>
-              </p>
+                <p className="text-center text-[14px] leading-5 text-[#8B8B99]">
+                  {T.otpHint}{" "}
+                  <span className="text-[#5E5AF6] font-semibold">
+                    +998 {formatUzPhone(phoneDigits)}
+                  </span>
+                </p>
               </div>
 
               <div className="mt-6 flex justify-center">
@@ -244,76 +301,46 @@ const AuthScreen = () => {
                 </div>
               </div>
 
-              <div className="mt-3 text-center">
+              <div className="mt-4 text-center">
                 <span className="text-[#8B8B99] text-sm">{T.resendQ} </span>
                 <button
                   type="button"
-                  onClick={onSendOtp}
-                  disabled={isLoading}
-                  className="text-sm text-[#5E5AF6] hover:opacity-80 underline underline-offset-4 disabled:opacity-50"
+                  onClick={onResendOtp}
+                  disabled={isLoading || resendTimer > 0}
+                  className={`text-sm underline underline-offset-4 disabled:opacity-50 ${
+                    resendTimer > 0 
+                      ? 'text-[#8B8B99] cursor-not-allowed' 
+                      : 'text-[#5E5AF6] hover:opacity-80'
+                  }`}
                 >
-                  {T.resend}
+                  {resendTimer > 0 ? `${T.resend} (${resendTimer}с)` : T.resend}
                 </button>
               </div>
 
-              
+              <div className="mt-3 text-center">
+                <span className="text-[#8B8B99] text-sm">{T.wrongNumberHint} </span>
+                <button
+                  type="button"
+                  onClick={handleBackToPhone}
+                  className="text-sm text-[#5E5AF6] hover:opacity-80 underline underline-offset-4"
+                >
+                  {T.backToPhone}
+                </button>
+              </div>
             </div>
 
-            <div className="h-[112px]" />
+            {/* Адаптивный отступ снизу для клавиатуры */}
+            <div className="h-[20px] sm:h-[112px]" />
           </>
         )}
       </main>
 
       {/* НИЖНИЕ ПАНЕЛИ */}
-      {/* PHONE: только кнопка снизу, БЕЗ текста про политику */}
+      {/* PHONE: кнопка снизу с возможной ошибкой */}
       {step === "phone" && (
-        <div className="fixed left-0 right-0 bottom-0">
-          <div className="mx-auto w-full max-w-[480px] px-6 pb-6">
-            <div className="rounded-2xl w-full bg-[#EDEAFF] p-2">
-              <button
-                onClick={onSendOtp}
-                disabled={isLoading || phoneDigits.length !== 9}
-                className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
-              >
-                {isLoading ? T.sending : T.send}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* OTP: текст политики + кнопка снизу (как на макете) */}
-      {step === "otp" && !errorText && (
-        <div className="fixed left-0 right-0 bottom-0">
-          <div className="mx-auto w-full max-w-[480px] px-6 pb-6">
-            <p className="text-center text-[12px] text-[#8B8B99] mb-3">
-              {T.privacy1}
-              <button
-                type="button"
-                onClick={() => navigate("/privacy")}
-                className="text-[#5E5AF6] underline underline-offset-4"
-              >
-                {T.privacyLink}
-              </button>
-            </p>
-            <div className="rounded-2xl bg-[#EDEAFF] p-2">
-              <button
-                onClick={onVerify}
-                disabled={isLoading || otpToString().length !== OTP_LENGTH}
-                className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
-              >
-                {isLoading ? T.confirming : T.confirm}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* OTP error: текст ошибки + кнопка "Назад" снизу */}
-      {step === "otp" && errorText && (
-        <div className="fixed left-0 right-0 bottom-0">
-          <div className="mx-auto w-full max-w-[480px] px-6 pb-6">
-            {/* Текст ошибки над кнопкой */}
+        <div className="w-full max-w-[480px] mx-auto px-6 pb-6">
+          {/* Показываем ошибку если есть */}
+          {errorText && (
             <div className="mb-3 w-full max-w-[420px] mx-auto px-2">
               <div className="rounded-xl border border-[#FFD2D2] bg-[#FFE9E9] p-4 text-[#C03A3A] flex items-center justify-center gap-3">
                 <div className="flex items-center justify-center gap-3">
@@ -322,19 +349,69 @@ const AuthScreen = () => {
                 </div>
               </div>
             </div>
-            
-            <div className="rounded-2xl bg-[#EDEAFF] p-2">
-              <button
-                onClick={() => {
-                  setErrorText("");
-                  setStep("phone");
-                  setOtp(Array(OTP_LENGTH).fill(""));
-                }}
-                className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
-              >
-                {T.back}
-              </button>
+          )}
+          
+          <div className="rounded-2xl w-full bg-[#EDEAFF] p-2">
+            <button
+              onClick={useHapticClick(onSendOtp, 'medium')}
+              disabled={isLoading || phoneDigits.length !== 9}
+              className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
+            >
+              {isLoading ? T.sending : T.send}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* OTP: текст политики + кнопка снизу (адаптивно) */}
+      {step === "otp" && !errorText && (
+        <div className="w-full max-w-[480px] mx-auto px-6 pb-6">
+          <p className="text-center text-[12px] text-[#8B8B99] mb-3">
+            {T.privacy1}
+            <button
+              type="button"
+              onClick={() => navigate("/privacy")}
+              className="text-[#5E5AF6] underline underline-offset-4"
+            >
+              {T.privacyLink}
+            </button>
+          </p>
+          <div className="rounded-2xl bg-[#EDEAFF] p-2">
+            <button
+              onClick={useHapticClick(onVerify, 'medium')}
+              disabled={isLoading || otpToString().length !== OTP_LENGTH}
+              className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
+            >
+              {isLoading ? T.confirming : T.confirm}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* OTP error: текст ошибки + кнопка "Назад" снизу (адаптивно) */}
+      {step === "otp" && errorText && (
+        <div className="w-full max-w-[480px] mx-auto px-6 pb-6">
+          {/* Текст ошибки над кнопкой */}
+          <div className="mb-3 w-full max-w-[420px] mx-auto px-2">
+            <div className="rounded-xl border border-[#FFD2D2] bg-[#FFE9E9] p-4 text-[#C03A3A] flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-3">
+                <img src={error} alt="X" className="w-6 h-6" />
+                <p className="text-sm leading-[1.45]">{errorText}</p>
+              </div>
             </div>
+          </div>
+          
+          <div className="rounded-2xl bg-[#EDEAFF] p-2">
+            <button
+              onClick={useHapticClick(() => {
+                setErrorText("");
+                setStep("phone");
+                setOtp(Array(OTP_LENGTH).fill(""));
+              }, 'light')}
+              className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
+            >
+              {T.back}
+            </button>
           </div>
         </div>
       )}

@@ -259,6 +259,7 @@ const WithdrawScreen = () => {
       error: "Xatolik yuz berdi",
       invalidCard: "Noto'g'ri karta raqami",
       cardExists: "Bu karta allaqachon qo'shilgan",
+      onlyUzcardHumo: "Faqat UZCARD va HUMO kartalarini qo'shish mumkin",
     },
     ru: {
       balance: "Мой баланс",
@@ -290,6 +291,7 @@ const WithdrawScreen = () => {
       error: "Произошла ошибка",
       invalidCard: "Неверный номер карты",
       cardExists: "Эта карта уже добавлена",
+      onlyUzcardHumo: "Можно добавить только UZCARD и HUMO карты",
     },
   }[language];
 
@@ -317,6 +319,11 @@ const WithdrawScreen = () => {
   const validateCard = () => {
     if (cardDigits.length < 13) return false;
     return isValidCardNumber(cardDigits);
+  };
+
+  const validateCardType = () => {
+    const brand = detectBrand(cardDigits);
+    return brand === "UZCARD" || brand === "HUMO";
   };
   const amountNum = Number(amountDigits || 0);
   const validateAmount = () => amountNum >= MIN_WITHDRAW && amountNum <= bonus;
@@ -377,6 +384,11 @@ const WithdrawScreen = () => {
 
     if (!validateCard()) {
       setErrorText(t.invalidCard);
+      return;
+    }
+
+    if (!validateCardType()) {
+      setErrorText(t.onlyUzcardHumo);
       return;
     }
 
@@ -656,10 +668,10 @@ const WithdrawScreen = () => {
               <div className="sticky bottom-0 left-0 right-0 pt-2">
                 <button
                   onClick={handleContinue}
-                  disabled={!validateCard()}
+                  disabled={!validateCard() || !validateCardType()}
                   className={`w-full h-12 rounded-xl font-medium transition
                     ${
-                      validateCard()
+                      validateCard() && validateCardType()
                         ? "bg-[#5E5AF6] text-white hover:bg-[#4A46E8] active:scale-[0.99]"
                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     }

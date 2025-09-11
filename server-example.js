@@ -36,10 +36,7 @@ function verifyTallySignature(signature, payload) {
   );
 }
 
-/**
- * Обработка входящего webhook от Tally
- */
-app.post('/api/webhook/tally', async (req, res) => {
+app.post('/api/webhooks/tilda', async (req, res) => {
   try {
     const signature = req.headers['x-tally-signature'];
     const webhookData = req.body;
@@ -90,7 +87,7 @@ app.post('/api/webhook/tally', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error processing Tally webhook:', error);
+    console.error('Error processing Tilda webhook:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'

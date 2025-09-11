@@ -13,6 +13,7 @@ import ProjectInfoScreen from './components/ProjectInfoScreen';
 import PublicOfferScreen from './components/PublicOfferScreen';
 import SupportScreen from './components/SupportScreen';
 import ProfileEditPage from './components/ProfileEditPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
@@ -28,6 +29,9 @@ function AppContent() {
 
     tg.ready();
     tg.expand();
+    
+    // Фиксируем нижнюю панель, чтобы она не скрывалась при скролле
+    tg.MainButton.show();
 
     // Цвета шапки и фона WebView — под верхний цвет твоего градиента (#6A4CFF)
     tg.setHeaderColor?.('#6A4CFF');       // На iOS может игнорироваться, но на Android ок
@@ -75,18 +79,49 @@ function RouterContent() {
         }}
       >
         <Routes>
+          {/* Публичные маршруты (не требуют авторизации) */}
           <Route path="/" element={<WelcomeScreen />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/auth" element={<AuthScreen />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/main" element={<MainScreen />} />
-          <Route path="/withdraw" element={<WithdrawScreen />} />
-          <Route path="/order-survey" element={<OrderSurveyScreen />} />
-          <Route path="/referral-program" element={<ReferralProgramScreen />} />
-          <Route path="/project-info" element={<ProjectInfoScreen />} />
           <Route path="/public-offer" element={<PublicOfferScreen />} />
-          <Route path="/support" element={<SupportScreen />} />
-          <Route path="/profile-edit" element={<ProfileEditPage />} />
+          
+          {/* Защищенные маршруты (требуют авторизации) */}
+          <Route path="/main" element={
+            <ProtectedRoute>
+              <MainScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/withdraw" element={
+            <ProtectedRoute>
+              <WithdrawScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/order-survey" element={
+            <ProtectedRoute>
+              <OrderSurveyScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/referral-program" element={
+            <ProtectedRoute>
+              <ReferralProgramScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/project-info" element={
+            <ProtectedRoute>
+              <ProjectInfoScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/support" element={
+            <ProtectedRoute>
+              <SupportScreen />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile-edit" element={
+            <ProtectedRoute>
+              <ProfileEditPage />
+            </ProtectedRoute>
+          } />
         </Routes>
 
         {/* Language Modal */}
