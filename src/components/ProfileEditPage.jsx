@@ -435,9 +435,9 @@ const ProfileEditPage = () => {
       <div className={`p-4 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <div className="max-w-md mx-auto">
           {/* Карточка профиля с фиолетовым градиентом */}
-          <div className="bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-6 text-white shadow-lg mb-6">
+          <div className={`bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl text-white shadow-lg mb-6 transition-all duration-300 ${isKeyboardOpen ? 'mt-4 p-4' : 'mt-0 p-6'}`}>
             {/* Заголовок формы с иконками */}
-            <div className="flex relative gap-2 items-center mb-6">
+            <div className={`flex relative gap-2 items-center transition-all duration-300 ${isKeyboardOpen ? 'mb-4' : 'mb-6'}`}>
               {/* Аватарка пользователя слева */}
               <div className="w-12 h-12 flex items-center justify-center">
                 <UserAvatar 
@@ -465,7 +465,7 @@ const ProfileEditPage = () => {
             </div>
 
             {/* Форма редактирования профиля */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className={`space-y-4 transition-all duration-300 ${isKeyboardOpen ? 'space-y-3' : 'space-y-4'}`}>
               {/* Имя */}
               <div>
                 <label className="block text-white/90 text-sm mb-2 font-medium">
@@ -477,7 +477,7 @@ const ProfileEditPage = () => {
                     value={formData.full_name}
                     onChange={(e) => handleInputChange('full_name', e.target.value)}
                     placeholder={t.namePlaceholder}
-                    className="w-full px-4 py-3 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all"
+                    className={`w-full px-4 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all ${isKeyboardOpen ? 'py-2' : 'py-3'}`}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <svg
@@ -519,7 +519,7 @@ const ProfileEditPage = () => {
                     type="tel"
                     value={formData.phone_number}
                     disabled
-                    className="w-full px-4 py-3 bg-white/10 rounded-xl text-white/60 cursor-not-allowed"
+                    className={`w-full px-4 bg-white/10 rounded-xl text-white/60 cursor-not-allowed ${isKeyboardOpen ? 'py-2' : 'py-3'}`}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <svg
@@ -557,7 +557,7 @@ const ProfileEditPage = () => {
                     pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{4}"
                     maxLength="10"
                     autoComplete="bday"
-                    className="w-full px-4 py-3 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all"
+                    className={`w-full px-4 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all ${isKeyboardOpen ? 'py-2' : 'py-3'}`}
                     style={{ fontVariantNumeric: 'tabular-nums' }}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -594,7 +594,7 @@ const ProfileEditPage = () => {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder={t.emailPlaceholder}
-                    className="w-full px-4 py-3 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all"
+                    className={`w-full px-4 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all ${isKeyboardOpen ? 'py-2' : 'py-3'}`}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <svg
@@ -635,11 +635,11 @@ const ProfileEditPage = () => {
 
               {/* Кнопка сохранения */}
               {hasChanges && (
-                <div className="pt-4">
+                <div className={`transition-all duration-300 ${isKeyboardOpen ? 'pt-2' : 'pt-4'}`}>
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`w-full bg-white/20 hover:bg-white/30 text-white font-medium px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isKeyboardOpen ? 'py-2' : 'py-3'}`}
                   >
                     {isLoading ? t.loading : t.save}
                   </button>
