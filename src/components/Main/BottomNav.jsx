@@ -12,19 +12,24 @@ const mapIcon = {
 
 const BottomNav = ({ tabs, activeTab, onChange }) => {
   const hapticOnChange = useHapticClick(onChange, 'selection');
-  const { isKeyboardOpen, keyboardHeight } = useKeyboard();
+  const { isKeyboardOpen } = useKeyboard();
 
   return (
-  <div className={`fixed left-0 right-0 z-20 transition-all duration-300 ${isKeyboardOpen ? 'bottom-[300px]' : 'bottom-0'}`}>
-    <nav
-      className="
-        w-full border-t border-[#E6E6F5]
-        bg-white text-[#7A7A8F] shadow-[0_10px_30px_rgba(40,40,80,0.12)]
-        pb-[env(safe-area-inset-bottom)]
-      "
-      role="tablist"
-      aria-label="Bottom navigation"
+    <div
+      className={`
+        fixed left-0 right-0 z-20 transition-transform duration-300
+        ${isKeyboardOpen ? 'translate-y-full' : 'translate-y-0'}
+      `}
     >
+      <nav
+        className="
+          w-full border-t border-[#E6E6F5]
+          bg-white text-[#7A7A8F] shadow-[0_10px_30px_rgba(40,40,80,0.12)]
+          pb-[env(safe-area-inset-bottom)]
+        "
+        role="tablist"
+        aria-label="Bottom navigation"
+      >
         <div className="grid grid-cols-4">
           {tabs.map((tab) => {
             const Icon = mapIcon[tab.id];
@@ -44,7 +49,7 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
                   ${isActive ? 'text-[#5E5AF6]' : 'text-[#7A7A8F] hover:text-[#5E5AF6]'}
                 `}
               >
-                {/* легкая подсветка активного */}
+                {/* индикатор активного */}
                 <span
                   aria-hidden
                   className={`
@@ -63,7 +68,7 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
           })}
         </div>
       </nav>
-  </div>
+    </div>
   );
 };
 
