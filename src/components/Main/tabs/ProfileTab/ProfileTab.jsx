@@ -83,7 +83,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
   };
 
   const handleEditProfile = () => {
-    navigate('/profile-edit');
+    navigate('/profile-edit?tab=profile');
   };
 
   const handleLanguageClose = () => {
@@ -144,7 +144,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
         </div>
 
         {/* Меню опций */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* Информация о проекте */}
           <button
             onClick={() => handleMenuClick("/project-info")}

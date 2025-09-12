@@ -26,6 +26,15 @@ export const config = {
     WEBHOOK_URL: import.meta.env.VITE_TALLY_WEBHOOK_URL || 'https://api.prosurvey.uz/api/webhooks/tilda',
     // Секретный ключ для верификации webhook (если используется)
     WEBHOOK_SECRET: import.meta.env.VITE_TALLY_WEBHOOK_SECRET || '',
+    // Настройки для серверного API
+    SERVER_API: {
+      // Использовать серверный API вместо прямого обращения к Tally
+      ENABLED: import.meta.env.VITE_TALLY_SERVER_API_ENABLED !== 'false', // по умолчанию включен
+      // Таймаут для запросов к серверному API
+      TIMEOUT: parseInt(import.meta.env.VITE_TALLY_SERVER_API_TIMEOUT) || 15000, // 15 секунд
+      // Количество попыток при ошибках
+      RETRY_ATTEMPTS: parseInt(import.meta.env.VITE_TALLY_SERVER_API_RETRY_ATTEMPTS) || 3,
+    },
   },
 };
 

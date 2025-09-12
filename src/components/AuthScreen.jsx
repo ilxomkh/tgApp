@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { isValidUzbekPhone, isValidOtp, cleanOtp } from "../utils/validation";
 import { getMessage, getApiErrorMessage } from "../constants/messages";
 import { useHapticClick } from "../utils/hapticFeedback";
+import { useKeyboard } from "../hooks/useKeyboard";
 import PRO from "../assets/Pro.svg";
 import error from "../assets/X.svg";
 
@@ -30,6 +31,7 @@ const AuthScreen = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { sendOtp, login } = useAuth();
+  const { isKeyboardOpen, keyboardHeight } = useKeyboard();
 
   const [phoneDigits, setPhoneDigits] = useState("");
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
@@ -39,6 +41,13 @@ const AuthScreen = () => {
   const [resendTimer, setResendTimer] = useState(0);
 
   const otpRefs = useRef(Array.from({ length: OTP_LENGTH }, () => React.createRef()));
+
+  // Функция для закрытия клавиатуры
+  const closeKeyboard = () => {
+    if (document.activeElement && document.activeElement.blur) {
+      document.activeElement.blur();
+    }
+  };
 
   // Таймер для кнопки "Отправить код повторно"
   useEffect(() => {
@@ -55,11 +64,13 @@ const AuthScreen = () => {
     {
       ru: {
         title: "Авторизоваться",
-        phoneHint: "Введите номер телефона,\nна него придет проверочный SMS-код",
+        phoneHint: "Введите номер телефона",
+        phoneHintSubtext: "на него придет проверочный SMS-код",
         phonePlaceholder: "99 999 99 99",
         send: "Отправить код",
         sending: "Отправляется...",
         otpHint: "Введите код, отправленный на номер",
+        otpHintSubtext: "",
         resendQ: "Не получили код?",
         resend: "Отправить код повторно",
         confirm: "Авторизоваться",
@@ -76,11 +87,13 @@ const AuthScreen = () => {
       },
       uz: {
         title: "Avtorizatsiya",
-        phoneHint: "Telefon raqamini kiriting,\nunga tekshiruv SMS kodi keladi",
+        phoneHint: "Telefon raqamini kiriting",
+        phoneHintSubtext: "unga tekshiruv SMS kodi keladi",
         phonePlaceholder: "99 999 99 99",
         send: "Kod yuborish",
         sending: "Yuborilmoqda...",
         otpHint: "Ushbu raqamga yuborilgan kodni kiriting",
+        otpHintSubtext: "",
         resendQ: "Kod kelmadimi?",
         resend: "Qayta yuborish",
         confirm: "Avtorizatsiya qilish",
@@ -105,7 +118,13 @@ const AuthScreen = () => {
     const next = [...otp];
     next[i] = val;
     setOtp(next);
-    if (val && i < OTP_LENGTH - 1) otpRefs.current[i + 1]?.current?.focus();
+    
+    if (val && i < OTP_LENGTH - 1) {
+      otpRefs.current[i + 1]?.current?.focus();
+    } else if (val && i === OTP_LENGTH - 1) {
+      // Закрываем клавиатуру при заполнении последнего поля OTP
+      setTimeout(closeKeyboard, 100);
+    }
   };
   const handleOtpKeyDown = (i, e) => {
     if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1]?.current?.focus();
@@ -119,7 +138,14 @@ const AuthScreen = () => {
     const next = Array(OTP_LENGTH).fill("");
     for (let i = 0; i < paste.length; i++) next[i] = paste[i];
     setOtp(next);
-    otpRefs.current[Math.min(paste.length, OTP_LENGTH - 1)]?.current?.focus();
+    
+    const focusIndex = Math.min(paste.length, OTP_LENGTH - 1);
+    otpRefs.current[focusIndex]?.current?.focus();
+    
+    // Закрываем клавиатуру если вставлен полный код
+    if (paste.length === OTP_LENGTH) {
+      setTimeout(closeKeyboard, 100);
+    }
   };
 
   const startResendTimer = () => {
@@ -238,14 +264,19 @@ const AuthScreen = () => {
           {T.title}
         </h1>
 
-        {/* PHONE STEP — поднято выше */}
+        {/* PHONE STEP — адаптивный макет для клавиатуры */}
         {step === "phone" && (
           <>
-            <div className="pt-40">
+            <div className={`transition-all duration-300 ${isKeyboardOpen ? 'pt-8' : 'pt-40'}`}>
               <div className="w-full max-w-[320px] mx-auto">
-                <p className="whitespace-pre-line text-center text-[14px] leading-5 text-[#8B8B99] mb-2">
-                  {T.phoneHint}
-                </p>
+                <div className="text-center mb-2">
+                  <p className="text-[14px] leading-5 text-[#8B8B99] mb-1">
+                    {T.phoneHint}
+                  </p>
+                  <p className="text-[14px] leading-5 text-[#8B8B99]">
+                    {T.phoneHintSubtext}
+                  </p>
+                </div>
                 <div className="flex items-center gap-1">
                   <div className="h-13 px-2 rounded-xl border border-[#E7E7F5] flex items-center gap-2 text-[#2B2B33]">
                     <span className="text-[24px] leading-none">🇺🇿</span>
@@ -258,7 +289,14 @@ const AuthScreen = () => {
                     pattern="[0-9]*"
                     placeholder={T.phonePlaceholder}
                     value={formatUzPhone(phoneDigits)}
-                    onChange={(e) => setPhoneDigits(extractUzDigits(e.target.value))}
+                    onChange={(e) => {
+                      const newDigits = extractUzDigits(e.target.value);
+                      setPhoneDigits(newDigits);
+                      // Закрываем клавиатуру при вводе 9-й цифры
+                      if (newDigits.length === 9) {
+                        setTimeout(closeKeyboard, 100);
+                      }
+                    }}
                     className="flex-1 h-13 w-full rounded-xl border border-[#E7E7F5] px-2 text-[24px] font-medium placeholder:text-[#D7D7E6] text-[#2B2B33] focus:outline-none focus:border-[#6A4CFF]"
                     autoComplete="tel"
                   />
@@ -266,21 +304,24 @@ const AuthScreen = () => {
               </div>
             </div>
 
-            <div className="flex-1" />
+            {/* Адаптивный отступ снизу для клавиатуры */}
+            <div className={`transition-all duration-300 ${isKeyboardOpen ? 'h-[20px]' : 'flex-1'}`} />
           </>
         )}
 
         {/* OTP STEP — адаптивный макет для клавиатуры */}
         {step === "otp" && (
           <>
-            <div className="flex-1 flex flex-col items-center justify-start pt-8 pb-4">
+            <div className={`transition-all duration-300 flex flex-col items-center justify-start pb-4 ${isKeyboardOpen ? 'pt-4' : 'pt-8 flex-1'}`}>
               <div className="w-full max-w-[300px]">
-                <p className="text-center text-[14px] leading-5 text-[#8B8B99]">
-                  {T.otpHint}{" "}
-                  <span className="text-[#5E5AF6] font-semibold">
+                <div className="text-center">
+                  <p className="text-[14px] leading-5 text-[#8B8B99] mb-1">
+                    {T.otpHint}
+                  </p>
+                  <p className="text-[14px] leading-5 text-[#5E5AF6] font-semibold">
                     +998 {formatUzPhone(phoneDigits)}
-                  </span>
-                </p>
+                  </p>
+                </div>
               </div>
 
               <div className="mt-6 flex justify-center">
@@ -309,10 +350,10 @@ const AuthScreen = () => {
                   type="button"
                   onClick={onResendOtp}
                   disabled={isLoading || resendTimer > 0}
-                  className={`text-sm underline underline-offset-4 disabled:opacity-50 ${
+                  className={`text-sm underline underline-offset-4 disabled:opacity-50 transition ${
                     resendTimer > 0 
                       ? 'text-[#8B8B99] cursor-not-allowed' 
-                      : 'text-[#5E5AF6] hover:opacity-80'
+                      : 'text-[#6A4CFF] hover:text-[#5A3CE8] hover:opacity-80'
                   }`}
                 >
                   {resendTimer > 0 ? `${T.resend} (${resendTimer}с)` : T.resend}
@@ -324,7 +365,7 @@ const AuthScreen = () => {
                 <button
                   type="button"
                   onClick={handleBackToPhone}
-                  className="text-sm text-[#5E5AF6] hover:opacity-80 underline underline-offset-4"
+                  className="text-sm text-[#6A4CFF] hover:text-[#5A3CE8] hover:opacity-80 underline underline-offset-4 transition"
                 >
                   {T.backToPhone}
                 </button>
@@ -332,7 +373,7 @@ const AuthScreen = () => {
             </div>
 
             {/* Адаптивный отступ снизу для клавиатуры */}
-            <div className="h-[20px] sm:h-[112px]" />
+            <div className={`transition-all duration-300 ${isKeyboardOpen ? 'h-[20px]' : 'h-[20px] sm:h-[112px]'}`} />
           </>
         )}
       </main>
@@ -340,7 +381,7 @@ const AuthScreen = () => {
       {/* НИЖНИЕ ПАНЕЛИ */}
       {/* PHONE: кнопка снизу с возможной ошибкой */}
       {step === "phone" && (
-        <div className="w-full max-w-[480px] mx-auto px-6 pb-6">
+        <div className={`w-full max-w-[480px] mx-auto px-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-2' : 'pb-6'}`}>
           {/* Показываем ошибку если есть */}
           {errorText && (
             <div className="mb-3 w-full max-w-[420px] mx-auto px-2">
@@ -357,7 +398,11 @@ const AuthScreen = () => {
             <button
               onClick={useHapticClick(onSendOtp, 'medium')}
               disabled={isLoading || phoneDigits.length !== 9}
-              className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
+              className={`w-full h-[48px] rounded-xl text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition ${
+                phoneDigits.length === 9 
+                  ? 'bg-[#6A4CFF] hover:bg-[#5A3CE8]' 
+                  : 'bg-[#8C8AF9]'
+              }`}
             >
               {isLoading ? T.sending : T.send}
             </button>
@@ -367,7 +412,7 @@ const AuthScreen = () => {
 
       {/* OTP: текст политики + кнопка снизу (адаптивно) */}
       {step === "otp" && !errorText && (
-        <div className="w-full max-w-[480px] mx-auto px-6 pb-6">
+        <div className={`w-full max-w-[480px] mx-auto px-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-2' : 'pb-6'}`}>
           <p className="text-center text-[12px] text-[#8B8B99] mb-3">
             {T.privacy1}
             <button
@@ -383,7 +428,11 @@ const AuthScreen = () => {
             <button
               onClick={useHapticClick(onVerify, 'medium')}
               disabled={isLoading || otpToString().length !== OTP_LENGTH}
-              className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition"
+              className={`w-full h-[48px] rounded-xl text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition ${
+                otpToString().length === OTP_LENGTH 
+                  ? 'bg-[#6A4CFF] hover:bg-[#5A3CE8]' 
+                  : 'bg-[#8C8AF9]'
+              }`}
             >
               {isLoading ? T.confirming : T.confirm}
             </button>
@@ -393,7 +442,7 @@ const AuthScreen = () => {
 
       {/* OTP error: текст ошибки + кнопка "Назад" снизу (адаптивно) */}
       {step === "otp" && errorText && (
-        <div className="w-full max-w-[480px] mx-auto px-6 pb-6">
+        <div className={`w-full max-w-[480px] mx-auto px-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-2' : 'pb-6'}`}>
           {/* Текст ошибки над кнопкой */}
           <div className="mb-3 w-full max-w-[420px] mx-auto px-2">
             <div className="rounded-xl border border-[#FFD2D2] bg-[#FFE9E9] p-4 text-[#C03A3A] flex items-center justify-center gap-3">
@@ -411,7 +460,7 @@ const AuthScreen = () => {
                 setStep("phone");
                 setOtp(Array(OTP_LENGTH).fill(""));
               }, 'light')}
-              className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
+              className="w-full h-[48px] rounded-xl bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white font-semibold active:scale-[0.99] transition"
             >
               {T.back}
             </button>

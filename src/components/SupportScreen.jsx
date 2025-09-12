@@ -3,6 +3,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Header from "./header";
 import BottomNav from "./Main/BottomNav";
+import { useTelegramBackButton } from "../hooks/useTelegramBackButton";
 
 const SupportScreen = () => {
   const { language } = useLanguage();
@@ -69,14 +70,21 @@ const SupportScreen = () => {
     window.open('https://t.me/prosurvey_support', '_blank');
   };
 
+  const handleBack = () => {
+    navigate(-1); // Возврат на предыдущую страницу
+  };
+
+  // Настраиваем кнопку "Назад" в Telegram Mini App
+  useTelegramBackButton(handleBack, true);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50">
       <Header />
       
       {/* Content */}
-      <div className="px-6 pt-8 pb-24">
+      <div className="px-6 pt-4 pb-30">
         {/* Заголовок страницы */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-[#5E5AF6] to-[#8888FC] flex items-center justify-center">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
@@ -91,9 +99,9 @@ const SupportScreen = () => {
         </div>
 
         {/* Карточки поддержки */}
-        <div className="space-y-6">
+        <div className="space-y-3">
           {/* Telegram карточка */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgba(2,6,23,0.06)] border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-white">
@@ -109,7 +117,7 @@ const SupportScreen = () => {
                 </p>
                 <button
                   onClick={openTelegram}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] transition-all duration-200 flex items-center gap-2 shadow-lg"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] transition-all duration-200 flex items-center gap-2"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M9.04 15.51l-.38 5.34c.54 0 .78-.23 1.06-.5l2.55-2.43 5.29 3.87c.97.53 1.66.25 1.93-.9l3.49-16.37h.01c.31-1.45-.52-2.02-1.46-1.67L1.24 10.1c-1.41.55-1.39 1.35-.24 1.7l5.32 1.66L19.6 6.88c.73-.48 1.4-.22.85.26" />
@@ -121,7 +129,7 @@ const SupportScreen = () => {
           </div>
 
           {/* Email карточка */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgba(2,6,23,0.06)] border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center flex-shrink-0">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -143,7 +151,7 @@ const SupportScreen = () => {
           </div>
 
           {/* Время работы карточка */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgba(2,6,23,0.06)] border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center flex-shrink-0">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -169,7 +177,7 @@ const SupportScreen = () => {
           </div>
 
           {/* Время ответа карточка */}
-          <div className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgba(2,6,23,0.06)] border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 border border-gray-100">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center flex-shrink-0">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -196,7 +204,7 @@ const SupportScreen = () => {
         </div>
 
         {/* Примечание */}
-        <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
+        <div className="mt-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <div className="flex items-start gap-3">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-600 flex-shrink-0 mt-0.5">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>

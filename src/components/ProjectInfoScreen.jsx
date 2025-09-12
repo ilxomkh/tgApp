@@ -41,10 +41,11 @@ const ProjectInfoScreen = () => {
   const t = translations[language || "ru"];
 
   return (
-    <div className="">
+    <div className="min-h-screen bg-[#F4F4FF] flex flex-col">
       <Header />
-      {/* Основной контент с кастомным скроллбаром */}
-      <div className="px-6 py-8 overflow-y-auto custom-scrollbar">
+      
+      {/* Основной контент с прокруткой */}
+      <div className="flex-1 overflow-y-auto px-6 py-8 pb-[100px] custom-scrollbar">
         {/* Заголовок страницы */}
         <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
           {t.title}
@@ -86,15 +87,19 @@ const ProjectInfoScreen = () => {
             </p>
           </div>
         </div>
+      </div>
 
-        {/* Кнопка "Назад" */}
-        <div className="rounded-2xl bg-[#EDEAFF] p-2 mt-10">
-          <button
-            onClick={() => navigate('/main?tab=profile')}
-            className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
-          >
-            {t.back}
-          </button>
+      {/* Фиксированная кнопка "Назад" внизу экрана */}
+      <div className="fixed bottom-3 left-0 right-0 z-20 p-4 pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-md mx-auto">
+          <div className="rounded-2xl bg-[#EDEAFF] p-2">
+            <button
+              onClick={() => navigate('/main?tab=profile')}
+              className="w-full h-[48px] rounded-xl bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-semibold active:scale-[0.99] transition"
+            >
+              {t.back}
+            </button>
+          </div>
         </div>
       </div>
     </div>

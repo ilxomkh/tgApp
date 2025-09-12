@@ -21,15 +21,14 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
 
   return (
   <div className="fixed bottom-0 left-0 right-0 z-20 pb-[env(safe-area-inset-bottom)]">
-    <div className="mx-auto max-w-md px-3">
-      <nav
-        className="
-          mb-3 rounded-2xl border border-[#E6E6F5]
-          bg-white text-[#7A7A8F] shadow-[0_10px_30px_rgba(40,40,80,0.12)]
-        "
-        role="tablist"
-        aria-label="Bottom navigation"
-      >
+    <nav
+      className="
+        w-full border-t border-[#E6E6F5]
+        bg-white text-[#7A7A8F] shadow-[0_10px_30px_rgba(40,40,80,0.12)]
+      "
+      role="tablist"
+      aria-label="Bottom navigation"
+    >
         <div className="grid grid-cols-4">
           {tabs.map((tab) => {
             const Icon = mapIcon[tab.id];
@@ -53,7 +52,7 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
                 <span
                   aria-hidden
                   className={`
-                    pointer-events-none absolute inset-x-6 bottom-1 h-1 rounded-full
+                    pointer-events-none absolute bottom-1 left-1/2 transform -translate-x-1/2 h-1 w-8 rounded-full
                     ${isActive ? 'bg-[#5E5AF6]' : 'bg-transparent'}
                   `}
                 />
@@ -68,7 +67,6 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
           })}
         </div>
       </nav>
-    </div>
   </div>
   );
 };

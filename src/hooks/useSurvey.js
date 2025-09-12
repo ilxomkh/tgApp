@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
 import tallyWebhookService from '../services/tallyWebhook.js';
+import tallyApiService from '../services/tallyApi.js';
 import api from '../services/api.js';
+import config from '../config.js';
 
 export const useSurvey = () => {
   const [loading, setLoading] = useState(false);
@@ -14,14 +16,14 @@ export const useSurvey = () => {
     setError(null);
     
     try {
-      // Получаем опросы из Tally для текущего языка
-      const forms = tallyWebhookService.getAvailableForms(language);
+      // Используем новый сервис для получения форм
+      const forms = await tallyApiService.getAvailableForms(language);
       
       const surveys = forms.map(form => ({
         id: form.id,
         title: form.title,
         type: 'tally',
-        formUrl: tallyWebhookService.getFormUrl(language, form.formId),
+        formUrl: form.url || tallyApiService.getFormUrl(language, form.formId),
         language,
         formId: form.formId,
         // Информация о призах
@@ -53,23 +55,21 @@ export const useSurvey = () => {
     setError(null);
     
     try {
-      // Получаем информацию о форме из доступных форм
-      const forms = tallyWebhookService.getAvailableForms(language);
+      // Сначала получаем список всех форм
+      const forms = await tallyApiService.getAvailableForms(language);
+      
+      // Ищем форму по ID в списке доступных форм
       const form = forms.find(f => f.id === surveyId);
       
       if (!form) {
-        throw new Error('Опрос не найден');
+        throw new Error(`Опрос с ID "${surveyId}" не найден`);
       }
       
-      // Получаем URL формы Tally
-      const formUrl = tallyWebhookService.getFormUrl(language, form.formId);
-      
-      // Возвращаем информацию о форме Tally
       return {
         id: surveyId,
         title: form.title,
         type: 'tally',
-        formUrl,
+        formUrl: form.url || tallyApiService.getFormUrl(language, form.formId),
         language,
         formId: form.formId,
         // Для совместимости с существующим кодом, возвращаем базовую структуру
@@ -121,10 +121,48 @@ export const useSurvey = () => {
     }
   }, [language]);
 
+  // =======================
+  // Дополнительные методы для работы с Tally API
+  // =======================
+
+  // Получение ответов на форму
+  const getFormResponses = useCallback(async (formId) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await tallyApiService.getFormResponses(formId);
+      return result;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Синхронизация данных с Tally
+  const syncTallyData = useCallback(async (formId) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await tallyApiService.syncData(formId, 'sync');
+      return result;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     getSurvey,
     submitSurvey,
     getAvailableSurveys,
+    getFormResponses,
+    syncTallyData,
     loading,
     error
   };

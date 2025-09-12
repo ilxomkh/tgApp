@@ -174,6 +174,74 @@ export const useApi = () => {
     }
   }, []);
 
+  // =======================
+  // Tally API методы
+  // =======================
+
+  const getTallyForms = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await api.getTallyForms();
+      return { success: true, data: result };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to get Tally forms';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getTallyFormById = useCallback(async (formId) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await api.getTallyFormById(formId);
+      return { success: true, data: result };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to get Tally form';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getTallyFormResponses = useCallback(async (formId) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await api.getTallyFormResponses(formId);
+      return { success: true, data: result };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to get Tally form responses';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const syncTallyData = useCallback(async (syncData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await api.syncTallyData(syncData);
+      return { success: true, data: result };
+    } catch (err) {
+      const errorMessage = err.message || 'Failed to sync Tally data';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
@@ -191,6 +259,11 @@ export const useApi = () => {
     getInviteStats,
     createOrder,
     createPayment,
+    // Tally API методы
+    getTallyForms,
+    getTallyFormById,
+    getTallyFormResponses,
+    syncTallyData,
     clearError,
   };
 };

@@ -257,6 +257,47 @@ export const api = {
     });
     return handleResponse(response);
   },
+
+  // =======================
+  // Tally API через сервер
+  // =======================
+  
+  // Получение списка форм Tally
+  getTallyForms: async () => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TALLY_FORMS}`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // Получение конкретной формы Tally по ID
+  getTallyFormById: async (formId) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_BY_ID}/${formId}`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // Получение ответов на форму Tally
+  getTallyFormResponses: async (formId) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_RESPONSES}/${formId}/responses`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  // Синхронизация данных с Tally
+  syncTallyData: async (syncData) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TALLY_SYNC}`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(syncData),
+    });
+    return handleResponse(response);
+  },
 };
 
 export default api;

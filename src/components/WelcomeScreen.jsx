@@ -33,7 +33,7 @@ const WelcomeScreen = () => {
         'Siz kerakli so\'rovnomalarda ishtirok etib pul topishingiz mumkin. "PROSURVEY" MChJ rasmiy Telegram boti.',
       buttonText: "Botdan foydalanish uchun bosing",
       startButton: "Старт",
-      languageButton: "Tilni o'zgartirish",
+      languageButton: "Tilni tanlash",
     },
     ru: {
       title: "Pro Survey",
@@ -41,7 +41,7 @@ const WelcomeScreen = () => {
         'Вы можете заработать деньги, участвуя в необходимых опросах. Официальный Telegram бот ООО "PROSURVEY".',
       buttonText: "Чтобы использовать бота, нажмите сюда",
       startButton: "Старт",
-      languageButton: "Изменить язык",
+      languageButton: "Выбрать язык",
     },
   };
 

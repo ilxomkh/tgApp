@@ -202,6 +202,43 @@
  * @property {string} [lotteryId] - ID лотереи
  */
 
+/**
+ * @typedef {Object} TallyForm
+ * @property {string} id - ID формы
+ * @property {string} title - Название формы
+ * @property {string} description - Описание формы
+ * @property {string} status - Статус формы (published, draft, etc.)
+ * @property {string} createdAt - Дата создания
+ * @property {string} updatedAt - Дата обновления
+ * @property {string} url - URL формы
+ * @property {number} responseCount - Количество ответов
+ */
+
+/**
+ * @typedef {Object} TallyFormResponse
+ * @property {string} id - ID ответа
+ * @property {string} formId - ID формы
+ * @property {string} submissionId - ID отправки
+ * @property {string} respondentId - ID респондента
+ * @property {Object} answers - Ответы на вопросы
+ * @property {string} createdAt - Дата создания ответа
+ * @property {string} updatedAt - Дата обновления ответа
+ */
+
+/**
+ * @typedef {Object} TallySyncRequest
+ * @property {string} formId - ID формы для синхронизации
+ * @property {string} [action] - Действие синхронизации (sync, refresh, etc.)
+ */
+
+/**
+ * @typedef {Object} TallySyncResponse
+ * @property {boolean} success - Успешность синхронизации
+ * @property {string} message - Сообщение о результате
+ * @property {number} [syncedResponses] - Количество синхронизированных ответов
+ * @property {string} [lastSyncAt] - Время последней синхронизации
+ */
+
 export const API_ENDPOINTS = {
   REQUEST_OTP: '/auth/request-otp',
   VERIFY_OTP: '/auth/verify-otp',
@@ -217,6 +254,11 @@ export const API_ENDPOINTS = {
   TALLY_WEBHOOK: '/webhooks/tilda',
   GET_SURVEY_RESPONSES: '/surveys/responses',
   PROCESS_SURVEY_RESPONSE: '/surveys/process',
+  // Новые Tally API endpoints через сервер
+  TALLY_FORMS: '/tally/tally/forms',
+  TALLY_FORM_BY_ID: '/tally/tally/forms',
+  TALLY_FORM_RESPONSES: '/tally/tally/forms',
+  TALLY_SYNC: '/tally/tally/sync',
 };
 
 export const HTTP_STATUS = {

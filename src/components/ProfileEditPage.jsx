@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -15,9 +15,11 @@ import BottomNav from './Main/BottomNav';
 import { SettingsIcon, UserIcon } from './Main/icons';
 import UserAvatar from './UserAvatar';
 import { useKeyboard } from '../hooks/useKeyboard';
+import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 
 const ProfileEditPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { language } = useLanguage();
   const { user, updateProfile, logout } = useAuth();
   const { isKeyboardOpen } = useKeyboard();
@@ -368,16 +370,42 @@ const ProfileEditPage = () => {
     await saveProfile();
   };
 
+  // Определяем активный таб на основе источника перехода
+  const getActiveTab = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+    console.log('ProfileEditPage - URL search params:', location.search);
+    console.log('ProfileEditPage - tab param:', tabParam);
+    const result = tabParam === 'profile' ? 'profile' : 'home';
+    console.log('ProfileEditPage - active tab:', result);
+    return result;
+  };
+
+  const activeTab = getActiveTab();
+
   const handleBack = async () => {
     if (hasChanges) {
       const saved = await saveProfile();
       if (saved) {
-        navigate(-1); // Возврат на предыдущую страницу
+        // Возвращаемся на соответствующий таб
+        if (activeTab === 'profile') {
+          navigate('/main?tab=profile');
+        } else {
+          navigate('/main?tab=home');
+        }
       }
     } else {
-      navigate(-1); // Возврат на предыдущую страницу
+      // Возвращаемся на соответствующий таб
+      if (activeTab === 'profile') {
+        navigate('/main?tab=profile');
+      } else {
+        navigate('/main?tab=home');
+      }
     }
   };
+
+  // Настраиваем кнопку "Назад" в Telegram Mini App
+  useTelegramBackButton(handleBack, true);
 
   // Автосохранение при переходе на другую страницу
   useEffect(() => {
@@ -619,18 +647,28 @@ const ProfileEditPage = () => {
       {/* Нижняя навигация */}
       <BottomNav 
         tabs={tabs} 
-        activeTab="profile" 
+        activeTab={activeTab} 
         onChange={async (tabId) => {
-          if (tabId === 'profile') return; // Остаемся на текущей странице
+          if (tabId === activeTab) return; // Остаемся на текущей странице
           
           // Автосохранение перед переходом
           if (hasChanges) {
             const saved = await saveProfile();
             if (saved) {
-              navigate(-1); // Возврат на предыдущую страницу
+              // Возвращаемся на соответствующий таб
+              if (activeTab === 'profile') {
+                navigate('/main?tab=profile');
+              } else {
+                navigate('/main?tab=home');
+              }
             }
           } else {
-            navigate(-1); // Возврат на предыдущую страницу
+            // Возвращаемся на соответствующий таб
+            if (activeTab === 'profile') {
+              navigate('/main?tab=profile');
+            } else {
+              navigate('/main?tab=home');
+            }
           }
         }} 
       />
