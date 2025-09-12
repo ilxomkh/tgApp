@@ -128,26 +128,26 @@ const ProfileEditPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Валидация имени (обязательное поле)
-    if (!formData.full_name || formData.full_name.trim().length < 2) {
-      newErrors.full_name = t.errors.nameRequired;
-    } else if (!isValidFullName(formData.full_name)) {
-      newErrors.full_name = t.errors.nameInvalid;
+    // Валидация имени (только если заполнено)
+    if (formData.full_name && formData.full_name.trim().length > 0) {
+      if (formData.full_name.trim().length < 2) {
+        newErrors.full_name = t.errors.nameRequired;
+      } else if (!isValidFullName(formData.full_name)) {
+        newErrors.full_name = t.errors.nameInvalid;
+      }
     }
 
-    // Валидация email (обязательное поле)
-    if (!formData.email || formData.email.trim().length === 0) {
-      newErrors.email = t.errors.emailRequired;
-    } else if (!isValidEmail(formData.email)) {
-      newErrors.email = t.errors.emailInvalid;
+    // Валидация email (только если заполнено)
+    if (formData.email && formData.email.trim().length > 0) {
+      if (!isValidEmail(formData.email)) {
+        newErrors.email = t.errors.emailInvalid;
+      }
     }
 
-    // Валидация даты рождения (обязательное поле)
-    if (!formData.birth_date || formData.birth_date.trim().length === 0) {
-      newErrors.birth_date = t.errors.birthDateRequired;
-    } else {
+    // Валидация даты рождения (только если заполнено)
+    if (formData.birth_date && formData.birth_date.trim().length > 0) {
       // Проверяем формат DD.MM.YYYY
-      const dateRegex = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
+      const dateRegex = /^(\d{2})\.(\d{2})\.(\d{4})$/;
       const match = formData.birth_date.match(dateRegex);
       
       if (!match) {
@@ -199,15 +199,19 @@ const ProfileEditPage = () => {
   };
 
   const handleKeyDown = (e) => {
-    // Разрешаем только цифры, точки, Backspace, Delete, Tab, Enter, стрелки
+    // Разрешаем только цифры, Backspace, Delete, Tab, Enter, стрелки
     const allowedKeys = [
       'Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 
       'ArrowUp', 'ArrowDown', 'Home', 'End'
     ];
     
-    if (allowedKeys.includes(e.key) || 
-        (e.key >= '0' && e.key <= '9') || 
-        e.key === '.') {
+    // Разрешаем все управляющие клавиши
+    if (allowedKeys.includes(e.key)) {
+      return;
+    }
+    
+    // Разрешаем только цифры
+    if (e.key >= '0' && e.key <= '9') {
       return;
     }
     
@@ -219,95 +223,103 @@ const ProfileEditPage = () => {
     
     // Специальная обработка для поля даты рождения
     if (field === 'birth_date') {
-      // Удаляем все нецифровые символы кроме точек
-      let cleanValue = value.replace(/[^\d.]/g, '');
+      // Удаляем все нецифровые символы
+      let cleanValue = value.replace(/[^\d]/g, '');
       
-      // Разбиваем на части по точкам
-      const parts = cleanValue.split('.');
-      
-      // Ограничиваем длину каждой части
-      if (parts.length > 0 && parts[0].length > 2) {
-        parts[0] = parts[0].slice(0, 2);
-      }
-      if (parts.length > 1 && parts[1].length > 2) {
-        parts[1] = parts[1].slice(0, 2);
-      }
-      if (parts.length > 2 && parts[2].length > 4) {
-        parts[2] = parts[2].slice(0, 4);
+      // Ограничиваем общую длину до 8 цифр (DDMMYYYY)
+      if (cleanValue.length > 8) {
+        cleanValue = cleanValue.slice(0, 8);
       }
       
-      // Валидация дня (1-31)
-      if (parts[0] && parts[0].length === 2) {
-        const day = parseInt(parts[0], 10);
-        if (day > 31) {
-          parts[0] = '31';
-        } else if (day < 1) {
-          parts[0] = '01';
+      // Разбиваем на части: день (2), месяц (2), год (4)
+      let day = cleanValue.slice(0, 2);
+      let month = cleanValue.slice(2, 4);
+      let year = cleanValue.slice(4, 8);
+      
+      // Валидация дня (1-31) только если введено 2 цифры
+      if (day.length === 2) {
+        const dayNum = parseInt(day, 10);
+        if (dayNum > 31) {
+          day = '31';
+        } else if (dayNum < 1) {
+          day = '01';
         }
       }
       
-      // Валидация месяца (1-12)
-      if (parts[1] && parts[1].length === 2) {
-        const month = parseInt(parts[1], 10);
-        if (month > 12) {
-          parts[1] = '12';
-        } else if (month < 1) {
-          parts[1] = '01';
+      // Валидация месяца (1-12) только если введено 2 цифры
+      if (month.length === 2) {
+        const monthNum = parseInt(month, 10);
+        if (monthNum > 12) {
+          month = '12';
+        } else if (monthNum < 1) {
+          month = '01';
         }
       }
       
-      // Валидация года (1950-2050)
-      if (parts[2] && parts[2].length === 4) {
-        const year = parseInt(parts[2], 10);
-        if (year > 2050) {
-          parts[2] = '2050';
-        } else if (year < 1950) {
-          parts[2] = '1950';
+      // Валидация года (1950-2050) только если введено 4 цифры
+      if (year.length === 4) {
+        const yearNum = parseInt(year, 10);
+        if (yearNum > 2050) {
+          year = '2050';
+        } else if (yearNum < 1950) {
+          year = '1950';
         }
       }
       
-      // Собираем обратно
-      processedValue = parts.join('.');
-      
-      // Автоматически добавляем точки при достижении нужной длины
-      if (parts[0] && parts[0].length === 2 && !parts[1]) {
-        processedValue = parts[0] + '.';
-      } else if (parts[0] && parts[0].length === 2 && parts[1] && parts[1].length === 2 && !parts[2]) {
-        processedValue = parts[0] + '.' + parts[1] + '.';
+      // Формируем отображаемое значение с визуальными разделителями
+      let displayValue = '';
+      if (day) {
+        displayValue = day;
+        if (month) {
+          displayValue += '.' + month;
+          if (year) {
+            displayValue += '.' + year;
+          }
+        }
       }
       
       // Проверяем реальность даты при полном вводе
-      if (parts.length === 3 && parts[0].length === 2 && parts[1].length === 2 && parts[2].length === 4) {
-        const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10);
-        const year = parseInt(parts[2], 10);
+      if (day.length === 2 && month.length === 2 && year.length === 4) {
+        const dayNum = parseInt(day, 10);
+        const monthNum = parseInt(month, 10);
+        const yearNum = parseInt(year, 10);
         
         // Проверяем количество дней в месяце
         const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
         
         // Проверяем високосный год для февраля
-        const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-        if (month === 2 && isLeapYear) {
+        const isLeapYear = (yearNum % 4 === 0 && yearNum % 100 !== 0) || (yearNum % 400 === 0);
+        if (monthNum === 2 && isLeapYear) {
           daysInMonth[1] = 29;
         }
         
         // Если день больше максимального для месяца, корректируем
-        if (day > daysInMonth[month - 1]) {
-          parts[0] = daysInMonth[month - 1].toString().padStart(2, '0');
-          processedValue = parts.join('.');
+        if (dayNum > daysInMonth[monthNum - 1]) {
+          day = daysInMonth[monthNum - 1].toString().padStart(2, '0');
+          displayValue = day + '.' + month + '.' + year;
         }
         
         // Проверяем, что дата не в будущем
-        const date = new Date(year, month - 1, day);
+        const date = new Date(yearNum, monthNum - 1, dayNum);
         const today = new Date();
         if (date > today) {
           // Устанавливаем сегодняшнюю дату
           const todayDay = today.getDate().toString().padStart(2, '0');
           const todayMonth = (today.getMonth() + 1).toString().padStart(2, '0');
           const todayYear = today.getFullYear().toString();
-          processedValue = `${todayDay}.${todayMonth}.${todayYear}`;
+          displayValue = `${todayDay}.${todayMonth}.${todayYear}`;
         }
+        
+        // Автоматически закрываем клавиатуру при полном заполнении поля
+        setTimeout(() => {
+          const activeElement = document.activeElement;
+          if (activeElement && activeElement.blur) {
+            activeElement.blur();
+          }
+        }, 100);
       }
+      
+      processedValue = displayValue;
     }
     
     setFormData(prev => ({
@@ -327,22 +339,33 @@ const ProfileEditPage = () => {
   };
 
   const saveProfile = async () => {
+    // Проверяем валидацию только если есть ошибки
     if (!validateForm()) {
       return false;
+    }
+
+    // Проверяем, есть ли изменения для сохранения
+    if (!hasChanges) {
+      return true; // Нет изменений, считаем успешным
     }
 
     setIsLoading(true);
     
     try {
       // Конвертируем дату из DD.MM.YYYY в YYYY-MM-DD для API
-      const [day, month, year] = formData.birth_date.split('.');
-      const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      let formattedDate = '';
+      if (formData.birth_date && formData.birth_date.trim().length > 0) {
+        const [day, month, year] = formData.birth_date.split('.');
+        if (day && month && year) {
+          formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+      }
 
       const updateData = {
         phone_number: user.phone_number, // Оставляем номер телефона неизменным
-        full_name: formData.full_name.trim(),
-        email: formData.email.trim(),
-        birth_date: formattedDate
+        full_name: formData.full_name.trim() || null,
+        email: formData.email.trim() || null,
+        birth_date: formattedDate || null
       };
 
       const success = await updateProfile(updateData);
@@ -384,40 +407,18 @@ const ProfileEditPage = () => {
   const activeTab = getActiveTab();
 
   const handleBack = async () => {
-    if (hasChanges) {
-      const saved = await saveProfile();
-      if (saved) {
-        // Возвращаемся на соответствующий таб
-        if (activeTab === 'profile') {
-          navigate('/main?tab=profile');
-        } else {
-          navigate('/main?tab=home');
-        }
-      }
+    // Просто возвращаемся без принудительного сохранения
+    if (activeTab === 'profile') {
+      navigate('/main?tab=profile');
     } else {
-      // Возвращаемся на соответствующий таб
-      if (activeTab === 'profile') {
-        navigate('/main?tab=profile');
-      } else {
-        navigate('/main?tab=home');
-      }
+      navigate('/main?tab=home');
     }
   };
 
   // Настраиваем кнопку "Назад" в Telegram Mini App
   useTelegramBackButton(handleBack, true);
 
-  // Автосохранение при переходе на другую страницу
-  useEffect(() => {
-    const handleBeforeUnload = async () => {
-      if (hasChanges) {
-        await saveProfile();
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasChanges]);
+  // Убираем автосохранение - пользователь может свободно уходить
 
   const tabs = [
     { id: 'home', label: t.home },
@@ -632,6 +633,19 @@ const ProfileEditPage = () => {
                 </div>
               )}
 
+              {/* Кнопка сохранения */}
+              {hasChanges && (
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? t.loading : t.save}
+                  </button>
+                </div>
+              )}
+
               {/* Индикатор загрузки */}
               {isLoading && (
                 <div className="text-center py-2">
@@ -651,24 +665,11 @@ const ProfileEditPage = () => {
         onChange={async (tabId) => {
           if (tabId === activeTab) return; // Остаемся на текущей странице
           
-          // Автосохранение перед переходом
-          if (hasChanges) {
-            const saved = await saveProfile();
-            if (saved) {
-              // Возвращаемся на соответствующий таб
-              if (activeTab === 'profile') {
-                navigate('/main?tab=profile');
-              } else {
-                navigate('/main?tab=home');
-              }
-            }
+          // Просто переходим без принудительного сохранения
+          if (activeTab === 'profile') {
+            navigate('/main?tab=profile');
           } else {
-            // Возвращаемся на соответствующий таб
-            if (activeTab === 'profile') {
-              navigate('/main?tab=profile');
-            } else {
-              navigate('/main?tab=home');
-            }
+            navigate('/main?tab=home');
           }
         }} 
       />

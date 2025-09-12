@@ -13,7 +13,8 @@ const ProjectInfoScreen = () => {
       title: "Информация о проекте",
       back: "Назад",
       aboutProject: "О проекте Pro Survey",
-      description: "Pro Survey - это инновационная платформа для проведения опросов и исследований, которая позволяет пользователям зарабатывать деньги, участвуя в различных опросах и приглашая друзей.",
+      description:
+        "Pro Survey - это инновационная платформа для проведения опросов и исследований, которая позволяет пользователям зарабатывать деньги, участвуя в различных опросах и приглашая друзей.",
       features: "Основные возможности:",
       feature1: "• Участие в опросах за вознаграждение",
       feature2: "• Реферальная программа с двухуровневой системой",
@@ -21,13 +22,15 @@ const ProjectInfoScreen = () => {
       feature4: "• Мгновенные выплаты на карту",
       feature5: "• Поддержка узбекского и русского языков",
       mission: "Наша миссия:",
-      missionText: "Сделать участие в опросах доступным, выгодным и интересным для всех пользователей, создавая взаимовыгодные отношения между исследователями и респондентами.",
+      missionText:
+        "Сделать участие в опросах доступным, выгодным и интересным для всех пользователей, создавая взаимовыгодные отношения между исследователями и респондентами.",
     },
     uz: {
       title: "Loyiha haqida ma'lumot",
       back: "Orqaga",
       aboutProject: "Pro Survey loyihasi haqida",
-      description: "Pro Survey - bu foydalanuvchilarga turli so'rovlarda qatnashish va do'stlarini taklif qilish orqali pul topish imkonini beruvchi so'rovlarda va tadqiqotlar o'tkazish uchun innovatsion platforma.",
+      description:
+        "Pro Survey - bu foydalanuvchilarga turli so'rovlarda qatnashish va do'stlarini taklif qilish orqali pul topish imkonini beruvchi so'rovlarda va tadqiqotlar o'tkazish uchun innovatsion platforma.",
       features: "Asosiy imkoniyatlar:",
       feature1: "• Mukofot evaziga so'rovlarda qatnashish",
       feature2: "• Ikki darajali tizimli referral dasturi",
@@ -35,7 +38,8 @@ const ProjectInfoScreen = () => {
       feature4: "• Kartaga darhol to'lovlar",
       feature5: "• O'zbek va rus tillarini qo'llab-quvvatlash",
       mission: "Bizning vazifamiz:",
-      missionText: "So'rovlarda qatnashishni barcha foydalanuvchilar uchun qulay, foydali va qiziqarli qilish, tadqiqotchilar va respondentlar o'rtasida o'zaro foydali munosabatlarni yaratish.",
+      missionText:
+        "So'rovlarda qatnashishni barcha foydalanuvchilar uchun qulay, foydali va qiziqarli qilish, tadqiqotchilar va respondentlar o'rtasida o'zaro foydali munosabatlarni yaratish.",
     },
   };
   const t = translations[language || "ru"];
@@ -43,9 +47,9 @@ const ProjectInfoScreen = () => {
   return (
     <div className="min-h-screen bg-[#F4F4FF] flex flex-col">
       <Header />
-      
+
       {/* Основной контент с прокруткой */}
-      <div className="flex-1 overflow-y-auto px-6 py-8 pb-[120px] custom-scrollbar">
+      <div className="flex-1 overflow-y-auto px-6 py-8 pb-32 custom-scrollbar">
         {/* Заголовок страницы */}
         <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
           {t.title}
@@ -58,9 +62,7 @@ const ProjectInfoScreen = () => {
             <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
               {t.aboutProject}
             </h3>
-            <p className="text-base leading-relaxed">
-              {t.description}
-            </p>
+            <p className="text-base leading-relaxed">{t.description}</p>
           </div>
 
           {/* Возможности */}
@@ -82,19 +84,17 @@ const ProjectInfoScreen = () => {
             <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
               {t.mission}
             </h3>
-            <p className="text-base leading-relaxed">
-              {t.missionText}
-            </p>
+            <p className="text-base leading-relaxed">{t.missionText}</p>
           </div>
         </div>
       </div>
 
-      {/* Фиксированная кнопка "Назад" внизу экрана */}
+      {/* Фиксированная кнопка "Назад" */}
       <div className="fixed bottom-3 left-0 right-0 z-20 p-4 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-md mx-auto">
           <div className="rounded-2xl bg-[#EDEAFF] p-2">
             <button
-              onClick={() => navigate('/main?tab=profile')}
+              onClick={() => navigate("/main?tab=profile")}
               className="w-full h-[48px] rounded-xl bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-semibold active:scale-[0.99] transition"
             >
               {t.back}

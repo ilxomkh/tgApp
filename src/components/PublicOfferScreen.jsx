@@ -22,7 +22,8 @@ const PublicOfferScreen = () => {
       term4: "• Возврат средств осуществляется согласно политике платформы",
       term5: "• Все споры решаются в соответствии с законодательством РУз",
       contact: "Контактная информация:",
-      contactText: "По всем вопросам обращайтесь в службу поддержки через приложение.",
+      contactText:
+        "По всем вопросам обращайтесь в службу поддержки через приложение.",
     },
     uz: {
       title: "Ochiq taklif",
@@ -32,12 +33,15 @@ const PublicOfferScreen = () => {
       address: "Manzil: O'zbekiston Respublikasi, Toshkent shahri",
       terms: "Xizmat ko'rsatish shartlari:",
       term1: "• Xizmatlar ushbu ochiq taklif asosida ko'rsatiladi",
-      term2: "• Foydalanuvchi xizmatdan foydalanishni boshlash orqali shartlarni qabul qiladi",
+      term2:
+        "• Foydalanuvchi xizmatdan foydalanishni boshlash orqali shartlarni qabul qiladi",
       term3: "• To'lov platforma tariflariga muvofiq amalga oshiriladi",
-      term4: "• Mablag'larni qaytarish platforma siyosatiga muvofiq amalga oshiriladi",
+      term4:
+        "• Mablag'larni qaytarish platforma siyosatiga muvofiq amalga oshiriladi",
       term5: "• Barcha nizolar O'zR qonunchiligi asosida hal qilinadi",
       contact: "Aloqa ma'lumotlari:",
-      contactText: "Barcha savollar bo'yicha ilovadagi qo'llab-quvvatlash xizmatiga murojaat qiling.",
+      contactText:
+        "Barcha savollar bo'yicha ilovadagi qo'llab-quvvatlash xizmatiga murojaat qiling.",
     },
   };
   const t = translations[language || "ru"];
@@ -45,9 +49,9 @@ const PublicOfferScreen = () => {
   return (
     <div className="min-h-screen bg-[#F4F4FF] flex flex-col">
       <Header />
-      
+
       {/* Основной контент с прокруткой */}
-      <div className="flex-1 overflow-y-auto px-6 py-8 pb-[120px] custom-scrollbar">
+      <div className="flex-1 overflow-y-auto px-6 py-8 pb-32 custom-scrollbar">
         {/* Заголовок страницы */}
         <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
           {t.title}
@@ -63,9 +67,7 @@ const PublicOfferScreen = () => {
             <p className="text-base leading-relaxed font-semibold mb-2">
               {t.company}
             </p>
-            <p className="text-base leading-relaxed">
-              {t.address}
-            </p>
+            <p className="text-base leading-relaxed">{t.address}</p>
           </div>
 
           {/* Условия */}
@@ -87,19 +89,17 @@ const PublicOfferScreen = () => {
             <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
               {t.contact}
             </h3>
-            <p className="text-base leading-relaxed">
-              {t.contactText}
-            </p>
+            <p className="text-base leading-relaxed">{t.contactText}</p>
           </div>
         </div>
       </div>
 
-      {/* Фиксированная кнопка "Назад" внизу экрана */}
+      {/* Фиксированная кнопка "Назад" */}
       <div className="fixed bottom-3 left-0 right-0 z-20 p-4 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-md mx-auto">
           <div className="rounded-2xl bg-[#EDEAFF] p-2">
             <button
-              onClick={() => navigate('/main?tab=profile')}
+              onClick={() => navigate("/main?tab=profile")}
               className="w-full h-[48px] rounded-xl bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-semibold active:scale-[0.99] transition"
             >
               {t.back}
