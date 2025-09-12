@@ -1,6 +1,7 @@
 import React from 'react';
 import { HomeIcon, UsersIcon, TicketIcon, UserIcon } from './icons';
 import { useHapticClick } from '../../utils/hapticFeedback';
+import { useKeyboard } from '../../hooks/useKeyboard';
 
 const mapIcon = {
   home: HomeIcon,
@@ -11,9 +12,10 @@ const mapIcon = {
 
 const BottomNav = ({ tabs, activeTab, onChange }) => {
   const hapticOnChange = useHapticClick(onChange, 'selection');
+  const { isKeyboardOpen, keyboardHeight } = useKeyboard();
 
   return (
-  <div className="fixed bottom-0 left-0 right-0 z-20">
+  <div className={`fixed left-0 right-0 z-20 transition-all duration-300 ${isKeyboardOpen ? 'bottom-[300px]' : 'bottom-0'}`}>
     <nav
       className="
         w-full border-t border-[#E6E6F5]

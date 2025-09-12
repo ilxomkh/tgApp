@@ -589,7 +589,7 @@ const WithdrawScreen = () => {
     const shouldShowAddForm = userCards.length === 0 || showAddCardForm;
 
     return (
-      <div className={`space-y-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-24'}`}>
+      <div className={`space-y-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <BalanceCard />
 
         <div>
@@ -759,7 +759,7 @@ const WithdrawScreen = () => {
     const amountNum = Number(amountDigits || 0);
 
     return (
-      <div className={`space-y-3 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-24'}`}>
+      <div className={`space-y-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <BalanceCard />
 
         <h4 className="text-sm font-semibold text-gray-500">
@@ -912,7 +912,7 @@ const WithdrawScreen = () => {
       <Header />
 
       {/* Content */}
-      <div className={`px-6 pt-8 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-10'}`}>
+      <div className={`px-6 pt-8 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         {step === "cards-list" && renderCardsList()}
         {step === "enter-amount" && renderEnterAmount()}
       </div>
