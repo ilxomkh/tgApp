@@ -431,8 +431,8 @@ const ProfileEditPage = () => {
     <div className="min-h-screen bg-[#F4F4FF]">
       <Header />
       
-      {/* Отступ под нижнюю навигацию - адаптируется к клавиатуре */}
-      <div className={`p-4 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
+      {/* Отступ под нижнюю навигацию - всегда фиксированный */}
+      <div className="p-4 pb-[90px]">
         <div className="max-w-md mx-auto">
           {/* Карточка профиля с фиолетовым градиентом */}
           <div className={`bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl text-white shadow-lg mb-6 transition-all duration-300 ${isKeyboardOpen ? 'mt-4 p-4' : 'mt-0 p-6'}`}>

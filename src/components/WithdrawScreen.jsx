@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
 import { useApi } from "../hooks/useApi";
+import { useKeyboard } from "../hooks/useKeyboard";
 import {
   isValidCardNumber,
   maskCardNumber,
@@ -183,6 +184,7 @@ const WithdrawScreen = () => {
   const { language } = useLanguage();
   const { user, refreshUserProfile } = useAuth();
   const { getCards, addCard, createPayment, loading, error } = useApi();
+  const { isKeyboardOpen } = useKeyboard();
 
   const [step, setStep] = useState("cards-list"); // success | cards-list | enter-amount
   const [cardDigits, setCardDigits] = useState("");
@@ -587,7 +589,7 @@ const WithdrawScreen = () => {
     const shouldShowAddForm = userCards.length === 0 || showAddCardForm;
 
     return (
-      <div className="space-y-6 pb-24">
+      <div className={`space-y-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-24'}`}>
         <BalanceCard />
 
         <div>
@@ -638,8 +640,8 @@ const WithdrawScreen = () => {
                     value={group4(cardDigits)}
                     onChange={onCardChange}
                     placeholder="0123 4567 8901 2345"
-                    className="flex-1 h-12 rounded-xl border-2 border-transparent bg-gray-50 px-3 text-lg font-medium text-gray-900
-                               focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
+                    className={`flex-1 rounded-xl border-2 border-transparent bg-gray-50 px-3 text-lg font-medium text-gray-900
+                               focus:outline-none focus:border-blue-500 focus:bg-white transition-all ${isKeyboardOpen ? 'h-10' : 'h-12'}`}
                     maxLength={19}
                     autoComplete="off"
                   />
@@ -669,12 +671,12 @@ const WithdrawScreen = () => {
                 <button
                   onClick={handleContinue}
                   disabled={!validateCard() || !validateCardType()}
-                  className={`w-full h-12 rounded-xl font-medium transition
+                  className={`w-full rounded-xl font-medium transition
                     ${
                       validateCard() && validateCardType()
                         ? "bg-[#5E5AF6] text-white hover:bg-[#4A46E8] active:scale-[0.99]"
                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }
+                    } ${isKeyboardOpen ? 'h-10' : 'h-12'}
                   `}
                 >
                   {t.addCardButton}
@@ -757,7 +759,7 @@ const WithdrawScreen = () => {
     const amountNum = Number(amountDigits || 0);
 
     return (
-      <div className="space-y-6 pb-24">
+      <div className={`space-y-3 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-24'}`}>
         <BalanceCard />
 
         <h4 className="text-sm font-semibold text-gray-500">
@@ -775,7 +777,7 @@ const WithdrawScreen = () => {
 
         {/* Большая фиолетовая стрелка вверх */}
         <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-full bg-[#5E5AF6] grid place-items-center">
+          <div className="w-12 h-12 rounded-full bg-[#5E5AF6] grid place-items-center">
             <svg
               width="32"
               height="32"
@@ -813,13 +815,13 @@ const WithdrawScreen = () => {
                 value={formatMoneyStr(amountDigits)}
                 onChange={onAmountChange}
                 placeholder="20 000"
-                className={`w-full h-12 rounded-xl border-2 px-3 text-lg font-semibold text-gray-900
+                className={`w-full rounded-xl border-2 px-3 text-lg font-semibold text-gray-900
                            focus:outline-none focus:border-blue-500 focus:bg-white transition-all
                            ${
                              amountNum > bonus
                                ? "border-red-300 bg-red-50"
                                : "border-transparent bg-gray-50"
-                           }`}
+                           } ${isKeyboardOpen ? 'h-10' : 'h-12'}`}
               />
             </div>
             <span className="text-gray-600 font-medium text-lg">
@@ -833,22 +835,22 @@ const WithdrawScreen = () => {
               <button
                 key={amount}
                 onClick={() => setAmountDigits(String(amount))}
-                className={`h-10 rounded-xl text-sm font-medium transition ${
+                className={`rounded-xl text-sm font-medium transition ${
                   amountNum === amount
                     ? "bg-[#5E5AF6] text-white"
                     : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                }`}
+                } ${isKeyboardOpen ? 'h-8' : 'h-10'}`}
               >
                 {formatMoneyStr(amount)}
               </button>
             ))}
             <button
               onClick={() => setAmountDigits(String(bonus))}
-              className={`h-10 rounded-xl text-sm font-medium transition ${
+              className={`rounded-xl text-sm font-medium transition ${
                 amountNum === bonus
                   ? "bg-[#5E5AF6] text-white"
                   : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-              }`}
+              } ${isKeyboardOpen ? 'h-8' : 'h-10'}`}
             >
               Вся сумма
             </button>
@@ -869,11 +871,11 @@ const WithdrawScreen = () => {
         <button
           onClick={handlePayment}
           disabled={!validateAmount() || isPaymentProcessing}
-          className={`w-full h-12 rounded-xl font-medium transition ${
+          className={`w-full rounded-xl font-medium transition ${
             validateAmount() && !isPaymentProcessing
               ? "bg-[#5E5AF6] text-white hover:bg-[#4A46E8] active:scale-[0.99]"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          } ${isKeyboardOpen ? 'h-10' : 'h-12'}`}
         >
           {isPaymentProcessing
             ? t.processing
@@ -910,7 +912,7 @@ const WithdrawScreen = () => {
       <Header />
 
       {/* Content */}
-      <div className="px-6 pt-8 pb-10">
+      <div className={`px-6 pt-8 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-10'}`}>
         {step === "cards-list" && renderCardsList()}
         {step === "enter-amount" && renderEnterAmount()}
       </div>

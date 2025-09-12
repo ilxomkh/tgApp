@@ -1,7 +1,6 @@
 import React from 'react';
 import { HomeIcon, UsersIcon, TicketIcon, UserIcon } from './icons';
 import { useHapticClick } from '../../utils/hapticFeedback';
-import { useKeyboard } from '../../hooks/useKeyboard';
 
 const mapIcon = {
   home: HomeIcon,
@@ -12,12 +11,6 @@ const mapIcon = {
 
 const BottomNav = ({ tabs, activeTab, onChange }) => {
   const hapticOnChange = useHapticClick(onChange, 'selection');
-  const { isKeyboardOpen } = useKeyboard();
-
-  // Скрываем навигацию когда открыта клавиатура
-  if (isKeyboardOpen) {
-    return null;
-  }
 
   return (
   <div className="fixed bottom-0 left-0 right-0 z-20">
