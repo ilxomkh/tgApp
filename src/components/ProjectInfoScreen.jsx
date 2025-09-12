@@ -45,7 +45,7 @@ const ProjectInfoScreen = () => {
       <Header />
       
       {/* Основной контент с прокруткой */}
-      <div className="flex-1 overflow-y-auto px-6 py-8 pb-[100px] custom-scrollbar">
+      <div className="flex-1 overflow-y-auto px-6 py-8 pb-[120px] custom-scrollbar">
         {/* Заголовок страницы */}
         <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
           {t.title}

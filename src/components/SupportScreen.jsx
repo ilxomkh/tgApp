@@ -78,11 +78,11 @@ const SupportScreen = () => {
   useTelegramBackButton(handleBack, true);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex flex-col">
       <Header />
       
       {/* Content */}
-      <div className="px-6 pt-4 pb-30">
+      <div className="flex-1 overflow-y-auto px-6 pt-4 pb-24 custom-scrollbar">
         {/* Заголовок страницы */}
         <div className="text-center mb-4">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-[#5E5AF6] to-[#8888FC] flex items-center justify-center">
