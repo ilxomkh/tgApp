@@ -14,13 +14,13 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
   const hapticOnChange = useHapticClick(onChange, 'selection');
   const { isKeyboardOpen } = useKeyboard();
 
+  if (isKeyboardOpen) {
+    // Клавиатура открыта → прячем навбар
+    return null;
+  }
+
   return (
-    <div
-      className={`
-        fixed left-0 right-0 z-20 transition-transform duration-300
-        ${isKeyboardOpen ? 'translate-y-full' : 'translate-y-0'}
-      `}
-    >
+    <div className="fixed bottom-0 left-0 right-0 z-20">
       <nav
         className="
           w-full border-t border-[#E6E6F5]
@@ -49,7 +49,7 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
                   ${isActive ? 'text-[#5E5AF6]' : 'text-[#7A7A8F] hover:text-[#5E5AF6]'}
                 `}
               >
-                {/* индикатор активного */}
+                {/* Индикатор активного */}
                 <span
                   aria-hidden
                   className={`
