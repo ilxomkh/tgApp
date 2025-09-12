@@ -37,21 +37,21 @@ const Onboarding = () => {
           },
           {
             title: "Ro'yxatdan o'ting",
-            image: MemoPNG,
+            image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Memo.webp",
           },
           {
             title: "So'rovnomalarni o'ting",
-            image: FilePNG,
+            image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/File%20Folder.webp",
           },
           {
             title:
               "Kafolatli pul yoki yutuqlar\nro'yxatidan birini oling",
-            image: TrophyPNG,
-          },
+              image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Activity/Trophy.webp",
+            },
           {
             title:
               "Pulni darhol o'zingizning\nbank kartangizga yechib oling",
-            image: RocketPNG,
+            image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Travel%20and%20Places/Rocket.webp",
           },
         ],
         next: "Keyingi",
@@ -65,22 +65,22 @@ const Onboarding = () => {
           },
           {
             title: "Пройдите\nрегистрацию",
-            image: MemoPNG,
+            image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Memo.webp",
           },
           {
             title: "Проходите\nопросы",
-            image: FilePNG,
+            image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/File%20Folder.webp",
           },
           {
-            title:
-              "Получите гарантированные\nденьги или станьте участником\nрозыгрыша",
-            image: TrophyPNG,
+            title: "Получите гарантированные\nденьги или станьте участником\nрозыгрыша",
+            image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Activity/Trophy.webp",
           },
+          
           {
             title:
               "Моментально выведите свои\nсредства на свою банковскую карту",
-            image: RocketPNG,
-          },
+              image: "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Travel%20and%20Places/Rocket.webp",
+            },
         ],
         next: "Далее",
         start: "Начать",
