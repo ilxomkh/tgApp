@@ -13,7 +13,6 @@ const ProtectedRoute = ({ children }) => {
     
     // Если нет session_id или user в localStorage, сразу перенаправляем на /auth
     if (!sessionId || !user) {
-      console.log('No session_id or user found in localStorage, redirecting to /auth');
       navigate('/auth', { replace: true });
       return;
     }
@@ -25,7 +24,6 @@ const ProtectedRoute = ({ children }) => {
     
     // Если после инициализации пользователь не авторизован, перенаправляем
     if (!isAuthenticated) {
-      console.log('User not authenticated after initialization, redirecting to /auth');
       navigate('/auth', { replace: true });
     }
   }, [navigate, isAuthenticated, isInitializing]);

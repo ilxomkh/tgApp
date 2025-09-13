@@ -3,12 +3,45 @@ import { SuccessModal } from './ui';
 import WaveOverlay from '../WaveOverlay';
 import ProSVG from '../../assets/Pro.svg';
 import TallySurvey from '../TallySurvey';
+import BottomNav from './BottomNav';
+import { useLanguage } from '../../contexts/LanguageContext.jsx';
 
 const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
+  const { language } = useLanguage();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isCompleted, setIsCompleted] = useState(false);
   const [surveyResult, setSurveyResult] = useState(null);
+
+  // Локализованные тексты
+  const texts = {
+    ru: {
+      questionCounter: 'Вопрос',
+      of: 'из',
+      questionLoading: 'Вопрос загружается...',
+      back: 'Назад',
+      next: 'Далее',
+      finish: 'Завершить',
+      home: 'Главная',
+      invite: 'Пригласить',
+      lottery: 'Лотерея',
+      profile: 'Профиль'
+    },
+    uz: {
+      questionCounter: 'Savol',
+      of: 'dan',
+      questionLoading: 'Savol yuklanmoqda...',
+      back: 'Orqaga',
+      next: 'Keyingi',
+      finish: 'Yakunlash',
+      home: 'Asosiy',
+      invite: 'Taklif qilish',
+      lottery: 'Lotereya',
+      profile: 'Profil'
+    }
+  };
+
+  const localizedTexts = texts[language] || texts.ru;
 
   if (!isOpen || !survey) return null;
 
@@ -60,9 +93,32 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   // Если это Tally форма, показываем специальный компонент
   if (survey?.type === 'tally') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
-        <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+      <div className="fixed inset-0 z-50 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] flex flex-col">
+        <WaveOverlay />
+        <div>
+          <img src={ProSVG} alt="Pro" className='absolute w-[260px] top-1/5 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+        </div>
+        
+        {/* Основной контент опроса */}
+        
+        {/* BottomNav */}
+        <div className="relative z-10">
+          <BottomNav 
+            tabs={[
+              { id: 'home', label: localizedTexts.home },
+              { id: 'invite', label: localizedTexts.invite },
+              { id: 'lottery', label: localizedTexts.lottery },
+              { id: 'profile', label: localizedTexts.profile }
+            ]}
+            activeTab="home"
+            onChange={(tab) => {
+              if (tab === 'home') {
+                onClose();
+              }
+            }}
+          />
+        </div>
+        <div className="absolute bottom-16 w-full flex-1 flex flex-col">
           <TallySurvey
             surveyId={survey.id}
             onComplete={(result) => {
@@ -100,7 +156,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-500">
-                Вопрос {currentQuestion + 1} из {survey.questions.length}
+                {localizedTexts.questionCounter} {currentQuestion + 1} {localizedTexts.of} {survey.questions.length}
               </span>
               <span className="text-sm text-gray-500">
                 {Math.round(((currentQuestion + 1) / survey.questions.length) * 100)}%
@@ -116,7 +172,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
 
           {/* Вопрос */}
           <h3 className="text-xl font-semibold text-gray-800 mb-6">
-            {question?.text || "Вопрос загружается..."}
+            {question?.text || localizedTexts.questionLoading}
           </h3>
 
           {/* Варианты ответов */}
@@ -163,7 +219,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Назад
+              {localizedTexts.back}
             </button>
             
             <button
@@ -175,7 +231,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
-              {isLastQuestion ? 'Завершить' : 'Далее'}
+              {isLastQuestion ? localizedTexts.finish : localizedTexts.next}
             </button>
           </div>
         </div>

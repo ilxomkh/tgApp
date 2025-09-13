@@ -16,6 +16,7 @@ export const useSurvey = () => {
     setError(null);
     
     try {
+      
       // Используем новый сервис для получения форм
       const forms = await tallyApiService.getAvailableForms(language);
       
@@ -24,25 +25,27 @@ export const useSurvey = () => {
         title: form.title,
         type: 'tally',
         formUrl: form.url || tallyApiService.getFormUrl(language, form.formId),
-        language,
+        language: form.language, // Используем язык из данных формы, а не из контекста
         formId: form.formId,
         // Информация о призах
         prizeInfo: form.prizeInfo,
         // Описание для отображения
         displayInfo: {
           lines: [
-            language === 'ru' 
+            form.language === 'ru' 
               ? `Сумма приза: ${form.prizeInfo.basePrize} сум` 
               : `Yutuq summasi: ${form.prizeInfo.basePrize} so'm`,
-            language === 'ru'
+            form.language === 'ru'
               ? `Участие в розыгрыше на ${form.prizeInfo.lotteryAmount} сум`
               : `${form.prizeInfo.lotteryAmount} so'm lotereyaga qo'shilish`
           ]
         }
       }));
       
+      
       return surveys;
     } catch (err) {
+      console.error('❌ Ошибка при загрузке опросов:', err);
       setError(err.message);
       throw err;
     } finally {
@@ -101,19 +104,26 @@ export const useSurvey = () => {
     setError(null);
     
     try {
-      // Для Tally форм, отправляем данные на сервер для обработки
-      const surveyData = {
-        surveyId,
-        language,
+      // Получаем formId из surveyId (предполагаем, что surveyId это formId)
+      const formId = surveyId;
+      
+      // Подготавливаем данные для отправки
+      const submitData = {
+        formId,
         answers,
+        language,
         submittedAt: new Date().toISOString(),
+        userId: null, // Будет добавлен на сервере если пользователь авторизован
       };
 
-      // Отправляем данные на сервер
-      const result = await api.processSurveyResponse(surveyData);
+
+      // Отправляем данные на новый endpoint
+      const result = await api.submitTallyForm(formId, submitData);
+
       
       return result;
     } catch (err) {
+      console.error('❌ Ошибка при отправке опроса:', err);
       setError(err.message);
       throw err;
     } finally {

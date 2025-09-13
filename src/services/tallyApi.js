@@ -17,7 +17,16 @@ class TallyApiService {
   async getForms() {
     try {
       const result = await api.getTallyForms();
-      return result;
+      
+      // Проверяем структуру ответа - теперь ожидаем { items: [...] }
+      if (result && result.items && Array.isArray(result.items)) {
+        return result.items;
+      } else if (Array.isArray(result)) {
+        return result;
+      } else {
+        console.warn('Unexpected API response structure:', result);
+        return [];
+      }
     } catch (error) {
       console.error('Error getting Tally forms:', error);
       throw new Error('Failed to get Tally forms from server');
@@ -27,7 +36,7 @@ class TallyApiService {
   /**
    * Получение конкретной формы по ID через сервер
    * @param {string} formId - ID формы (реальный ID формы Tally, например '3xqyg9')
-   * @returns {Promise<Object>} - Данные формы
+   * @returns {Promise<Object>} - Данные формы с вопросами
    */
   async getFormById(formId) {
     try {
@@ -37,6 +46,137 @@ class TallyApiService {
     } catch (error) {
       console.error(`Error getting Tally form ${formId}:`, error);
       throw new Error(`Failed to get Tally form ${formId} from server`);
+    }
+  }
+
+  /**
+   * Получение детальной информации о форме с вопросами
+   * @param {string} formId - ID формы
+   * @returns {Promise<Object>} - Детальная информация о форме
+   */
+  async getFormDetails(formId) {
+    try {
+      const formDetails = await this.getFormById(formId);
+      
+      // Преобразуем ответ в удобный формат
+      return {
+        formId: formDetails.formId,
+        title: formDetails.title,
+        questions: formDetails.questions || [],
+        // Дополнительная информация
+        totalQuestions: formDetails.questions ? formDetails.questions.length : 0,
+        requiredQuestions: formDetails.questions ? formDetails.questions.filter(q => q.required).length : 0
+      };
+    } catch (error) {
+      console.error(`Error getting form details for ${formId}:`, error);
+      
+      // Fallback: возвращаем базовую структуру формы
+      console.log(`🔄 Используем fallback для формы ${formId}`);
+      return this.getFallbackFormDetails(formId);
+    }
+  }
+
+  /**
+   * Fallback метод для получения детальной информации о форме
+   * @param {string} formId - ID формы
+   * @returns {Object} - Базовая информация о форме
+   */
+  getFallbackFormDetails(formId) {
+    // Определяем язык по ID формы
+    const isUzbekForm = formId.includes('uz') || formId === 'wbp8L6';
+    const language = isUzbekForm ? 'uz' : 'ru';
+    
+    console.log(`📋 Fallback форма для ${formId}, язык: ${language}`);
+    
+    return {
+      formId: formId,
+      title: language === 'ru' ? 'Registration Pro Survey Ru' : 'Registration Pro Survey Uz',
+      questions: this.getFallbackQuestions(language),
+      totalQuestions: 5,
+      requiredQuestions: 3
+    };
+  }
+
+  /**
+   * Получение fallback вопросов для формы
+   * @param {string} language - Язык (ru/uz)
+   * @returns {Array} - Массив вопросов
+   */
+  getFallbackQuestions(language) {
+    if (language === 'uz') {
+      return [
+        {
+          id: 'gender',
+          text: 'Jinsingizni ko\'rsating',
+          type: 'choice',
+          required: true,
+          options: ['Erkak', 'Ayol']
+        },
+        {
+          id: 'age',
+          text: 'Yoshingizni kiriting',
+          type: 'number',
+          required: true
+        },
+        {
+          id: 'social_networks',
+          text: 'Qaysi ijtimoiy tarmoqlardan foydalanasiz?',
+          type: 'multichoice',
+          required: true,
+          options: ['Telegram', 'Instagram', 'Facebook', 'TikTok']
+        },
+        {
+          id: 'banking_services',
+          text: 'Qaysi bank yoki to\'lov xizmatlaridan foydalanasiz?',
+          type: 'multichoice',
+          required: true,
+          options: ['Payme', 'Click', 'Uzum Bank', 'Humo']
+        },
+        {
+          id: 'interests',
+          text: 'Qiziqishlaringiz nima?',
+          type: 'text',
+          required: false,
+          options: ['Texnologiya', 'San\'at', 'Sport', 'Musiqa']
+        }
+      ];
+    } else {
+      return [
+        {
+          id: 'gender',
+          text: 'Укажите свой пол',
+          type: 'choice',
+          required: true,
+          options: ['Мужской', 'Женский']
+        },
+        {
+          id: 'age',
+          text: 'Сколько вам лет?',
+          type: 'number',
+          required: true
+        },
+        {
+          id: 'social_networks',
+          text: 'Какие соц. сети вы используете?',
+          type: 'multichoice',
+          required: true,
+          options: ['Telegram', 'Instagram', 'Facebook', 'TikTok']
+        },
+        {
+          id: 'banking_services',
+          text: 'Какие банковские или платежные сервисы вы используете?',
+          type: 'multichoice',
+          required: true,
+          options: ['Payme', 'Click', 'Uzum Bank', 'Humo']
+        },
+        {
+          id: 'interests',
+          text: 'Что вас интересует?',
+          type: 'text',
+          required: false,
+          options: ['Технологии', 'Искусство', 'Спорт', 'Музыка']
+        }
+      ];
     }
   }
 
@@ -94,26 +234,44 @@ class TallyApiService {
       if (serverForms && serverForms.length > 0) {
         // Фильтруем формы по языку, если сервер поддерживает это
         const filteredForms = serverForms.filter(form => {
+          // Если форма имеет поле language, фильтруем по нему
+          if (form.language) {
+            return form.language === language;
+          }
           // Если сервер не поддерживает фильтрацию по языку,
           // возвращаем все формы
           return true;
         });
 
-        return filteredForms.map(form => ({
-          id: form.id || form.formId, // используем ID с сервера или formId
-          formId: form.id || form.formId, // реальный ID формы Tally
-          title: form.title || form.name || 'Опрос',
-          description: form.description || '',
-          type: 'registration',
-          url: form.url || `https://tally.so/forms/${form.id || form.formId}`,
-          language,
-          prizeInfo: {
-            basePrize: 20000,
-            additionalPrize: 5000,
-            lotteryAmount: 3000000,
-            lotteryEligible: true
-          }
-        }));
+        return filteredForms.map(form => {
+          // Определяем язык по названию формы
+          const detectedLanguage = form.name && form.name.toLowerCase().includes('uz') ? 'uz' : 'ru';
+          
+          return {
+            id: form.id, // используем ID с сервера
+            formId: form.id, // реальный ID формы Tally
+            title: form.name || 'Опрос',
+            description: `Статус: ${form.status}, Ответов: ${form.numberOfSubmissions}`,
+            type: 'registration',
+            url: `https://tally.so/forms/${form.id}`,
+            language: detectedLanguage,
+            // Информация о призах на основе языка
+            prizeInfo: {
+              basePrize: 20000,
+              additionalPrize: 5000,
+              lotteryAmount: 3000000,
+              lotteryEligible: true
+            },
+            // Дополнительная информация с сервера
+            serverInfo: {
+              status: form.status,
+              numberOfSubmissions: form.numberOfSubmissions,
+              createdAt: form.createdAt,
+              updatedAt: form.updatedAt,
+              isClosed: form.isClosed
+            }
+          };
+        });
       }
     } catch (error) {
       console.warn('Failed to get forms from server, using fallback:', error);

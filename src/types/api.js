@@ -239,6 +239,47 @@
  * @property {string} [lastSyncAt] - Время последней синхронизации
  */
 
+/**
+ * @typedef {Object} TallyFormApiResponse
+ * @property {string} id - ID формы
+ * @property {string} name - Название формы
+ * @property {boolean} isNameModifiedByUser - Изменено ли название пользователем
+ * @property {string} workspaceId - ID рабочего пространства
+ * @property {string} organizationId - ID организации
+ * @property {string} status - Статус формы (PUBLISHED, DRAFT, etc.)
+ * @property {boolean} hasDraftBlocks - Есть ли черновики блоков
+ * @property {number} numberOfSubmissions - Количество отправленных ответов
+ * @property {string} createdAt - Дата создания
+ * @property {string} updatedAt - Дата обновления
+ * @property {number} index - Индекс формы
+ * @property {boolean} isClosed - Закрыта ли форма
+ */
+
+/**
+ * @typedef {Object} GetTallyFormsResponse
+ * @property {TallyFormApiResponse[]} items - Массив форм Tally
+ * @property {number} page - Номер страницы
+ * @property {number} limit - Лимит на страницу
+ * @property {number} total - Общее количество форм
+ * @property {boolean} hasMore - Есть ли еще страницы
+ */
+
+/**
+ * @typedef {Object} TallyQuestion
+ * @property {string} id - ID вопроса
+ * @property {string} text - Текст вопроса
+ * @property {string} type - Тип вопроса (choice, number, text, multichoice)
+ * @property {boolean} required - Обязательный ли вопрос
+ * @property {string[]} [options] - Варианты ответов (для choice, multichoice)
+ */
+
+/**
+ * @typedef {Object} TallyFormDetails
+ * @property {string} formId - ID формы
+ * @property {string} title - Название формы
+ * @property {TallyQuestion[]} questions - Массив вопросов
+ */
+
 export const API_ENDPOINTS = {
   REQUEST_OTP: '/auth/request-otp',
   VERIFY_OTP: '/auth/verify-otp',
@@ -255,10 +296,11 @@ export const API_ENDPOINTS = {
   GET_SURVEY_RESPONSES: '/surveys/responses',
   PROCESS_SURVEY_RESPONSE: '/surveys/process',
   // Новые Tally API endpoints через сервер
-  TALLY_FORMS: '/tally/tally/forms',
-  TALLY_FORM_BY_ID: '/tally/tally/forms',
+  TALLY_FORMS: '/tally/forms',
+  TALLY_FORM_BY_ID: '/tally/forms',
   TALLY_FORM_RESPONSES: '/tally/tally/forms',
   TALLY_SYNC: '/tally/tally/sync',
+  TALLY_FORM_SUBMIT: '/tally/forms',
 };
 
 export const HTTP_STATUS = {

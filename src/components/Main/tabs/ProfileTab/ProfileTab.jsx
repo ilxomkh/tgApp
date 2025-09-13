@@ -5,10 +5,14 @@ import { useLanguage } from "../../../../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../../../hooks/useApi";
 import { formatDate } from "../../../../utils/validation";
+import { getMessage } from "../../../../constants/messages";
 import LanguageSelector from "../../../LanguageSelector";
 import UserAvatar from "../../../UserAvatar";
 import { EditIcon, LogOutIcon, Pencil, PencilIcon } from "lucide-react";
 import { SettingsIcon } from "../../icons";
+import WaveOverlay from "../../../WaveOverlay";
+import BottomNav from "../../BottomNav";
+import ProSVG from "../../../../assets/Pro.svg";
 
 const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
   const { user, refreshUserProfile, logout } = useAuth();
@@ -16,6 +20,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
   const navigate = useNavigate();
   const { getUserProfile, loading, error } = useApi();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = React.useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
   const [userProfile, setUserProfile] = useState(null);
 
   // ---------- Переводы ----------
@@ -88,6 +93,19 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
 
   const handleLanguageClose = () => {
     setIsLanguageModalOpen(false);
+  };
+
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setIsLogoutModalOpen(false);
+    onResetToOnboarding();
+  };
+
+  const handleLogoutCancel = () => {
+    setIsLogoutModalOpen(false);
   };
 
   return (
@@ -457,7 +475,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
 
           {/* Кнопка сброса для разработки */}
           <button
-            onClick={onResetToOnboarding}
+            onClick={handleLogoutClick}
             className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
           >
             <div className="flex items-center gap-4">
@@ -491,6 +509,47 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
         isOpen={isLanguageModalOpen} 
         onClose={handleLanguageClose} 
       />
+
+      {/* Модальное окно подтверждения выхода */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="absolute inset-0 z-30 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]">
+          <WaveOverlay />
+          <img src={ProSVG} alt="Pro" className="absolute w-[260px] top-1/5 right-1/2 left-1/2 -translate-x-1/2 z-999"/>
+          </div>
+          <div className="absolute bottom-0 bg-white rounded-t-2xl p-6 w-full z-40 min-h-[300px]">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogOutIcon className="w-8 h-8 text-red-600" />
+              </div>
+              
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {getMessage('LOGOUT_CONFIRMATION_TITLE', language)}
+              </h3>
+              
+              <p className="text-gray-600 mb-6">
+                {getMessage('LOGOUT_CONFIRMATION_MESSAGE', language)}
+              </p>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={handleLogoutCancel}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium transition-colors hover:bg-gray-200"
+                >
+                  {getMessage('LOGOUT_CANCEL', language)}
+                </button>
+                
+                <button
+                  onClick={handleLogoutConfirm}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-medium transition-colors hover:bg-red-700"
+                >
+                  {getMessage('LOGOUT_CONFIRM', language)}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

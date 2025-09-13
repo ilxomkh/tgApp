@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }) => {
       try {
         // Проверяем валидность токена через API запрос
         const userProfile = await api.getUserProfile();
-        console.log('Token is valid, user profile:', userProfile);
         
         // Обновляем данные пользователя
         const updatedUser = { ...JSON.parse(savedUser), ...userProfile };
@@ -71,7 +70,6 @@ export const AuthProvider = ({ children }) => {
   const sendOtp = async (phoneNumber) => {
     try {
       const response = await api.requestOtp(phoneNumber);
-      console.log('OTP sent successfully:', response);
       return true;
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -82,7 +80,6 @@ export const AuthProvider = ({ children }) => {
   const login = async (phoneNumber, otp) => {
     try {
       const response = await api.verifyOtp(phoneNumber, otp);
-      console.log('Login successful:', response);
       
       // Сохраняем session_id если он есть
       const sessionId = response.session_id;
@@ -98,7 +95,6 @@ export const AuthProvider = ({ children }) => {
       
       // Получаем полные данные пользователя
       const userProfile = await api.getUserProfile();
-      console.log('User profile loaded:', userProfile);
       
       const newUser = {
         id: userProfile.id || response.user_id || '1',
@@ -154,7 +150,6 @@ export const AuthProvider = ({ children }) => {
     
     try {
       const response = await api.updateUserProfile(data);
-      console.log('Profile updated successfully:', response);
       
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
@@ -176,7 +171,6 @@ export const AuthProvider = ({ children }) => {
     setIsLoadingProfile(true);
     try {
       const userProfile = await api.getUserProfile();
-      console.log('Profile refreshed:', userProfile);
       
       const updatedUser = { ...user, ...userProfile };
       setUser(updatedUser);

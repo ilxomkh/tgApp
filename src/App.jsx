@@ -14,6 +14,7 @@ import PublicOfferScreen from './components/PublicOfferScreen';
 import SupportScreen from './components/SupportScreen';
 import ProfileEditPage from './components/ProfileEditPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
@@ -124,6 +125,11 @@ function RouterContent() {
           <Route path="/profile-edit" element={
             <ProtectedRoute>
               <ProfileEditPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/test-tally" element={
+            <ProtectedRoute>
+              <TallyFormsTest />
             </ProtectedRoute>
           } />
         </Routes>

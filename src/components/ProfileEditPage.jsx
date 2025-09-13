@@ -16,6 +16,7 @@ import { SettingsIcon, UserIcon } from './Main/icons';
 import UserAvatar from './UserAvatar';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
+import { BackpackIcon, ChevronLeft, ChevronLeftCircle, Navigation, StepBackIcon } from 'lucide-react';
 
 const ProfileEditPage = () => {
   const navigate = useNavigate();
@@ -397,10 +398,7 @@ const ProfileEditPage = () => {
   const getActiveTab = () => {
     const searchParams = new URLSearchParams(location.search);
     const tabParam = searchParams.get('tab');
-    console.log('ProfileEditPage - URL search params:', location.search);
-    console.log('ProfileEditPage - tab param:', tabParam);
     const result = tabParam === 'profile' ? 'profile' : 'home';
-    console.log('ProfileEditPage - active tab:', result);
     return result;
   };
 
@@ -454,12 +452,12 @@ const ProfileEditPage = () => {
               </h1>
               
               {/* Иконка настроек справа */}
-              <div className="w-12 h-12 absolute right-0">
+              <div className="w-14 h-14 absolute -right-5 -top-5">
               <button
                 onClick={handleBack}
-                className="w-12 h-12 flex items-center justify-center"
+                className="w-14 h-14 flex items-center justify-center"
               >
-                <SettingsIcon />
+                <ChevronLeftCircle className="w-8 h-8" /> 
               </button>
               </div>
             </div>

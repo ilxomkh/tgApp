@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import { GradientCard, SoftButton } from '../ui';
 import { SettingsIcon, WalletIcon } from '../icons';
 import SurveyCard from '../SurveyCard';
@@ -12,6 +13,7 @@ import UserAvatar from '../../UserAvatar';
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
   const [surveys, setSurveys] = useState([]);
@@ -24,7 +26,17 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       try {
         setSurveysLoading(true);
         const availableSurveys = await getAvailableSurveys();
-        setSurveys(availableSurveys);
+        
+        // Фильтруем опросы по языку
+        const filteredSurveys = availableSurveys.filter(survey => {
+          // Проверяем язык опроса
+          const surveyLanguage = survey.language || 'ru'; // По умолчанию русский
+          const matchesLanguage = surveyLanguage === language;
+          
+          return matchesLanguage;
+        });
+        
+        setSurveys(filteredSurveys);
       } catch (error) {
         console.error('Error loading surveys:', error);
         // В случае ошибки показываем пустой список
@@ -35,7 +47,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     };
 
     loadSurveys();
-  }, [getAvailableSurveys]);
+  }, [getAvailableSurveys, language]); // Добавляем language в зависимости
 
   const handleSurveyStart = async (surveyId) => {
     try {
@@ -110,19 +122,31 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
           </div>
         ) : surveys.length > 0 ? (
           // Показываем опросы
-          surveys.map((survey) => (
-            <SurveyCard 
-              key={survey.id}
-              title={survey.title} 
-              lines={survey.displayInfo?.lines || []} 
-              ctaLabel={t.survey} 
-              onStart={() => handleSurveyStart(survey.id)} 
-            />
-          ))
+          surveys.map((survey) => {
+            console.log('🎯 Отображаем опрос:', {
+              surveyId: survey.id,
+              surveyTitle: survey.title,
+              surveyLanguage: survey.language,
+              currentLanguage: language
+            });
+            
+            return (
+              <SurveyCard 
+                key={survey.id}
+                title={survey.title} 
+                lines={survey.displayInfo?.lines || []} 
+                ctaLabel={t.survey} 
+                onStart={() => handleSurveyStart(survey.id)} 
+              />
+            );
+          })
         ) : (
           // Показываем сообщение, если нет опросов
           <div className="text-center py-8 text-gray-500">
-            {t.noSurveys || 'Нет доступных опросов'}
+            {language === 'ru' 
+              ? `Нет доступных опросов для языка: ${language}` 
+              : `${language} tilida mavjud so'rovlar yo'q`
+            }
           </div>
         )}
       </div>

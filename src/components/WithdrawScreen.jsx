@@ -34,7 +34,6 @@ const detectBrand = (digits) => {
   // Убираем звездочки и другие символы для проверки префиксов
   const prefixDigits = cleanDigits.replace(/[^0-9]/g, "");
 
-  console.log("detectBrand - digits:", digits, "prefixDigits:", prefixDigits);
   if (
     prefixDigits.startsWith("5614") ||
     prefixDigits.startsWith("8600") ||
@@ -381,8 +380,6 @@ const WithdrawScreen = () => {
   };
 
   const handleContinue = async () => {
-    console.log("handleContinue called, cardDigits:", cardDigits);
-    console.log("validateCard result:", validateCard());
 
     if (!validateCard()) {
       setErrorText(t.invalidCard);
@@ -393,9 +390,6 @@ const WithdrawScreen = () => {
       setErrorText(t.onlyUzcardHumo);
       return;
     }
-
-    console.log("userCards:", userCards);
-    console.log("cardDigits:", cardDigits);
 
     // Проверяем, не существует ли уже такая карта
     const existingCard = userCards.find(
@@ -516,7 +510,6 @@ const WithdrawScreen = () => {
   );
 
   const BrandBadge = ({ brand }) => {
-    console.log("BrandBadge brand:", brand);
 
     if (!brand)
       return (
@@ -526,7 +519,6 @@ const WithdrawScreen = () => {
       );
 
     const cardIcon = getCardIcon(brand);
-    console.log("cardIcon for brand", brand, ":", cardIcon);
 
     return (
       <div className="px-2 py-1 rounded-md bg-white/15 border border-white/30">
@@ -694,14 +686,6 @@ const WithdrawScreen = () => {
                   detectBrand(
                     card.card_number_masked || card.card_number
                   )?.toUpperCase();
-                console.log("Card data:", card);
-                console.log("card.card_type:", card.card_type);
-                console.log("card.card_number:", card.card_number);
-                console.log(
-                  "detectBrand result:",
-                  detectBrand(card.card_number_masked || card.card_number)
-                );
-                console.log("Final brand:", cardBrand);
 
                 return (
                   <PrettyCard

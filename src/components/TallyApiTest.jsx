@@ -33,10 +33,8 @@ const TallyApiTest = () => {
     const results = {};
 
     try {
-      console.log('=== Начало тестирования Tally API ===');
 
       // Тест 1: Проверка доступности серверного API
-      console.log('Тест 1: Проверка доступности серверного API...');
       try {
         const isAvailable = await tallyApiService.isServerApiAvailable();
         results.apiAvailability = {
@@ -44,18 +42,15 @@ const TallyApiTest = () => {
           message: `Серверный API ${isAvailable ? 'доступен' : 'недоступен'}`,
           data: { isAvailable }
         };
-        console.log('✓ Серверный API:', isAvailable ? 'доступен' : 'недоступен');
       } catch (error) {
         results.apiAvailability = {
           success: false,
           message: 'Ошибка при проверке доступности API',
           error: error.message
         };
-        console.log('✗ Ошибка при проверке API:', error.message);
       }
 
       // Тест 2: Получение списка форм через useSurvey
-      console.log('Тест 2: Получение списка форм через useSurvey...');
       try {
         const surveys = await getAvailableSurveys();
         results.surveysViaHook = {
@@ -63,18 +58,15 @@ const TallyApiTest = () => {
           message: `Получено ${surveys.length} опросов`,
           data: surveys
         };
-        console.log('✓ Получено опросов через useSurvey:', surveys.length);
       } catch (error) {
         results.surveysViaHook = {
           success: false,
           message: 'Ошибка при получении опросов через useSurvey',
           error: error.message
         };
-        console.log('✗ Ошибка useSurvey:', error.message);
       }
 
       // Тест 3: Получение списка форм через useApi
-      console.log('Тест 3: Получение списка форм через useApi...');
       try {
         const formsResult = await getTallyForms();
         results.formsViaApi = {
@@ -84,20 +76,17 @@ const TallyApiTest = () => {
             : formsResult.error,
           data: formsResult.data
         };
-        console.log('✓ Результат через useApi:', formsResult.success ? 'успех' : 'ошибка');
       } catch (error) {
         results.formsViaApi = {
           success: false,
           message: 'Ошибка при получении форм через useApi',
           error: error.message
         };
-        console.log('✗ Ошибка useApi:', error.message);
       }
 
       // Тест 4: Получение конкретной формы (если есть формы)
       if (testResults.surveysViaHook?.success && testResults.surveysViaHook.data?.length > 0) {
         const firstSurvey = testResults.surveysViaHook.data[0];
-        console.log(`Тест 4: Получение формы ${firstSurvey.id}...`);
         try {
           const survey = await getSurvey(firstSurvey.id);
           results.specificSurvey = {
@@ -105,18 +94,14 @@ const TallyApiTest = () => {
             message: `Получена форма: ${survey.title}`,
             data: survey
           };
-          console.log('✓ Получена форма:', survey.title);
         } catch (error) {
           results.specificSurvey = {
             success: false,
             message: 'Ошибка при получении конкретной формы',
             error: error.message
           };
-          console.log('✗ Ошибка получения формы:', error.message);
         }
       } else {
-        // Тест 4: Попытка получить форму по известному ID из конфигурации
-        console.log('Тест 4: Получение формы по ID из конфигурации...');
         try {
           const survey = await getSurvey('registration');
           results.specificSurvey = {
@@ -124,19 +109,16 @@ const TallyApiTest = () => {
             message: `Получена форма: ${survey.title}`,
             data: survey
           };
-          console.log('✓ Получена форма:', survey.title);
         } catch (error) {
           results.specificSurvey = {
             success: false,
             message: 'Ошибка при получении формы по ID из конфигурации',
             error: error.message
           };
-          console.log('✗ Ошибка получения формы:', error.message);
         }
       }
 
       // Тест 5: Прямое использование tallyApiService
-      console.log('Тест 5: Прямое использование tallyApiService...');
       try {
         const forms = await tallyApiService.getAvailableForms('ru');
         results.directService = {
@@ -144,17 +126,13 @@ const TallyApiTest = () => {
           message: `Получено ${forms.length} форм через сервис`,
           data: forms
         };
-        console.log('✓ Получено форм через сервис:', forms.length);
       } catch (error) {
         results.directService = {
           success: false,
           message: 'Ошибка при использовании tallyApiService',
           error: error.message
-        };
-        console.log('✗ Ошибка сервиса:', error.message);
+        };  
       }
-
-      console.log('=== Тестирование завершено ===');
 
     } catch (error) {
       console.error('Критическая ошибка при тестировании:', error);

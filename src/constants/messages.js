@@ -42,6 +42,12 @@ export const MESSAGES = {
     RESEND_HINT: 'Не получили код?',
     WRONG_NUMBER_HINT: 'Вы неправильно ввели номер?',
     BACK_TO_PHONE: 'Нажмите сюда!',
+    
+    // Подтверждение выхода
+    LOGOUT_CONFIRMATION_TITLE: 'Подтверждение выхода',
+    LOGOUT_CONFIRMATION_MESSAGE: 'Вы уверены, что хотите выйти из аккаунта?',
+    LOGOUT_CONFIRM: 'Да, выйти',
+    LOGOUT_CANCEL: 'Отмена',
   },
   
   uz: {
@@ -86,6 +92,12 @@ export const MESSAGES = {
     RESEND_HINT: 'Kod kelmadimi?',
     WRONG_NUMBER_HINT: 'Telefon raqamini noto\'g\'ri kiritdingizmi?',
     BACK_TO_PHONE: 'Bu yerga bosing!',
+    
+    // Подтверждение выхода
+    LOGOUT_CONFIRMATION_TITLE: 'Chiqishni tasdiqlash',
+    LOGOUT_CONFIRMATION_MESSAGE: 'Hisobingizdan chiqishni xohlaysizmi?',
+    LOGOUT_CONFIRM: 'Ha, chiqish',
+    LOGOUT_CANCEL: 'Bekor qilish',
   }
 };
 

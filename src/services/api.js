@@ -298,6 +298,20 @@ export const api = {
     });
     return handleResponse(response);
   },
+
+  // Отправка ответов на форму Tally
+  submitTallyForm: async (formId, answers) => {
+    
+    const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_SUBMIT}/${formId}`, {
+      method: 'PATCH',
+      headers: getHeaders(),
+      body: JSON.stringify(answers),
+    });
+    
+    const result = await handleResponse(response);
+    
+    return result;
+  },
 };
 
 export default api;
