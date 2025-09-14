@@ -214,10 +214,17 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     const currentQuestion = formDetails?.questions?.find(q => q.id === questionId);
     const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
+    // Для полей типа number получаем актуальное значение из input элемента
+    let actualValue = value;
+    if (questionType === 'number' && inputRef.current) {
+      actualValue = inputRef.current.value;
+      console.log('🔢 Number input - using actual value from DOM:', actualValue);
+    }
+    
     // Обновляем ref для всех типов вопросов
     answersRef.current = {
       ...answersRef.current,
-      [questionId]: value
+      [questionId]: actualValue
     };
     
     // Для полей типа number НЕ вызываем setState, чтобы избежать перерендеринга
@@ -229,7 +236,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     // Для других типов вопросов вызываем setState как обычно
     setAnswers(prev => ({
       ...prev,
-      [questionId]: value
+      [questionId]: actualValue
     }));
   };
 
@@ -242,10 +249,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     
     const questionType = getQuestionType(currentQuestion);
     
-    // Для полей типа number используем данные из ref
-    const answer = questionType === 'number' 
-      ? answersRef.current[currentQuestion.id] 
-      : answers[currentQuestion.id];
+    // Для полей типа number получаем актуальное значение из DOM
+    let answer;
+    if (questionType === 'number') {
+      answer = inputRef.current ? inputRef.current.value : answersRef.current[currentQuestion.id];
+    } else {
+      answer = answers[currentQuestion.id];
+    }
     
     // Если вопрос не обязательный, всегда валиден
     if (!currentQuestion.required) return true;
@@ -310,20 +320,29 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       // Используем formId из formDetails для отправки
       const formId = formDetails.formId;
       
-      // Объединяем данные из state и ref для отправки
-      const allAnswers = { ...answers, ...answersRef.current };
+      // Получаем актуальные данные из DOM для полей типа number
+      const currentQuestion = formDetails.questions[currentQuestionIndex];
+      const questionType = getQuestionType(currentQuestion);
+      
+      let finalAnswers = { ...answers, ...answersRef.current };
+      
+      // Если текущий вопрос типа number, получаем актуальное значение из DOM
+      if (questionType === 'number' && inputRef.current) {
+        finalAnswers[currentQuestion.id] = inputRef.current.value;
+        console.log('🔢 Final submit - using DOM value for number input:', inputRef.current.value);
+      }
       
       // Подготавливаем данные для отправки
       const submitData = {
         formId,
-        answers: allAnswers,
+        answers: finalAnswers,
         language,
         submittedAt: new Date().toISOString(),
         userId: null, // Будет добавлен на сервере если пользователь авторизован
       };
 
       // Отправляем ответы через useSurvey hook
-      const result = await submitSurvey(formId, allAnswers);
+      const result = await submitSurvey(formId, finalAnswers);
       setIsFormSubmitted(true);
       
       if (onComplete) {
@@ -334,7 +353,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       console.error('❌ JSON данных которые не удалось отправить:');
       console.error(JSON.stringify({
         formId: formDetails?.formId,
-        answers: { ...answers, ...answersRef.current },
+        answers: finalAnswers,
         language: language,
         submittedAt: new Date().toISOString()
       }, null, 2));
@@ -402,37 +421,59 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   );
 
   // Кастомный компонент инпута
-  const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => (
-    <div className="relative">
-      <input
-        ref={inputRef}
-        type={type}
-        value={value || ''}
-        onChange={onChange}
-        onKeyPress={onKeyPress}
-        onBlur={(e) => {
-          // Для полей типа number предотвращаем потерю фокуса
-          if (type === 'number') {
-            console.log('🚫 Number input blur prevented');
-            setTimeout(() => {
-              if (e.target && document.contains(e.target)) {
-                e.target.focus();
-              }
-            }, 0);
-          }
-        }}
-        className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
-        placeholder={placeholder}
-        autoComplete="off"
-        inputMode={type === 'number' ? 'numeric' : 'text'}
-        enterKeyHint={type === 'number' ? 'done' : 'next'}
-        autoFocus={false}
-        pattern={type === 'number' ? '[0-9]*' : undefined}
-        step={type === 'number' ? '1' : undefined}
-      />
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
-    </div>
-  );
+  const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => {
+    // Для полей типа number используем uncontrolled подход
+    if (type === 'number') {
+      return (
+        <div className="relative">
+          <input
+            ref={inputRef}
+            type={type}
+            defaultValue={value || ''}
+            onChange={onChange}
+            onKeyPress={onKeyPress}
+            onBlur={(e) => {
+              console.log('🚫 Number input blur prevented');
+              setTimeout(() => {
+                if (e.target && document.contains(e.target)) {
+                  e.target.focus();
+                }
+              }, 0);
+            }}
+            className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
+            placeholder={placeholder}
+            autoComplete="off"
+            inputMode="numeric"
+            enterKeyHint="done"
+            autoFocus={false}
+            pattern="[0-9]*"
+            step="1"
+          />
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
+        </div>
+      );
+    }
+    
+    // Для других типов используем controlled подход
+    return (
+      <div className="relative">
+        <input
+          ref={inputRef}
+          type={type}
+          value={value || ''}
+          onChange={onChange}
+          onKeyPress={onKeyPress}
+          className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
+          placeholder={placeholder}
+          autoComplete="off"
+          inputMode="text"
+          enterKeyHint="next"
+          autoFocus={false}
+        />
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
+      </div>
+    );
+  };
 
   // Локализованные тексты
   const texts = {

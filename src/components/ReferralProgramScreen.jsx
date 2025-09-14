@@ -66,7 +66,7 @@ const ReferralProgramScreen = () => {
       </div>
 
       {/* Контейнер контента между хедером и кнопкой */}
-      <div className="fixed top-28 bottom-28 left-0 right-0 z-10">
+      <div className="fixed top-28 bottom-32 left-0 right-0 z-10">
         <div className="h-full px-6 py-4 overflow-y-auto custom-scrollbar">
           {/* Заголовок страницы */}
           <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
