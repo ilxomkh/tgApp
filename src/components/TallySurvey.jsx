@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext.jsx';
 import tallyApiService from '../services/tallyApi.js';
 import { useSurvey } from '../hooks/useSurvey.js';
 import { useHapticClick } from '../utils/hapticFeedback';
+import { SuccessModal } from './Main/ui.jsx';
 
 const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const { language } = useLanguage();
@@ -19,6 +20,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const inputRef = useRef(null);
   const [shouldMaintainFocus, setShouldMaintainFocus] = useState(false);
   const answersRef = useRef({}); // Ref для хранения ответов без перерендеринга
+  const [numberFieldValid, setNumberFieldValid] = useState(false); // Состояние валидности для полей типа number
 
   useEffect(() => {
     console.log('🚀 Starting survey load for surveyId:', surveyId);
@@ -118,9 +120,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           timestamp: new Date().toISOString()
         });
         
-        // Для полей типа number используем более короткую задержку
-        const delay = e.target.type === 'number' ? 50 : 100;
+        // Для полей типа number НЕ отслеживаем состояние клавиатуры
+        if (e.target.type === 'number') {
+          console.log('🔢 Number input focus - skipping keyboard state tracking');
+          return;
+        }
         
+        // Для других полей используем обычную логику
         setTimeout(() => {
           const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
           const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
@@ -135,7 +141,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           });
           
           setIsKeyboardOpen(isKeyboardVisible);
-        }, delay);
+        }, 100);
       }
     };
 
@@ -147,14 +153,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         timestamp: new Date().toISOString()
       });
       
-      // Для полей типа number предотвращаем потерю фокуса
+      // Для полей типа number НЕ обрабатываем события focusOut
       if (e.target.type === 'number') {
-        console.log('🚫 Preventing focus loss for number input');
-        setTimeout(() => {
-          if (e.target && document.contains(e.target)) {
-            e.target.focus();
-          }
-        }, 0);
+        console.log('🔢 Number input focus out - ignoring event');
+        return;
       }
       
       // НЕ закрываем клавиатуру автоматически при потере фокуса
@@ -201,6 +203,25 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   }, [answers, shouldMaintainFocus]);
 
+  // Эффект для инициализации состояния валидности при смене вопроса
+  useEffect(() => {
+    if (formDetails && formDetails.questions) {
+      const currentQuestion = formDetails.questions[currentQuestionIndex];
+      const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
+      
+      if (questionType === 'number') {
+        // Проверяем, есть ли уже значение в ref
+        const existingValue = answersRef.current[currentQuestion.id];
+        const isValid = existingValue !== null && existingValue !== undefined && existingValue !== '';
+        setNumberFieldValid(isValid);
+        console.log('🔢 Initializing number field validation:', { existingValue, isValid });
+      } else {
+        // Сбрасываем состояние для не-числовых полей
+        setNumberFieldValid(false);
+      }
+    }
+  }, [currentQuestionIndex, formDetails]);
+
   const handleAnswerChange = (questionId, value) => {
     console.log('📝 Answer changed:', {
       questionId,
@@ -230,6 +251,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     // Для полей типа number НЕ вызываем setState, чтобы избежать перерендеринга
     if (questionType === 'number') {
       console.log('🔢 Number input - avoiding re-render, storing in ref only');
+      
+      // Но обновляем состояние валидности для кнопки
+      const isValid = actualValue !== null && actualValue !== undefined && actualValue !== '';
+      setNumberFieldValid(isValid);
+      console.log('🔢 Number field validation:', { actualValue, isValid });
+      
       return; // Выходим без вызова setState
     }
     
@@ -249,13 +276,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     
     const questionType = getQuestionType(currentQuestion);
     
-    // Для полей типа number получаем актуальное значение из DOM
-    let answer;
+    // Для полей типа number используем состояние валидности
     if (questionType === 'number') {
-      answer = inputRef.current ? inputRef.current.value : answersRef.current[currentQuestion.id];
-    } else {
-      answer = answers[currentQuestion.id];
+      return numberFieldValid;
     }
+    
+    // Для других типов используем обычную логику
+    const answer = answers[currentQuestion.id];
     
     // Если вопрос не обязательный, всегда валиден
     if (!currentQuestion.required) return true;
@@ -290,6 +317,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       // Синхронизируем данные из ref в state перед переходом
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
       
+      // Сбрасываем состояние валидности для полей типа number
+      setNumberFieldValid(false);
+      
       setCurrentQuestionIndex(prev => prev + 1);
       console.log('➡️ Moving to next question - keeping keyboard open');
       // НЕ закрываем клавиатуру при переходе к следующему вопросу
@@ -308,6 +338,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       // Синхронизируем данные из ref в state перед переходом
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
       
+      // Сбрасываем состояние валидности для полей типа number
+      setNumberFieldValid(false);
+      
       setCurrentQuestionIndex(prev => prev - 1);
       console.log('⬅️ Moving to previous question - keeping keyboard open');
       // НЕ закрываем клавиатуру при переходе к предыдущему вопросу
@@ -321,14 +354,14 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       const formId = formDetails.formId;
       
       // Получаем актуальные данные из DOM для полей типа number
-      const currentQuestion = formDetails.questions[currentQuestionIndex];
-      const questionType = getQuestionType(currentQuestion);
+      const currentQuestionForSubmit = formDetails.questions[currentQuestionIndex];
+      const questionTypeForSubmit = getQuestionType(currentQuestionForSubmit);
       
       let finalAnswers = { ...answers, ...answersRef.current };
       
       // Если текущий вопрос типа number, получаем актуальное значение из DOM
-      if (questionType === 'number' && inputRef.current) {
-        finalAnswers[currentQuestion.id] = inputRef.current.value;
+      if (questionTypeForSubmit === 'number' && inputRef.current) {
+        finalAnswers[currentQuestionForSubmit.id] = inputRef.current.value;
         console.log('🔢 Final submit - using DOM value for number input:', inputRef.current.value);
       }
       
@@ -432,14 +465,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             defaultValue={value || ''}
             onChange={onChange}
             onKeyPress={onKeyPress}
-            onBlur={(e) => {
-              console.log('🚫 Number input blur prevented');
-              setTimeout(() => {
-                if (e.target && document.contains(e.target)) {
-                  e.target.focus();
-                }
-              }, 0);
-            }}
             className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
             placeholder={placeholder}
             autoComplete="off"
@@ -490,7 +515,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       submitting: 'Отправка...',
       thankYou: 'Спасибо! Ваш ответ отправлен.',
       loadingError: 'Ошибка загрузки опроса',
-      surveyError: 'Ошибка при отправке опроса'
+      surveyError: 'Ошибка при отправке опроса',
+      congratulations: 'Поздравляем!',
+      surveyCompleted: 'Опрос успешно завершен!',
+      close: 'Закрыть'
     },
     uz: {
       questionCounter: 'Savol',
@@ -505,7 +533,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       submitting: 'Yuborilmoqda...',
       thankYou: 'Rahmat! Javobingiz yuborildi.',
       loadingError: 'So\'rovni yuklashda xatolik',
-      surveyError: 'So\'rovni yuborishda xatolik'
+      surveyError: 'So\'rovni yuborishda xatolik',
+      congratulations: 'Tabriklaymiz!',
+      surveyCompleted: 'So\'rovnoma muvaffaqiyatli yakunlandi!',
+      close: 'Yopish'
     }
   };
 
@@ -779,12 +810,36 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   if (isFormSubmitted) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <div className="text-green-600 text-2xl mb-2">✓</div>
-        <p className="text-green-800 font-medium">
-          {t.thankYou}
-        </p>
+
+        <div className="relative z-10 w-full">
+        <div className="bg-white pb-32 rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
+          {/* Иконка успеха */}
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-green-600">
+              <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+
+           {/* Заголовок */}
+           <h2 className="text-2xl font-bold text-[#5E5AF6] mb-4">
+             {t.congratulations}
+           </h2>
+
+           {/* Сообщение */}
+           <p className="text-gray-600 text-base leading-relaxed mb-8">
+             {t.surveyCompleted}
+           </p>
+
+           {/* Кнопка закрытия */}
+           <button
+             onClick={onClose}
+             className="w-full h-12 rounded-xl bg-gradient-to-r from-[#6A4CFF] to-[#7A5CFF] text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl"
+           >
+             {t.close}
+           </button>
+        </div>
       </div>
+
     );
   }
 
@@ -832,9 +887,23 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const modalHeight = getModalHeight();
 
+  // Определяем, нужно ли поднимать опросник
+  const currentQuestionForLift = formDetails?.questions?.[currentQuestionIndex];
+  const questionTypeForLift = currentQuestionForLift ? getQuestionType(currentQuestionForLift) : 'unknown';
+  
+  // Для полей типа number НЕ поднимаем опросник, чтобы избежать потери фокуса
+  const shouldLiftSurvey = isKeyboardOpen && questionTypeForLift !== 'number';
+  
+  console.log('🔍 Survey lift decision:', {
+    isKeyboardOpen,
+    questionType: questionTypeForLift,
+    shouldLiftSurvey,
+    timestamp: new Date().toISOString()
+  });
+
   return (
     <div className={`bg-white border-b border-px border-gray-200 rounded-t-3xl overflow-hidden flex flex-col relative z-10 transition-all duration-500 ease-in-out ${
-      isKeyboardOpen ? 'transform -translate-y-32' : ''
+      shouldLiftSurvey ? 'transform -translate-y-32' : ''
     }`} style={{ height: `${modalHeight}px` }}>
       {/* Заголовок - адаптивный */}
       <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] p-4 sm:p-6 relative overflow-hidden flex-shrink-0">

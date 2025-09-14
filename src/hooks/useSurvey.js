@@ -130,10 +130,9 @@ export const useSurvey = () => {
       const authToken = localStorage.getItem('auth_token') || user?.token || null;
       const sessionId = localStorage.getItem('session_id');
       
-      // Подготавливаем данные для отправки
+      // Подготавливаем данные для отправки в новом формате
       const submitData = {
-        formId,
-        answers,
+        answers, // Передаем answers напрямую
         language,
         submittedAt: new Date().toISOString(),
         userId: userId, // Добавляем userId в данные

@@ -333,18 +333,22 @@ export const api = {
       userId = telegramId;
     }
     
-    // Если userId все еще не найден, используем старый endpoint
-    const endpoint = userId 
-      ? `${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_SUBMIT}/${formId}/user/${userId}`
-      : `${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_SUBMIT}/${formId}`;
+    // Новый endpoint: /api/tally/forms/{form_id}/submit
+    const endpoint = `${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_SUBMIT}/${formId}/submit`;
+    
+    // Подготавливаем тело запроса согласно новой структуре
+    const requestBody = {
+      answers: answers.answers || answers, // Извлекаем answers из объекта или используем весь объект
+      user_id: userId || 0 // Используем userId или 0 если не найден
+    };
     
     console.log('🌐 API Request:', {
       formId,
       userId,
       endpoint,
-      method: 'PATCH',
+      method: 'POST',
       headers: getHeaders(),
-      body: answers
+      body: requestBody
     });
     
     // Подготавливаем дополнительные заголовки если есть OTP
@@ -355,9 +359,9 @@ export const api = {
     
     try {
       const response = await fetchWithTimeout(endpoint, {
-        method: 'PATCH',
+        method: 'POST', // Изменяем метод на POST
         headers: getHeaders(additionalHeaders),
-        body: JSON.stringify(answers), // Отправляем весь объект answers, а не только answers.answers
+        body: JSON.stringify(requestBody), // Отправляем новую структуру
       });
       
       console.log('📡 API Response:', {
