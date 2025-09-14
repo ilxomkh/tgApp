@@ -14,18 +14,12 @@ export const TallyApiCorrectUsage = () => {
   // ✅ ПРАВИЛЬНО: Получение всех форм с сервера
   const handleGetAllForms = async () => {
     try {
-      console.log('=== Получение всех форм с сервера ===');
       const result = await getTallyForms();
       
       if (result.success) {
-        console.log('Формы получены успешно:', result.data);
         
         // Выводим информацию о каждой форме
         result.data.forEach(form => {
-          console.log(`Форма: ${form.title}`);
-          console.log(`Реальный ID Tally: ${form.id}`);
-          console.log(`URL: ${form.url || `https://tally.so/forms/${form.id}`}`);
-          console.log('---');
         });
         
         return result.data;
@@ -40,11 +34,9 @@ export const TallyApiCorrectUsage = () => {
   // ✅ ПРАВИЛЬНО: Получение конкретной формы по реальному ID Tally
   const handleGetFormByRealId = async (realFormId) => {
     try {
-      console.log(`=== Получение формы по реальному ID: ${realFormId} ===`);
       const result = await getTallyFormById(realFormId);
       
       if (result.success) {
-        console.log('Форма получена успешно:', result.data);
         return result.data;
       } else {
         console.error('Ошибка при получении формы:', result.error);
@@ -57,9 +49,7 @@ export const TallyApiCorrectUsage = () => {
   // ✅ ПРАВИЛЬНО: Использование внутренних ID через хуки (с fallback)
   const handleGetSurveyByInternalId = async (internalId) => {
     try {
-      console.log(`=== Получение опроса по внутреннему ID: ${internalId} ===`);
       const survey = await getSurvey(internalId);
-      console.log('Опрос получен успешно:', survey);
       return survey;
     } catch (error) {
       console.error('Ошибка при получении опроса:', error);
@@ -69,9 +59,7 @@ export const TallyApiCorrectUsage = () => {
   // ✅ ПРАВИЛЬНО: Получение доступных опросов (автоматический fallback)
   const handleGetAvailableSurveys = async () => {
     try {
-      console.log('=== Получение доступных опросов ===');
       const surveys = await getAvailableSurveys();
-      console.log('Доступные опросы:', surveys);
       return surveys;
     } catch (error) {
       console.error('Ошибка при получении опросов:', error);
@@ -81,25 +69,20 @@ export const TallyApiCorrectUsage = () => {
   // ❌ НЕПРАВИЛЬНО: Попытка использовать внутренний ID в API
   const handleWrongUsage = async () => {
     try {
-      console.log('=== НЕПРАВИЛЬНОЕ использование (для демонстрации) ===');
-      console.log('Попытка получить форму по внутреннему ID "registration"...');
       
       const result = await getTallyFormById('registration'); // Это вызовет ошибку 500!
       
       if (result.success) {
-        console.log('Неожиданно сработало:', result.data);
       } else {
-        console.log('Ожидаемая ошибка:', result.error);
       }
     } catch (error) {
-      console.log('Ожидаемая ошибка:', error.message);
+      console.error('Ожидаемая ошибка:', error.message);
     }
   };
 
   // Демонстрация правильного workflow
   const handleCorrectWorkflow = async () => {
     try {
-      console.log('=== ПРАВИЛЬНЫЙ WORKFLOW ===');
       
       // Шаг 1: Получаем все формы с сервера
       const forms = await handleGetAllForms();
@@ -108,7 +91,6 @@ export const TallyApiCorrectUsage = () => {
         const firstForm = forms[0];
         const realId = firstForm.id;
         
-        console.log(`Используем реальный ID: ${realId}`);
         
         // Шаг 2: Получаем конкретную форму по реальному ID
         await handleGetFormByRealId(realId);
@@ -127,9 +109,7 @@ export const TallyApiCorrectUsage = () => {
   // Получение маппинга ID форм
   const handleGetIdMapping = async () => {
     try {
-      console.log('=== Получение маппинга ID форм ===');
       const mapping = await tallyApiService.getFormIdMapping();
-      console.log('Маппинг ID форм:', mapping);
       return mapping;
     } catch (error) {
       console.error('Ошибка при получении маппинга:', error);
@@ -164,7 +144,6 @@ export const TallyUsageExample = () => {
   } = TallyApiCorrectUsage();
 
   const runAllExamples = async () => {
-    console.log('🚀 Запуск всех примеров использования Tally API');
     
     // Правильный workflow
     await handleCorrectWorkflow();
@@ -175,7 +154,6 @@ export const TallyUsageExample = () => {
     // Демонстрация неправильного использования
     await handleWrongUsage();
     
-    console.log('✅ Все примеры завершены');
   };
 
   return {

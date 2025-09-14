@@ -16,7 +16,6 @@ class TildaWebhookService {
    */
   async processWebhook(webhookData) {
     try {
-      console.log('Processing Tilda webhook:', webhookData);
 
       // Отправляем данные на наш сервер
       const response = await fetch(this.webhookUrl, {
@@ -35,7 +34,6 @@ class TildaWebhookService {
       }
 
       const result = await response.json();
-      console.log('Tilda webhook processed successfully:', result);
       return result;
     } catch (error) {
       console.error('Error processing Tilda webhook:', error);

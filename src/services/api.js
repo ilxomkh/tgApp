@@ -63,13 +63,6 @@ const getHeaders = (additionalHeaders = {}) => {
     ...additionalHeaders
   };
   
-  console.log('🔐 Request Headers:', {
-    hasToken: !!token,
-    hasSessionId: !!sessionId,
-    telegramHeaders,
-    additionalHeaders,
-    headers
-  });
   
   return headers;
 };
@@ -91,19 +84,12 @@ const handleResponse = async (response) => {
       case 401:
         errorMessage = errorMessage || ERROR_MESSAGES?.INVALID_OTP || 'Unauthorized';
         
-        console.log('🚨 401 Unauthorized error:', {
-          isInitializing,
-          currentPath: window.location.pathname,
-          errorData,
-          timestamp: new Date().toISOString()
-        });
         
         // Глобальная обработка 401 ошибки - перенаправляем на страницу авторизации
         // Но только если не инициализируемся и не находимся уже на странице авторизации
         // ВРЕМЕННО ЗАКОММЕНТИРОВАНО ДЛЯ ОТЛАДКИ
         /*
         if (!isInitializing && !window.location.pathname.includes('/auth')) {
-          console.log('🔄 Redirecting to /auth due to 401 error');
           
           // Очищаем все данные пользователя
           localStorage.removeItem('user');
@@ -342,14 +328,7 @@ export const api = {
       user_id: userId || 0 // Используем userId или 0 если не найден
     };
     
-    console.log('🌐 API Request:', {
-      formId,
-      userId,
-      endpoint,
-      method: 'POST',
-      headers: getHeaders(),
-      body: requestBody
-    });
+    
     
     // Подготавливаем дополнительные заголовки если есть OTP
     const additionalHeaders = {};
@@ -364,16 +343,11 @@ export const api = {
         body: JSON.stringify(requestBody), // Отправляем новую структуру
       });
       
-      console.log('📡 API Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        endpoint
-      });
+      
       
       const result = await handleResponse(response);
       
-      console.log('✅ API Success:', result);
+      
       
       return result;
     } catch (error) {

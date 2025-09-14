@@ -129,7 +129,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             ]}
             activeTab="home"
             onChange={(tab) => {
-              console.log('🔗 BottomNav tab clicked:', tab);
               // Закрываем модалку опроса при переходе в любую вкладку
               onClose();
             }}

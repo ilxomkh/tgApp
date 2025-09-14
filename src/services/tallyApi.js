@@ -71,7 +71,6 @@ class TallyApiService {
       console.error(`Error getting form details for ${formId}:`, error);
       
       // Fallback: возвращаем базовую структуру формы
-      console.log(`🔄 Используем fallback для формы ${formId}`);
       return this.getFallbackFormDetails(formId);
     }
   }
@@ -86,7 +85,6 @@ class TallyApiService {
     const isUzbekForm = formId.includes('uz') || formId === 'wbp8L6';
     const language = isUzbekForm ? 'uz' : 'ru';
     
-    console.log(`📋 Fallback форма для ${formId}, язык: ${language}`);
     
     return {
       formId: formId,
@@ -223,7 +221,6 @@ class TallyApiService {
   async getAvailableForms(language = 'ru') {
     // Проверяем, включен ли серверный API
     if (!config.TALLY.SERVER_API.ENABLED) {
-      console.log('Server API disabled, using fallback forms');
       return this.getFallbackForms(language);
     }
 

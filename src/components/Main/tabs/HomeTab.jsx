@@ -143,12 +143,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         ) : surveys.length > 0 ? (
           // Показываем опросы
           surveys.map((survey) => {
-            console.log('🎯 Отображаем опрос:', {
-              surveyId: survey.id,
-              surveyTitle: survey.title,
-              surveyLanguage: survey.language,
-              currentLanguage: language
-            });
             
             return (
               <SurveyCard 

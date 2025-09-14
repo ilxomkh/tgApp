@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
 import tallyApiService from '../services/tallyApi.js';
 import { useSurvey } from '../hooks/useSurvey.js';
@@ -82,15 +82,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       const keyboardThreshold = 150;
       const isKeyboardVisible = initialViewportHeight - currentViewportHeight > keyboardThreshold;
       
-      console.log('🔍 Keyboard resize detected:', {
-        initialHeight: initialViewportHeight,
-        currentHeight: currentViewportHeight,
-        difference: initialViewportHeight - currentViewportHeight,
-        threshold: keyboardThreshold,
-        isKeyboardVisible,
-        timestamp: new Date().toISOString()
-      });
-      
       setIsKeyboardOpen(isKeyboardVisible);
     };
 
@@ -101,26 +92,18 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       window.addEventListener('resize', handleResize);
     }
 
-    // Упрощенная обработка фокуса - только для не-number полей
+    // Полностью отключаем обработку фокуса для полей number
     const handleFocusIn = (e) => {
+      // Игнорируем все события фокуса для полей number
+      if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+        return;
+      }
+      
       if (e.target.tagName === 'INPUT' && e.target.type !== 'number') {
-        console.log('🎯 Non-number input focus detected:', {
-          inputType: e.target.type,
-          timestamp: new Date().toISOString()
-        });
         
         setTimeout(() => {
           const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
           const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
-          
-          console.log('🎯 Focus IN - Keyboard state:', {
-            currentHeight: currentViewportHeight,
-            windowHeight: window.innerHeight,
-            threshold: window.innerHeight * 0.75,
-            isKeyboardVisible,
-            inputType: e.target.type,
-            timestamp: new Date().toISOString()
-          });
           
           setIsKeyboardOpen(isKeyboardVisible);
         }, 100);
@@ -180,39 +163,71 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   }, [currentQuestionIndex, formDetails]);
 
-  const handleAnswerChange = (questionId, value) => {
-    hapticClick();
+  // Специальный эффект для предотвращения потери фокуса на полях number
+  useEffect(() => {
+    const currentQuestion = formDetails?.questions?.[currentQuestionIndex];
+    const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
+    if (questionType === 'number') {
+      
+      // Находим все поля number на странице
+      const numberInputs = document.querySelectorAll('input[type="number"]');
+      
+      numberInputs.forEach(input => {
+        // Добавляем дополнительную защиту от потери фокуса
+        const handleFocusProtection = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          
+          // Принудительно сохраняем фокус немедленно - с проверкой
+          if (e.target && typeof e.target.focus === 'function') {
+            e.target.focus();
+          }
+          
+          // Дополнительная защита через setTimeout
+          setTimeout(() => {
+            if (e.target && typeof e.target.focus === 'function' && document.activeElement !== e.target) {
+              e.target.focus();
+            }
+          }, 0);
+        };
+        
+        // Добавляем обработчик на несколько событий
+        input.addEventListener('blur', handleFocusProtection);
+        input.addEventListener('focusout', handleFocusProtection);
+        
+        // Cleanup функция
+        return () => {
+          input.removeEventListener('blur', handleFocusProtection);
+          input.removeEventListener('focusout', handleFocusProtection);
+        };
+      });
+    }
+  }, [currentQuestionIndex, formDetails]);
+
+  const handleAnswerChange = (questionId, value) => {
     // Проверяем тип текущего вопроса
     const currentQuestion = formDetails?.questions?.find(q => q.id === questionId);
     const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
-    // Для полей типа number получаем актуальное значение из input элемента
-    let actualValue = value;
-    if (questionType === 'number' && inputRef.current) {
-      actualValue = inputRef.current.value;
-      console.log('🔢 Number input value from DOM:', actualValue);
+    // Для полей типа number НЕ обрабатываем через этот метод
+    if (questionType === 'number') {
+      return;
     }
+    
+    hapticClick();
     
     // Обновляем ref для всех типов вопросов
     answersRef.current = {
       ...answersRef.current,
-      [questionId]: actualValue
+      [questionId]: value
     };
-    
-    // Для полей типа number НЕ вызываем setState, чтобы избежать перерендеринга
-    if (questionType === 'number') {
-      // Но обновляем состояние валидности для кнопки
-      const isValid = actualValue !== null && actualValue !== undefined && actualValue !== '';
-      setNumberFieldValid(isValid);
-      
-      return; // Выходим без вызова setState
-    }
     
     // Для других типов вопросов вызываем setState как обычно
     setAnswers(prev => ({
       ...prev,
-      [questionId]: actualValue
+      [questionId]: value
     }));
   };
 
@@ -290,9 +305,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       
       let finalAnswers = { ...answers, ...answersRef.current };
       
-      // Если текущий вопрос типа number, получаем актуальное значение из DOM
-      if (questionTypeForSubmit === 'number' && inputRef.current) {
-        finalAnswers[currentQuestionForSubmit.id] = inputRef.current.value;
+      // Если текущий вопрос типа number, получаем актуальное значение из ref
+      if (questionTypeForSubmit === 'number') {
+        const numberValue = answersRef.current[currentQuestionForSubmit.id];
+        if (numberValue !== undefined) {
+          finalAnswers[currentQuestionForSubmit.id] = numberValue;
+        }
       }
       
       // Подготавливаем данные для отправки
@@ -383,46 +401,107 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     </label>
   );
 
-  // Кастомный компонент инпута
-  const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => {
-    // Для полей типа number используем uncontrolled подход с дополнительной обработкой
-    if (type === 'number') {
-      const handleNumberFocus = (e) => {
-        console.log('🔢 Number input focused - preventing auto-blur');
-        // Предотвращаем автоматическое закрытие клавиатуры
-        e.target.style.webkitUserSelect = 'text';
-        e.target.style.userSelect = 'text';
-      };
-
-      const handleNumberBlur = (e) => {
-        console.log('🔢 Number input blur event');
-        // Для отладки - показываем когда происходит blur
-      };
-
-      return (
-        <div className="relative">
-          <input
-            ref={inputRef}
-            type={type}
-            defaultValue={value || ''}
-            onChange={onChange}
-            onKeyPress={onKeyPress}
-            onFocus={handleNumberFocus}
-            onBlur={handleNumberBlur}
-            className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
-            placeholder={placeholder}
-            autoComplete="off"
-            inputMode="numeric"
-            enterKeyHint="done"
-            pattern="[0-9]*"
-            step="1"
-          />
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
-        </div>
-      );
-    }
+  // Полностью статичный компонент для полей number - БЕЗ React lifecycle
+  const NumberInput = ({ questionId, placeholder, className }) => {
+    const numberInputRef = useRef(null);
     
-    // Для других типов используем controlled подход
+    // Дополнительный useEffect для инициализации после первого рендера
+    useEffect(() => {
+      const input = numberInputRef.current;
+      if (input) {
+        // Убеждаемся что обработчики установлены
+        input.focus();
+      }
+    }, [questionId]);
+    
+    // Используем useLayoutEffect для синхронной настройки
+    useLayoutEffect(() => {
+      const input = numberInputRef.current;
+      if (!input) return;
+      
+      
+      // Нативный обработчик ввода
+      const handleNativeInput = (e) => {
+        const inputValue = e.target.value;
+        
+        // Обновляем только ref
+        answersRef.current = {
+          ...answersRef.current,
+          [questionId]: inputValue
+        };
+        
+        // Обновляем состояние валидности
+        const isValid = inputValue !== null && inputValue !== undefined && inputValue !== '';
+        setNumberFieldValid(isValid);
+      };
+      
+      // Нативный обработчик фокуса
+      const handleNativeFocus = (e) => {
+        // Ничего не делаем, позволяем естественному поведению
+      };
+      
+      // Нативный обработчик потери фокуса - ПОЛНОСТЬЮ БЛОКИРУЕМ
+      const handleNativeBlur = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        // Немедленно возвращаем фокус - с проверкой
+        if (e.target && typeof e.target.focus === 'function') {
+          e.target.focus();
+        }
+        
+        // Дополнительная защита
+        setTimeout(() => {
+          if (e.target && typeof e.target.focus === 'function' && document.activeElement !== e.target) {
+            e.target.focus();
+          }
+        }, 0);
+      };
+      
+      // Добавляем нативные обработчики
+      input.addEventListener('input', handleNativeInput);
+      input.addEventListener('focus', handleNativeFocus);
+      input.addEventListener('blur', handleNativeBlur);
+      input.addEventListener('focusout', handleNativeBlur);
+      input.addEventListener('focusin', handleNativeFocus);
+      
+      return () => {
+        input.removeEventListener('input', handleNativeInput);
+        input.removeEventListener('focus', handleNativeFocus);
+        input.removeEventListener('blur', handleNativeBlur);
+        input.removeEventListener('focusout', handleNativeBlur);
+        input.removeEventListener('focusin', handleNativeFocus);
+      };
+    }, [questionId]);
+    
+    return (
+      <div className="relative">
+        <input
+          ref={numberInputRef}
+          type="number"
+          defaultValue=""
+          className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
+          placeholder={placeholder}
+          autoComplete="off"
+          inputMode="numeric"
+          enterKeyHint="done"
+          pattern="[0-9]*"
+          step="1"
+          style={{
+            WebkitUserSelect: 'text',
+            userSelect: 'text',
+            WebkitAppearance: 'none',
+            appearance: 'none'
+          }}
+        />
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
+      </div>
+    );
+  };
+
+  // Кастомный компонент инпута для не-number полей
+  const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => {
     return (
       <div className="relative">
         <input
@@ -589,11 +668,8 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
         case 'number':
           return (
-            <CustomInput
-              type="number"
-              value={currentAnswer || ''}
-              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-              onKeyPress={handleKeyPress}
+            <NumberInput
+              questionId={question.id}
               placeholder={t.enterNumber}
               className="focus:outline-none focus:ring-0 focus:border-[#7C65FF]"
             />

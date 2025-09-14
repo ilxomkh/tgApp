@@ -111,20 +111,6 @@ export const useSurvey = () => {
       
       // Получаем userId из AuthContext или localStorage
       const userId = user?.id || user?.user_id || null;
-      
-      console.log('🔍 Survey submission debug:', {
-        formId,
-        userId,
-        user: user,
-        hasUser: !!user,
-        authTokenFromStorage: localStorage.getItem('auth_token'),
-        authTokenFromUser: user?.token,
-        sessionId: localStorage.getItem('session_id'),
-        hasAuthTokenFromStorage: !!localStorage.getItem('auth_token'),
-        hasAuthTokenFromUser: !!user?.token,
-        hasSessionId: !!localStorage.getItem('session_id'),
-        allLocalStorageKeys: Object.keys(localStorage)
-      });
 
       // Получаем токены из разных источников
       const authToken = localStorage.getItem('auth_token') || user?.token || null;
@@ -143,7 +129,6 @@ export const useSurvey = () => {
         otp: localStorage.getItem('last_otp') || null
       };
 
-      console.log('📤 SubmitData prepared:', submitData);
       
       // Отправляем данные на новый endpoint с userId
       const result = await api.submitTallyForm(formId, submitData, userId);
