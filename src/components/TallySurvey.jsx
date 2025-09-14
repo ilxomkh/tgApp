@@ -17,6 +17,8 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const [error, setError] = useState(null);
   const hapticClick = useHapticClick();
   const inputRef = useRef(null);
+  const [shouldMaintainFocus, setShouldMaintainFocus] = useState(false);
+  const answersRef = useRef({}); // Ref для хранения ответов без перерендеринга
 
   useEffect(() => {
     console.log('🚀 Starting survey load for surveyId:', surveyId);
@@ -116,7 +118,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           timestamp: new Date().toISOString()
         });
         
-        // Небольшая задержка для корректного определения высоты клавиатуры
+        // Для полей типа number используем более короткую задержку
+        const delay = e.target.type === 'number' ? 50 : 100;
+        
         setTimeout(() => {
           const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
           const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
@@ -126,11 +130,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             windowHeight: window.innerHeight,
             threshold: window.innerHeight * 0.75,
             isKeyboardVisible,
+            inputType: e.target.type,
             timestamp: new Date().toISOString()
           });
           
           setIsKeyboardOpen(isKeyboardVisible);
-        }, 100);
+        }, delay);
       }
     };
 
@@ -141,6 +146,16 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         inputValue: e.target.value,
         timestamp: new Date().toISOString()
       });
+      
+      // Для полей типа number предотвращаем потерю фокуса
+      if (e.target.type === 'number') {
+        console.log('🚫 Preventing focus loss for number input');
+        setTimeout(() => {
+          if (e.target && document.contains(e.target)) {
+            e.target.focus();
+          }
+        }, 0);
+      }
       
       // НЕ закрываем клавиатуру автоматически при потере фокуса
       // Пользователь сам закроет клавиатуру когда захочет
@@ -173,6 +188,19 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     };
   }, []);
 
+  // Эффект для восстановления фокуса после перерендеринга
+  useEffect(() => {
+    if (shouldMaintainFocus && inputRef.current) {
+      console.log('🔄 Restoring focus after re-render for number input');
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          setShouldMaintainFocus(false);
+        }
+      }, 0);
+    }
+  }, [answers, shouldMaintainFocus]);
+
   const handleAnswerChange = (questionId, value) => {
     console.log('📝 Answer changed:', {
       questionId,
@@ -182,21 +210,27 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     
     hapticClick();
     
-    const question = formDetails?.questions?.find(q => q.id === questionId);
-    const questionType = question ? getQuestionType(question) : 'unknown';
+    // Проверяем тип текущего вопроса
+    const currentQuestion = formDetails?.questions?.find(q => q.id === questionId);
+    const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
+    // Обновляем ref для всех типов вопросов
+    answersRef.current = {
+      ...answersRef.current,
+      [questionId]: value
+    };
+    
+    // Для полей типа number НЕ вызываем setState, чтобы избежать перерендеринга
+    if (questionType === 'number') {
+      console.log('🔢 Number input - avoiding re-render, storing in ref only');
+      return; // Выходим без вызова setState
+    }
+    
+    // Для других типов вопросов вызываем setState как обычно
     setAnswers(prev => ({
       ...prev,
       [questionId]: value
     }));
-    
-    // Восстанавливаем фокус на инпуте после изменения состояния
-    setTimeout(() => {
-      if (inputRef.current && (questionType === 'text' || questionType === 'number')) {
-        console.log('🔄 Restoring focus to input after state change');
-        inputRef.current.focus();
-      }
-    }, 0);
   };
 
   // Функция для проверки валидности ответа на текущий вопрос
@@ -206,8 +240,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     const currentQuestion = formDetails.questions[currentQuestionIndex];
     if (!currentQuestion) return false;
     
-    const answer = answers[currentQuestion.id];
     const questionType = getQuestionType(currentQuestion);
+    
+    // Для полей типа number используем данные из ref
+    const answer = questionType === 'number' 
+      ? answersRef.current[currentQuestion.id] 
+      : answers[currentQuestion.id];
     
     // Если вопрос не обязательный, всегда валиден
     if (!currentQuestion.required) return true;
@@ -239,6 +277,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     });
     
     if (currentQuestionIndex < formDetails.questions.length - 1) {
+      // Синхронизируем данные из ref в state перед переходом
+      setAnswers(prev => ({ ...prev, ...answersRef.current }));
+      
       setCurrentQuestionIndex(prev => prev + 1);
       console.log('➡️ Moving to next question - keeping keyboard open');
       // НЕ закрываем клавиатуру при переходе к следующему вопросу
@@ -254,6 +295,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     });
     
     if (currentQuestionIndex > 0) {
+      // Синхронизируем данные из ref в state перед переходом
+      setAnswers(prev => ({ ...prev, ...answersRef.current }));
+      
       setCurrentQuestionIndex(prev => prev - 1);
       console.log('⬅️ Moving to previous question - keeping keyboard open');
       // НЕ закрываем клавиатуру при переходе к предыдущему вопросу
@@ -266,17 +310,20 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       // Используем formId из formDetails для отправки
       const formId = formDetails.formId;
       
+      // Объединяем данные из state и ref для отправки
+      const allAnswers = { ...answers, ...answersRef.current };
+      
       // Подготавливаем данные для отправки
       const submitData = {
         formId,
-        answers,
+        answers: allAnswers,
         language,
         submittedAt: new Date().toISOString(),
         userId: null, // Будет добавлен на сервере если пользователь авторизован
       };
 
       // Отправляем ответы через useSurvey hook
-      const result = await submitSurvey(formId, answers);
+      const result = await submitSurvey(formId, allAnswers);
       setIsFormSubmitted(true);
       
       if (onComplete) {
@@ -287,7 +334,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       console.error('❌ JSON данных которые не удалось отправить:');
       console.error(JSON.stringify({
         formId: formDetails?.formId,
-        answers: answers,
+        answers: { ...answers, ...answersRef.current },
         language: language,
         submittedAt: new Date().toISOString()
       }, null, 2));
@@ -364,13 +411,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         onChange={onChange}
         onKeyPress={onKeyPress}
         onBlur={(e) => {
-          console.log('🚫 Input blur detected - preventing focus loss');
-          // Предотвращаем потерю фокуса для текстовых полей
-          if (type === 'text' || type === 'number') {
+          // Для полей типа number предотвращаем потерю фокуса
+          if (type === 'number') {
+            console.log('🚫 Number input blur prevented');
             setTimeout(() => {
-              if (inputRef.current) {
-                console.log('🔄 Restoring focus after blur');
-                inputRef.current.focus();
+              if (e.target && document.contains(e.target)) {
+                e.target.focus();
               }
             }, 0);
           }
@@ -379,8 +425,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         placeholder={placeholder}
         autoComplete="off"
         inputMode={type === 'number' ? 'numeric' : 'text'}
-        enterKeyHint="next"
+        enterKeyHint={type === 'number' ? 'done' : 'next'}
         autoFocus={false}
+        pattern={type === 'number' ? '[0-9]*' : undefined}
+        step={type === 'number' ? '1' : undefined}
       />
       <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
     </div>
@@ -432,11 +480,16 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       timestamp: new Date().toISOString()
     });
     
+    // Для полей типа number позволяем стандартное поведение Enter
+    // Это поможет избежать проблем с клавиатурой на мобильных устройствах
+    if (e.key === 'Enter' && e.target.type === 'number') {
+      console.log('⌨️ Enter key on number input - allowing default behavior');
+      return; // Не предотвращаем стандартное поведение
+    }
+    
     if (e.key === 'Enter') {
       e.preventDefault();
       console.log('⌨️ Enter key prevented default behavior - keeping keyboard open');
-      // НЕ убираем фокус с инпута, чтобы клавиатура не закрывалась
-      // Пользователь сам закроет клавиатуру когда захочет
     }
   };
 
@@ -485,8 +538,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   // Компонент для отображения вопроса
   const QuestionComponent = ({ question }) => {
-    const currentAnswer = answers[question.id];
     const questionType = getQuestionType(question);
+    
+    // Для полей типа number используем данные из ref, для остальных - из state
+    const currentAnswer = questionType === 'number' 
+      ? answersRef.current[question.id] 
+      : answers[question.id];
 
     const renderQuestionInput = () => {
       switch (questionType) {
@@ -534,6 +591,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={t.enterNumber}
+              className="focus:outline-none focus:ring-0 focus:border-[#7C65FF]"
             />
           );
 
