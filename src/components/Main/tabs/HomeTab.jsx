@@ -116,9 +116,29 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
       <div className="space-y-4">
         {surveysLoading ? (
-          // Показываем загрузку
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7C65FF]"></div>
+          // Показываем скелетон загрузки
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-pulse">
+                {/* Заголовок скелетона */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-200 rounded-lg mb-2 w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded-lg w-1/2"></div>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                </div>
+                
+                {/* Информационные строки скелетона */}
+                <div className="space-y-3 mb-6">
+                  <div className="h-4 bg-gray-200 rounded-lg w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded-lg w-2/3"></div>
+                </div>
+                
+                {/* Кнопка скелетона */}
+                <div className="h-12 bg-gray-200 rounded-xl"></div>
+              </div>
+            ))}
           </div>
         ) : surveys.length > 0 ? (
           // Показываем опросы

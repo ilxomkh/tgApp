@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import tallyWebhookService from '../services/tallyWebhook.js';
 import tallyApiService from '../services/tallyApi.js';
 import api from '../services/api.js';
@@ -9,6 +10,7 @@ export const useSurvey = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { language } = useLanguage();
+  const { user } = useAuth();
 
   // Получение списка доступных опросов
   const getAvailableSurveys = useCallback(async () => {
@@ -107,18 +109,45 @@ export const useSurvey = () => {
       // Получаем formId из surveyId (предполагаем, что surveyId это formId)
       const formId = surveyId;
       
+      // Получаем userId из AuthContext или localStorage
+      const userId = user?.id || user?.user_id || null;
+      
+      console.log('🔍 Survey submission debug:', {
+        formId,
+        userId,
+        user: user,
+        hasUser: !!user,
+        authTokenFromStorage: localStorage.getItem('auth_token'),
+        authTokenFromUser: user?.token,
+        sessionId: localStorage.getItem('session_id'),
+        hasAuthTokenFromStorage: !!localStorage.getItem('auth_token'),
+        hasAuthTokenFromUser: !!user?.token,
+        hasSessionId: !!localStorage.getItem('session_id'),
+        allLocalStorageKeys: Object.keys(localStorage)
+      });
+
+      // Получаем токены из разных источников
+      const authToken = localStorage.getItem('auth_token') || user?.token || null;
+      const sessionId = localStorage.getItem('session_id');
+      
       // Подготавливаем данные для отправки
       const submitData = {
         formId,
         answers,
         language,
         submittedAt: new Date().toISOString(),
-        userId: null, // Будет добавлен на сервере если пользователь авторизован
+        userId: userId, // Добавляем userId в данные
+        // Добавляем данные для аутентификации
+        sessionId: sessionId,
+        authToken: authToken,
+        // Попробуем добавить OTP код (может быть нужен для некоторых операций)
+        otp: localStorage.getItem('last_otp') || null
       };
 
-
-      // Отправляем данные на новый endpoint
-      const result = await api.submitTallyForm(formId, submitData);
+      console.log('📤 SubmitData prepared:', submitData);
+      
+      // Отправляем данные на новый endpoint с userId
+      const result = await api.submitTallyForm(formId, submitData, userId);
 
       
       return result;

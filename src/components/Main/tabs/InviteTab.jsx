@@ -165,12 +165,18 @@ const InviteTab = ({ locale = "ru", user }) => {
 
       {/* Статистика */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Индикатор загрузки */}
+        {/* Скелетон загрузки статистики */}
         {loading && (
-          <div className="col-span-2 text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5E5AF6]"></div>
-            <p className="text-gray-500 mt-2">{t.loading}</p>
-          </div>
+          <>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white border border-px border-gray-200 rounded-xl p-4 animate-pulse">
+                {/* Заголовок скелетона */}
+                <div className="h-4 bg-gray-200 rounded-lg mb-2 w-3/4"></div>
+                {/* Значение скелетона */}
+                <div className="h-6 bg-gray-200 rounded-lg w-1/2"></div>
+              </div>
+            ))}
+          </>
         )}
 
         {/* Ошибка загрузки */}

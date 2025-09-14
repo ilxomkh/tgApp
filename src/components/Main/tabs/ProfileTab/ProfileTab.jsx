@@ -125,11 +125,16 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
               />
             </div>
 
-            {/* Индикатор загрузки */}
+            {/* Скелетон загрузки профиля */}
             {loading && (
-              <div className="text-center py-4">
-                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                <p className="text-white/80 text-sm mt-2">{localT.loading}</p>
+              <div className="text-center py-4 animate-pulse">
+                {/* Скелетон аватарки */}
+                
+                {/* Скелетон текста */}
+                <div className="space-y-2">
+                  <div className="h-4 bg-white/20 rounded-lg w-32 mx-auto"></div>
+                  <div className="h-6 bg-white/20 rounded-lg w-24 mx-auto"></div>
+                </div>
               </div>
             )}
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
 import tallyApiService from '../services/tallyApi.js';
 import { useSurvey } from '../hooks/useSurvey.js';
@@ -6,21 +6,31 @@ import { useHapticClick } from '../utils/hapticFeedback';
 
 const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const { language } = useLanguage();
-  const { submitSurvey, loading, error } = useSurvey();
+  const { submitSurvey, loading: submitLoading, error: submitError } = useSurvey();
   const [survey, setSurvey] = useState(null);
   const [formDetails, setFormDetails] = useState(null);
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [loading, setLoading] = useState(true); // Собственное состояние загрузки для данных опроса
+  const [error, setError] = useState(null);
   const hapticClick = useHapticClick();
+  const inputRef = useRef(null);
 
   useEffect(() => {
+    console.log('🚀 Starting survey load for surveyId:', surveyId);
+    setLoading(true);
+    setError(null);
+    
     const loadSurvey = async () => {
       try {
+        console.log('📡 Fetching form details from API...');
         
         // Получаем детальную информацию о форме через новый API
         const details = await tallyApiService.getFormDetails(surveyId);
+        console.log('✅ Form details loaded successfully:', details);
+        
         setFormDetails(details);
         
         // Создаем объект опроса для совместимости
@@ -32,11 +42,15 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           questions: details.questions
         };
         
+        console.log('📊 Survey data created:', surveyData);
         setSurvey(surveyData);
+        console.log('✅ Survey loading completed successfully');
       } catch (err) {
         console.error('❌ Ошибка при загрузке опроса:', err);
+        setError(err.message);
         
         // Fallback: создаем базовую структуру опроса
+        console.log('🔄 Using fallback form details...');
         const fallbackDetails = tallyApiService.getFallbackFormDetails(surveyId);
         
         setFormDetails(fallbackDetails);
@@ -49,7 +63,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           questions: fallbackDetails.questions
         };
         
+        console.log('📊 Fallback survey data created:', surveyData);
         setSurvey(surveyData);
+        console.log('✅ Fallback survey loading completed');
+      } finally {
+        setLoading(false);
+        console.log('🏁 Survey loading finished, loading set to false');
       }
     };
 
@@ -69,6 +88,15 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       const keyboardThreshold = 150;
       const isKeyboardVisible = initialViewportHeight - currentViewportHeight > keyboardThreshold;
       
+      console.log('🔍 Keyboard resize detected:', {
+        initialHeight: initialViewportHeight,
+        currentHeight: currentViewportHeight,
+        difference: initialViewportHeight - currentViewportHeight,
+        threshold: keyboardThreshold,
+        isKeyboardVisible,
+        timestamp: new Date().toISOString()
+      });
+      
       setIsKeyboardOpen(isKeyboardVisible);
     };
 
@@ -82,22 +110,41 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     // Также слушаем события фокуса на инпутах
     const handleFocusIn = (e) => {
       if (e.target.tagName === 'INPUT') {
+        console.log('🎯 Input focus IN detected:', {
+          inputType: e.target.type,
+          inputValue: e.target.value,
+          timestamp: new Date().toISOString()
+        });
+        
         // Небольшая задержка для корректного определения высоты клавиатуры
         setTimeout(() => {
           const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
           const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
+          
+          console.log('🎯 Focus IN - Keyboard state:', {
+            currentHeight: currentViewportHeight,
+            windowHeight: window.innerHeight,
+            threshold: window.innerHeight * 0.75,
+            isKeyboardVisible,
+            timestamp: new Date().toISOString()
+          });
+          
           setIsKeyboardOpen(isKeyboardVisible);
         }, 100);
       }
     };
 
-    const handleFocusOut = () => {
-      // Небольшая задержка перед закрытием клавиатуры
-      setTimeout(() => {
-        const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
-        const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
-        setIsKeyboardOpen(isKeyboardVisible);
-      }, 100);
+    const handleFocusOut = (e) => {
+      console.log('🎯 Input focus OUT detected:', {
+        target: e.target.tagName,
+        inputType: e.target.type,
+        inputValue: e.target.value,
+        timestamp: new Date().toISOString()
+      });
+      
+      // НЕ закрываем клавиатуру автоматически при потере фокуса
+      // Пользователь сам закроет клавиатуру когда захочет
+      // Оставляем клавиатуру открытой для лучшего UX
     };
 
     document.addEventListener('focusin', handleFocusIn);
@@ -127,6 +174,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   }, []);
 
   const handleAnswerChange = (questionId, value) => {
+    console.log('📝 Answer changed:', {
+      questionId,
+      value,
+      timestamp: new Date().toISOString()
+    });
+    
     hapticClick();
     
     const question = formDetails?.questions?.find(q => q.id === questionId);
@@ -136,6 +189,14 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       ...prev,
       [questionId]: value
     }));
+    
+    // Восстанавливаем фокус на инпуте после изменения состояния
+    setTimeout(() => {
+      if (inputRef.current && (questionType === 'text' || questionType === 'number')) {
+        console.log('🔄 Restoring focus to input after state change');
+        inputRef.current.focus();
+      }
+    }, 0);
   };
 
   // Функция для проверки валидности ответа на текущий вопрос
@@ -171,14 +232,32 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   };
 
   const handleNextQuestion = () => {
+    console.log('➡️ Next question clicked:', {
+      currentIndex: currentQuestionIndex,
+      totalQuestions: formDetails.questions.length,
+      timestamp: new Date().toISOString()
+    });
+    
     if (currentQuestionIndex < formDetails.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
+      console.log('➡️ Moving to next question - keeping keyboard open');
+      // НЕ закрываем клавиатуру при переходе к следующему вопросу
+      // Пользователь сам закроет клавиатуру когда захочет
     }
   };
 
   const handlePreviousQuestion = () => {
+    console.log('⬅️ Previous question clicked:', {
+      currentIndex: currentQuestionIndex,
+      totalQuestions: formDetails.questions.length,
+      timestamp: new Date().toISOString()
+    });
+    
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
+      console.log('⬅️ Moving to previous question - keeping keyboard open');
+      // НЕ закрываем клавиатуру при переходе к предыдущему вопросу
+      // Пользователь сам закроет клавиатуру когда захочет
     }
   };
 
@@ -279,15 +358,29 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => (
     <div className="relative">
       <input
+        ref={inputRef}
         type={type}
         value={value || ''}
         onChange={onChange}
         onKeyPress={onKeyPress}
+        onBlur={(e) => {
+          console.log('🚫 Input blur detected - preventing focus loss');
+          // Предотвращаем потерю фокуса для текстовых полей
+          if (type === 'text' || type === 'number') {
+            setTimeout(() => {
+              if (inputRef.current) {
+                console.log('🔄 Restoring focus after blur');
+                inputRef.current.focus();
+              }
+            }, 0);
+          }
+        }}
         className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
         placeholder={placeholder}
         autoComplete="off"
         inputMode={type === 'number' ? 'numeric' : 'text'}
-        enterKeyHint="done"
+        enterKeyHint="next"
+        autoFocus={false}
       />
       <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
     </div>
@@ -331,10 +424,19 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   // Обработчик нажатия Enter для инпутов
   const handleKeyPress = (e) => {
+    console.log('⌨️ Key press detected:', {
+      key: e.key,
+      target: e.target.tagName,
+      inputType: e.target.type,
+      inputValue: e.target.value,
+      timestamp: new Date().toISOString()
+    });
+    
     if (e.key === 'Enter') {
       e.preventDefault();
-      // Убираем фокус с инпута, что закроет клавиатуру
-      e.target.blur();
+      console.log('⌨️ Enter key prevented default behavior - keeping keyboard open');
+      // НЕ убираем фокус с инпута, чтобы клавиатура не закрывалась
+      // Пользователь сам закроет клавиатуру когда захочет
     }
   };
 
@@ -477,14 +579,14 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     };
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="text-center">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2 leading-relaxed">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 leading-relaxed px-2">
             {question.text}
             {question.required && <span className="text-red-500 ml-1">*</span>}
           </h3>
           {question.required && !isCurrentQuestionAnswered && (
-            <p className="text-sm text-red-500 mt-1">
+            <p className="text-xs sm:text-sm text-red-500 mt-1">
               {t.requiredField}
             </p>
           )}
@@ -494,19 +596,76 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             </p>
           )}
         </div>
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto px-2">
           {renderQuestionInput()}
         </div>
       </div>
     );
   };
 
-  if (loading) {
+  // Компонент скелетона для загрузки
+  const SkeletonLoader = () => {
+    console.log('🦴 Rendering SkeletonLoader component');
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className={`bg-white border-b border-px border-gray-200 rounded-t-3xl overflow-hidden flex flex-col relative z-10 transition-all duration-500 ease-in-out`} style={{ height: '400px' }}>
+        {/* Скелетон заголовка */}
+        <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] p-4 sm:p-6 relative overflow-hidden flex-shrink-0">
+          <div className="w-full">
+            <div className="h-6 bg-white/20 rounded-lg mb-2 animate-pulse"></div>
+            <div className="h-4 bg-white/20 rounded-lg w-1/3 mx-auto animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Скелетон прогресс-бара */}
+        <div className="bg-gray-100 h-1">
+          <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-1 w-1/4 animate-pulse"></div>
+        </div>
+
+        {/* Скелетон контента */}
+        <div className="flex-1 p-4 sm:p-6 bg-gray-50">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="text-center">
+              <div className="h-6 bg-gray-200 rounded-lg mb-2 animate-pulse"></div>
+              <div className="h-4 bg-gray-200 rounded-lg w-2/3 mx-auto animate-pulse"></div>
+            </div>
+            <div className="max-w-md mx-auto px-2">
+              <div className="space-y-3">
+                {/* Скелетон опций */}
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center space-x-4 p-4 rounded-xl border-2 border-gray-200 animate-pulse">
+                    <div className="w-6 h-6 rounded-full bg-gray-200"></div>
+                    <div className="h-5 bg-gray-200 rounded-lg flex-1"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Скелетон навигации */}
+        <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex-shrink-0 pb-20">
+          <div className="flex justify-between items-center mb-2 sm:mb-4">
+            <div className="p-3 rounded-full bg-gray-200 animate-pulse w-12 h-12"></div>
+            <div className="h-4 bg-gray-200 rounded-lg w-16 animate-pulse"></div>
+            <div className="p-3 rounded-full bg-gray-200 animate-pulse w-12 h-12"></div>
+          </div>
+        </div>
       </div>
     );
+  };
+
+  console.log('🔍 TallySurvey render state:', {
+    loading,
+    error,
+    survey: !!survey,
+    formDetails: !!formDetails,
+    currentQuestionIndex,
+    timestamp: new Date().toISOString()
+  });
+
+  if (loading) {
+    console.log('🦴 Showing skeleton loader because loading=true');
+    return <SkeletonLoader />;
   }
 
   if (error) {
@@ -539,79 +698,126 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const isFirstQuestion = currentQuestionIndex === 0;
   const isCurrentQuestionAnswered = isCurrentQuestionValid();
 
+  // Вычисляем динамическую высоту на основе количества опций
+  const getModalHeight = () => {
+    const currentQuestion = formDetails.questions[currentQuestionIndex];
+    const questionType = getQuestionType(currentQuestion);
+    
+    // Базовая высота для заголовка (80px) + прогресс-бар (12px) + навигация (100px) + отступ для BottomNav (80px)
+    let baseHeight = 272;
+    
+    // Высота для текста вопроса (примерно 60px)
+    baseHeight += 60;
+    
+    if (questionType === 'choice' || questionType === 'multichoice') {
+      const optionsCount = currentQuestion.options?.length || 0;
+      if (optionsCount > 0) {
+        // Высота каждой опции: 56px (padding + border) + отступы между опциями: 12px
+        const optionsHeight = optionsCount * 56 + (optionsCount - 1) * 12;
+        baseHeight += optionsHeight;
+      }
+    } else {
+      // Для текстовых полей фиксированная высота
+      baseHeight += 80;
+    }
+    
+    // Добавляем отступы контента (24px сверху и снизу)
+    baseHeight += 48;
+    
+    // Ограничиваем максимальную высоту
+    const maxHeight = window.innerHeight * 0.75;
+    const minHeight = 360; // Минимальная высота с учетом отступа для BottomNav
+    
+    return Math.max(minHeight, Math.min(baseHeight, maxHeight));
+  };
+
+  const modalHeight = getModalHeight();
+
   return (
-    <div className={`bg-white border-b border-px border-gray-200 max-h-[60vh] rounded-t-3xl overflow-hidden flex-1 flex flex-col relative z-10 transition-all duration-300 ease-in-out ${
-      isKeyboardOpen ? 'transform -translate-y-32 max-h-[80vh]' : ''
-    }`}>
-      {/* Заголовок */}
-      <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] p-6 relative overflow-hidden">
+    <div className={`bg-white border-b border-px border-gray-200 rounded-t-3xl overflow-hidden flex flex-col relative z-10 transition-all duration-500 ease-in-out ${
+      isKeyboardOpen ? 'transform -translate-y-32' : ''
+    }`} style={{ height: `${modalHeight}px` }}>
+      {/* Заголовок - адаптивный */}
+      <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] p-4 sm:p-6 relative overflow-hidden flex-shrink-0">
         {/* Декоративные элементы */}
         <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
         <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
         
-        <h2 className="text-white text-xl font-bold text-center relative z-10">
-          {survey.title}
-        </h2>
-        <div className="text-white/90 text-sm text-center mt-2 relative z-10">
-          {t.questionCounter} {currentQuestionIndex + 1} {t.of} {formDetails.questions.length}
+        <div className="w-full">
+          <h2 className="text-white text-lg sm:text-xl font-bold text-center relative z-10">
+            {survey.title}
+          </h2>
+          <div className="text-white/90 text-xs sm:text-sm text-center mt-1 sm:mt-2 relative z-10">
+            {t.questionCounter} {currentQuestionIndex + 1} {t.of} {formDetails.questions.length}
+          </div>
         </div>
       </div>
 
-      {/* Прогресс бар */}
-      <div className="bg-gray-100 h-3">
+      {/* Прогресс бар - тонкий */}
+      <div className="bg-gray-100 h-1">
         <div 
-          className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-3 transition-all duration-500 ease-out"
+          className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-1 transition-all duration-500 ease-out"
           style={{ width: `${((currentQuestionIndex + 1) / formDetails.questions.length) * 100}%` }}
         />
       </div>
 
-      {/* Контент вопроса */}
-      <div className="flex-1 p-6 overflow-y-auto bg-gray-50">
+      {/* Контент вопроса - адаптивный с кастомным скроллбаром */}
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-gray-50 custom-scrollbar">
         <QuestionComponent question={currentQuestion} />
       </div>
 
-      {/* Навигация */}
-      <div className="p-6 bg-white border-t border-gray-100">
-        <div className="flex justify-between items-center mb-4">
+      {/* Навигация - адаптивная */}
+      <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex-shrink-0 pb-20">
+        <div className="flex justify-between items-center mb-2 sm:mb-4">
           <button
             onClick={handlePreviousQuestion}
             disabled={isFirstQuestion}
-            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+            className={`p-3 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base flex items-center justify-center ${
               isFirstQuestion 
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                 : 'bg-gray-200 hover:bg-gray-300 text-gray-700 active:scale-95'
             }`}
           >
-              {t.back}
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
           </button>
 
-          <div className="text-sm text-gray-500 font-medium">
+          <div className="text-xs sm:text-sm text-gray-500 font-medium">
             {currentQuestionIndex + 1} / {formDetails.questions.length}
           </div>
 
           {isLastQuestion ? (
             <button
               onClick={handleFormSubmit}
-              disabled={loading || !isCurrentQuestionAnswered}
-              className={`px-8 py-3 font-semibold rounded-xl transition-all duration-200 active:scale-95 ${
-                loading || !isCurrentQuestionAnswered
+              disabled={submitLoading || !isCurrentQuestionAnswered}
+              className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
+                submitLoading || !isCurrentQuestionAnswered
                 ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
                 : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
               }`}
             >
-              {loading ? t.submitting : t.finish}
+              {submitLoading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              )}
             </button>
           ) : (
             <button
               onClick={handleNextQuestion}
               disabled={!isCurrentQuestionAnswered}
-              className={`px-6 py-3 font-semibold rounded-xl transition-all duration-200 active:scale-95 ${
+              className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
                 !isCurrentQuestionAnswered
                   ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
                   : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
               }`}
             >
-              {t.next}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           )}
         </div>

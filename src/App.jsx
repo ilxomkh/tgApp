@@ -21,7 +21,6 @@ import { useLocation } from 'react-router-dom';
 
 function AppContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
-  const { isInitializing } = useAuth();
 
   // === ВАЖНО: Инициализация Telegram WebApp и покраска шапки ===
   useEffect(() => {
@@ -47,6 +46,16 @@ function AppContent() {
     tg.setBackgroundColor?.('#6A4CFF');   // Фон под вебвью
   }, []);
 
+  return (
+    <Router>
+      <RouterContent />
+    </Router>
+  );
+}
+
+function AuthInitializer({ children }) {
+  const { isInitializing } = useAuth();
+
   // Показываем индикатор загрузки во время инициализации
   if (isInitializing) {
     return (
@@ -59,11 +68,7 @@ function AppContent() {
     );
   }
 
-  return (
-    <Router>
-      <RouterContent />
-    </Router>
-  );
+  return children;
 }
 
 function RouterContent() {
@@ -149,7 +154,9 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <AppContent />
+        <AuthInitializer>
+          <AppContent />
+        </AuthInitializer>
       </AuthProvider>
     </LanguageProvider>
   );

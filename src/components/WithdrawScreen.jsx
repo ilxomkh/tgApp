@@ -589,11 +589,38 @@ const WithdrawScreen = () => {
             {t.myCards}
           </h4>
 
-          {/* Индикатор загрузки */}
+          {/* Скелетон загрузки карт */}
           {loading && (
-            <div className="text-center py-8">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5E5AF6]"></div>
-              <p className="text-gray-500 mt-2">{t.loading}</p>
+            <div className="space-y-4">
+              {/* Скелетон карточки */}
+              <div className="bg-white rounded-2xl p-5 shadow-[0_20px_40px_rgba(2,6,23,0.2)] animate-pulse">
+                <div className="flex items-center justify-between mb-6">
+                  {/* Скелетон бейджа */}
+                  <div className="w-16 h-8 bg-gray-200 rounded-md"></div>
+                </div>
+                {/* Скелетон номера карты */}
+                <div className="h-6 bg-gray-200 rounded-lg mb-4 w-3/4"></div>
+                {/* Скелетон держателя и даты */}
+                <div className="flex items-center justify-between">
+                  <div className="h-4 bg-gray-200 rounded-lg w-1/3"></div>
+                  <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
+                </div>
+              </div>
+              
+              {/* Скелетон второй карточки */}
+              <div className="bg-white rounded-2xl p-5 shadow-[0_20px_40px_rgba(2,6,23,0.2)] animate-pulse">
+                <div className="flex items-center justify-between mb-6">
+                  {/* Скелетон бейджа */}
+                  <div className="w-16 h-8 bg-gray-200 rounded-md"></div>
+                </div>
+                {/* Скелетон номера карты */}
+                <div className="h-6 bg-gray-200 rounded-lg mb-4 w-3/4"></div>
+                {/* Скелетон держателя и даты */}
+                <div className="flex items-center justify-between">
+                  <div className="h-4 bg-gray-200 rounded-lg w-1/3"></div>
+                  <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
+                </div>
+              </div>
             </div>
           )}
 

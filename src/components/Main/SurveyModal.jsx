@@ -24,7 +24,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
       finish: 'Завершить',
       home: 'Главная',
       invite: 'Пригласить',
-      lottery: 'Лотерея',
+      lottery: 'Итоги',
       profile: 'Профиль'
     },
     uz: {
@@ -36,7 +36,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
       finish: 'Yakunlash',
       home: 'Asosiy',
       invite: 'Taklif qilish',
-      lottery: 'Lotereya',
+      lottery: 'Natijalar',
       profile: 'Profil'
     }
   };
@@ -94,15 +94,32 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   if (survey?.type === 'tally') {
     return (
       <div className="fixed inset-0 z-50 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] flex flex-col">
-        <WaveOverlay />
-        <div>
-          <img src={ProSVG} alt="Pro" className='absolute w-[260px] top-1/5 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+        {/* Фоновый слой с WaveOverlay */}
+        <div className="absolute inset-0">
+          <WaveOverlay />
         </div>
         
-        {/* Основной контент опроса */}
+        {/* Логотип - адаптивный */}
+        <div className="flex justify-center pt-30 pb-4 relative z-10">
+          <img src={ProSVG} alt="Pro" className="w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px]"/>
+        </div>
+        
+        {/* Основной контент опроса - адаптивный */}
+        <div className="flex justify-center items-end flex-1 relative z-10">
+          <div className="w-full max-w-lg">
+            <TallySurvey
+              surveyId={survey.id}
+              onComplete={(result) => {
+                setSurveyResult(result);
+                setIsCompleted(true);
+              }}
+              onClose={onClose}
+            />
+          </div>
+        </div>
         
         {/* BottomNav */}
-        <div className="relative z-10">
+        <div className="relative z-10 flex-shrink-0">
           <BottomNav 
             tabs={[
               { id: 'home', label: localizedTexts.home },
@@ -112,20 +129,10 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             ]}
             activeTab="home"
             onChange={(tab) => {
-              if (tab === 'home') {
-                onClose();
-              }
+              console.log('🔗 BottomNav tab clicked:', tab);
+              // Закрываем модалку опроса при переходе в любую вкладку
+              onClose();
             }}
-          />
-        </div>
-        <div className="absolute bottom-16 w-full flex-1 flex flex-col">
-          <TallySurvey
-            surveyId={survey.id}
-            onComplete={(result) => {
-              setSurveyResult(result);
-              setIsCompleted(true);
-            }}
-            onClose={onClose}
           />
         </div>
       </div>

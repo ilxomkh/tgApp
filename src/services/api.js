@@ -47,17 +47,31 @@ export const getTelegramHeaders = () => {
 const API_BASE_URL = config.API_BASE_URL;
 
 // Базовые заголовки для запросов
-const getHeaders = () => {
+const getHeaders = (additionalHeaders = {}) => {
   const token = localStorage.getItem('auth_token');
   const sessionId = localStorage.getItem('session_id');
-  return {
+  const telegramHeaders = getTelegramHeaders();
+  
+  const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` }),
     ...(sessionId && { 'x-session-id': sessionId }),
     // <— добавляем заголовки Telegram
-    ...getTelegramHeaders()
+    ...telegramHeaders,
+    // Добавляем дополнительные заголовки
+    ...additionalHeaders
   };
+  
+  console.log('🔐 Request Headers:', {
+    hasToken: !!token,
+    hasSessionId: !!sessionId,
+    telegramHeaders,
+    additionalHeaders,
+    headers
+  });
+  
+  return headers;
 };
 
 // Обработка ошибок
@@ -77,9 +91,20 @@ const handleResponse = async (response) => {
       case 401:
         errorMessage = errorMessage || ERROR_MESSAGES?.INVALID_OTP || 'Unauthorized';
         
+        console.log('🚨 401 Unauthorized error:', {
+          isInitializing,
+          currentPath: window.location.pathname,
+          errorData,
+          timestamp: new Date().toISOString()
+        });
+        
         // Глобальная обработка 401 ошибки - перенаправляем на страницу авторизации
         // Но только если не инициализируемся и не находимся уже на странице авторизации
+        // ВРЕМЕННО ЗАКОММЕНТИРОВАНО ДЛЯ ОТЛАДКИ
+        /*
         if (!isInitializing && !window.location.pathname.includes('/auth')) {
+          console.log('🔄 Redirecting to /auth due to 401 error');
+          
           // Очищаем все данные пользователя
           localStorage.removeItem('user');
           localStorage.removeItem('auth_token');
@@ -88,6 +113,7 @@ const handleResponse = async (response) => {
           // Перенаправляем на страницу авторизации
           window.location.href = '/auth';
         }
+        */
         break;
       case 429:
         errorMessage = errorMessage || ERROR_MESSAGES?.TOO_MANY_ATTEMPTS || 'Too many requests';
@@ -300,17 +326,62 @@ export const api = {
   },
 
   // Отправка ответов на форму Tally
-  submitTallyForm: async (formId, answers) => {
+  submitTallyForm: async (formId, answers, userId = null) => {
+    // Получаем userId из контекста если не передан
+    if (!userId) {
+      const { telegramId } = readTelegramContext();
+      userId = telegramId;
+    }
     
-    const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_SUBMIT}/${formId}`, {
+    // Если userId все еще не найден, используем старый endpoint
+    const endpoint = userId 
+      ? `${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_SUBMIT}/${formId}/user/${userId}`
+      : `${API_BASE_URL}${API_ENDPOINTS.TALLY_FORM_SUBMIT}/${formId}`;
+    
+    console.log('🌐 API Request:', {
+      formId,
+      userId,
+      endpoint,
       method: 'PATCH',
       headers: getHeaders(),
-      body: JSON.stringify(answers),
+      body: answers
     });
     
-    const result = await handleResponse(response);
+    // Подготавливаем дополнительные заголовки если есть OTP
+    const additionalHeaders = {};
+    if (answers.otp) {
+      additionalHeaders['x-otp-code'] = answers.otp;
+    }
     
-    return result;
+    try {
+      const response = await fetchWithTimeout(endpoint, {
+        method: 'PATCH',
+        headers: getHeaders(additionalHeaders),
+        body: JSON.stringify(answers), // Отправляем весь объект answers, а не только answers.answers
+      });
+      
+      console.log('📡 API Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        endpoint
+      });
+      
+      const result = await handleResponse(response);
+      
+      console.log('✅ API Success:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('❌ API Error in submitTallyForm:', {
+        error: error.message,
+        endpoint,
+        formId,
+        userId,
+        timestamp: new Date().toISOString()
+      });
+      throw error;
+    }
   },
 };
 
