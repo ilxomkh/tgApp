@@ -767,14 +767,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       </div>
 
       {/* Навигация - адаптивная */}
-      <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex-shrink-0 pb-20">
+      <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex-shrink-0 pb-25">
         <div className="flex justify-between items-center mb-2 sm:mb-4">
           <button
-            onClick={handlePreviousQuestion}
-            disabled={isFirstQuestion}
+            onClick={isFirstQuestion ? onClose : handlePreviousQuestion}
             className={`p-3 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base flex items-center justify-center ${
               isFirstQuestion 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                ? 'bg-red-100 hover:bg-red-200 text-red-600 active:scale-95' 
                 : 'bg-gray-200 hover:bg-gray-300 text-gray-700 active:scale-95'
             }`}
           >
@@ -821,8 +820,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             </button>
           )}
         </div>
-
-        {/* Кнопка закрытия убрана - теперь используется BottomNav */}
       </div>
     </div>
   );

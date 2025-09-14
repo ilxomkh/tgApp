@@ -452,12 +452,26 @@ const ProfileEditPage = () => {
               </h1>
               
               {/* Иконка настроек справа */}
-              <div className="w-14 h-14 absolute -right-5 -top-5">
+              <div className="w-8 h-8 bg-white/30 rounded-full absolute -right-3 -top-3">
               <button
                 onClick={handleBack}
-                className="w-14 h-14 flex items-center justify-center"
+                className="w-8 h-8 flex items-center justify-center"
               >
-                <ChevronLeftCircle className="w-8 h-8" /> 
+                <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="text-white"
+          >
+            <path
+              d="M19 12H5M12 19l-7-7 7-7"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
               </button>
               </div>
             </div>

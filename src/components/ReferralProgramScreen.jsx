@@ -59,85 +59,79 @@ const ReferralProgramScreen = () => {
   const t = translations[language || "ru"];
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      {/* Основной контент с кастомным скроллбаром */}
-      <div className="px-6 py-8 h-[calc(100vh-80px)] overflow-y-auto custom-scrollbar">
-        {/* Заголовок страницы */}
-        <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
-          {t.title}
-        </h2>
+    <div className="min-h-screen bg-[#F4F4FF]">
+      {/* Фиксированный хедер */}
+      <div className="fixed top-0 left-0 right-0 z-30">
+        <Header />
+      </div>
 
-        {/* Контент */}
-        <div className="space-y-6 text-gray-800">
-          {/* Первый раздел */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.howMuchEarn}
-            </h3>
-            <p className="text-base leading-relaxed mb-3">
-              {t.twoLevelProgram}
-            </p>
-            <p className="text-base leading-relaxed mb-2">{t.level1}</p>
-            <p className="text-base leading-relaxed">{t.level2}</p>
-          </div>
+      {/* Контейнер контента между хедером и кнопкой */}
+      <div className="fixed top-28 bottom-20 left-0 right-0 z-10">
+        <div className="h-full px-6 py-4 overflow-y-auto custom-scrollbar">
+          {/* Заголовок страницы */}
+          <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
+            {t.title}
+          </h2>
 
-          {/* Второй раздел */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.whatActivities}
-            </h3>
-            <p className="text-base leading-relaxed mb-3">{t.onlySell}</p>
-            <p className="text-base leading-relaxed">{t.tradingCriteria}</p>
-          </div>
+          {/* Контент */}
+          <div className="space-y-6 text-gray-800">
+            {/* Сколько можно заработать */}
+            <div>
+              <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
+                {t.howMuchEarn}
+              </h3>
+              <p className="text-base leading-relaxed mb-3">
+                {t.twoLevelProgram}
+              </p>
+              <div className="space-y-2">
+                <p className="text-base leading-relaxed">{t.level1}</p>
+                <p className="text-base leading-relaxed">{t.level2}</p>
+              </div>
+            </div>
 
-          {/* Повторение первого раздела */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.howMuchEarn}
-            </h3>
-            <p className="text-base leading-relaxed mb-3">
-              {t.twoLevelProgram}
-            </p>
-            <p className="text-base leading-relaxed mb-2">{t.level1}</p>
-            <p className="text-base leading-relaxed">{t.level2}</p>
-          </div>
+            {/* Какие действия учитываются */}
+            <div>
+              <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
+                {t.whatActivities}
+              </h3>
+              <div className="space-y-2">
+                <p className="text-base leading-relaxed">{t.onlySell}</p>
+                <p className="text-base leading-relaxed">{t.tradingCriteria}</p>
+              </div>
+            </div>
 
-          {/* Повторение второго раздела */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.whatActivities}
-            </h3>
-            <p className="text-base leading-relaxed mb-3">{t.onlySell}</p>
-            <p className="text-base leading-relaxed">{t.tradingCriteria}</p>
-          </div>
+            {/* Дополнительная информация */}
+            <div>
+              <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
+                {t.additionalInfo}
+              </h3>
+              <p className="text-base leading-relaxed">{t.additionalInfoText}</p>
+            </div>
 
-          {/* Дополнительный контент для демонстрации скролла */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.additionalInfo}
-            </h3>
-            <p className="text-base leading-relaxed">{t.additionalInfoText}</p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.importantDetails}
-            </h3>
-            <p className="text-base leading-relaxed">
-              {t.importantDetailsText}
-            </p>
+            {/* Важные детали */}
+            <div>
+              <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
+                {t.importantDetails}
+              </h3>
+              <p className="text-base leading-relaxed">
+                {t.importantDetailsText}
+              </p>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Кнопка "Назад" */}
-        <div className="rounded-2xl bg-[#EDEAFF] p-2 mt-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-full h-[48px] rounded-xl bg-[#8C8AF9] text-white font-semibold active:scale-[0.99] transition"
-          >
-            {t.back}
-          </button>
+      {/* Фиксированная кнопка "Назад" */}
+      <div className="fixed bottom-3 left-0 right-0 z-20 p-4 pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-md mx-auto">
+          <div className="rounded-2xl bg-[#EDEAFF] p-2">
+            <button
+              onClick={() => navigate("/main?tab=profile")}
+              className="w-full h-[48px] rounded-xl bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-semibold active:scale-[0.99] transition"
+            >
+              {t.back}
+            </button>
+          </div>
         </div>
       </div>
     </div>

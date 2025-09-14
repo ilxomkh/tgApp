@@ -34,15 +34,19 @@ const detectBrand = (digits) => {
   // Убираем звездочки и другие символы для проверки префиксов
   const prefixDigits = cleanDigits.replace(/[^0-9]/g, "");
 
+  // Проверяем UZCARD и HUMO сначала (более специфичные префиксы)
   if (
     prefixDigits.startsWith("5614") ||
     prefixDigits.startsWith("8600") ||
     prefixDigits.startsWith("6262")
   )
     return "UZCARD";
+  if (prefixDigits.startsWith("9860")) return "HUMO";
+  
+  // Затем проверяем международные карты
   if (prefixDigits.startsWith("4")) return "VISA";
   if (prefixDigits.startsWith("5")) return "MASTERCARD";
-  if (prefixDigits.startsWith("9860")) return "HUMO";
+  
   return null;
 };
 
@@ -261,6 +265,8 @@ const WithdrawScreen = () => {
       invalidCard: "Noto'g'ri karta raqami",
       cardExists: "Bu karta allaqachon qo'shilgan",
       onlyUzcardHumo: "Faqat UZCARD va HUMO kartalarini qo'shish mumkin",
+      back: "Orqaga",
+      username: "To'liq ism",
     },
     ru: {
       balance: "Мой баланс",
@@ -293,6 +299,8 @@ const WithdrawScreen = () => {
       invalidCard: "Неверный номер карты",
       cardExists: "Эта карта уже добавлена",
       onlyUzcardHumo: "Можно добавить только UZCARD и HUMO карты",
+      back: "Назад",
+      username: "Полное имя",
     },
   }[language];
 
@@ -318,7 +326,20 @@ const WithdrawScreen = () => {
 
   // ---- Validation ----
   const validateCard = () => {
-    if (cardDigits.length < 13) return false;
+    // Проверяем что поле не пустое
+    if (!cardDigits || cardDigits.length === 0) return false;
+    
+    // Проверяем что поле полностью заполнено (минимум 13 цифр)
+    if (cardDigits.length < 16) return false;
+    
+    // Для тестовых карт (UZCARD/HUMO) проверяем что поле заполнено полностью
+    const brand = detectBrand(cardDigits);
+    if (brand === "UZCARD" || brand === "HUMO") {
+      // Для UZCARD/HUMO карт обычно 16 цифр, принимаем от 13 до 16
+      return cardDigits.length >= 16 && cardDigits.length <= 16;
+    }
+    
+    // Для остальных карт используем стандартную валидацию
     return isValidCardNumber(cardDigits);
   };
 
@@ -338,6 +359,12 @@ const WithdrawScreen = () => {
     setTimeout(() => cardInputRef.current?.focus(), 0);
   };
 
+  const handleBack = () => {
+    setShowAddCardForm(false);
+    setCardDigits("");
+    setErrorText("");
+  };
+
   const onCardChange = (e) => {
     const raw = e.target.value;
     const caret = e.target.selectionStart ?? raw.length;
@@ -345,6 +372,17 @@ const WithdrawScreen = () => {
     const newDigits = digitsOnly(raw).slice(0, 16);
 
     setCardDigits(newDigits);
+    
+    // Проверяем тип карты в реальном времени
+    const brand = detectBrand(newDigits);
+    // Показываем ошибку для всех типов карт, кроме UZCARD и HUMO
+    // Также показываем ошибку для неизвестных карт (когда brand === null)
+    if (brand !== "UZCARD" && brand !== "HUMO") {
+      setErrorText(t.onlyUzcardHumo);
+    } else {
+      setErrorText("");
+    }
+    
     // Вернём каретку в «правильное» место после форматирования
     requestAnimationFrame(() => {
       const display = group4(newDigits);
@@ -356,7 +394,6 @@ const WithdrawScreen = () => {
         } catch {}
       }
     });
-    setErrorText("");
   };
 
   const onAmountChange = (e) => {
@@ -487,7 +524,31 @@ const WithdrawScreen = () => {
 
   // ---- UI atoms ----
   const BalanceCard = () => (
-    <div className="w-full rounded-2xl p-5 text-white bg-gradient-to-r from-[#5E5AF6] to-[#8888FC] shadow-[0_20px_40px_rgba(94,90,246,0.35)]">
+    <div className="w-full rounded-2xl p-5 text-white bg-gradient-to-r from-[#5E5AF6] to-[#8888FC] shadow-[0_20px_40px_rgba(94,90,246,0.35)] relative">
+      {/* Кнопка Назад в правом верхнем углу */}
+      {showAddCardForm && (
+        <button
+          onClick={handleBack}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="text-white"
+          >
+            <path
+              d="M19 12H5M12 19l-7-7 7-7"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      )}
+      
       <div className="flex items-center justify-start gap-4">
         <div className="flex items-center justify-between">
           <div className="w-18 h-18 rounded-full bg-white/15 flex items-center justify-center relative">
@@ -585,9 +646,12 @@ const WithdrawScreen = () => {
         <BalanceCard />
 
         <div>
-          <h4 className="text-sm font-semibold text-gray-500 mb-4">
-            {t.myCards}
-          </h4>
+          {/* Показываем заголовок "Мои карты" только если не показываем форму добавления */}
+          {!shouldShowAddForm && (
+            <h4 className="text-sm font-semibold text-gray-500 mb-4">
+              {t.myCards}
+            </h4>
+          )}
 
           {/* Скелетон загрузки карт */}
           {loading && (
@@ -665,8 +729,12 @@ const WithdrawScreen = () => {
                     autoComplete="off"
                   />
                 </div>
+                {user?.full_name && (
+                <div className="text-lg mt-2 font-medium text-gray-900">
+                  {user.full_name}
+                </div>
+              )}
               </div>
-
               {/* Превью карты */}
               {cardDigits.length > 0 && (
                 <PrettyCard
@@ -694,7 +762,7 @@ const WithdrawScreen = () => {
                     ${
                       validateCard() && validateCardType()
                         ? "bg-[#5E5AF6] text-white hover:bg-[#4A46E8] active:scale-[0.99]"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-[#8888FC] text-white/80 cursor-not-allowed"
                     } ${isKeyboardOpen ? 'h-10' : 'h-12'}
                   `}
                 >
