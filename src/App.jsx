@@ -35,13 +35,12 @@ function useTelegramInit() {
 
     const redirectedKey = '__sa_redirect_done__';
     try {
-      const fromChat = Boolean(tg.initDataUnsafe?.chat?.id);
-      const alreadyStandalone = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
+      const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
-      if (fromChat && !alreadyStandalone && !alreadyRedirected) {
+      if (!samePayload && !alreadyRedirected) {
         sessionStorage.setItem(redirectedKey, '1');
-        tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
-        tg.close();
+        setTimeout(() => tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`), 50);
+        setTimeout(() => tg.close(), 400);
         return;
       }
     } catch {}
@@ -137,7 +136,6 @@ function useTelegramInit() {
 }
 
 function AppContent() {
-  const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
   useTelegramInit();
   return <RouterContent />;
 }
