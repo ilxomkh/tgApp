@@ -18,9 +18,6 @@ import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-const BOT_USERNAME = 'pro_surveybot';
-const STARTAPP_PAYLOAD = 'home';
-
 function useTelegramInit() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,18 +29,6 @@ function useTelegramInit() {
 
     tg.ready();
     tg.expand();
-
-    const redirectedKey = '__sa_redirect_done__';
-    try {
-      const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
-      const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
-      if (!samePayload && !alreadyRedirected) {
-        sessionStorage.setItem(redirectedKey, '1');
-        setTimeout(() => tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`), 50);
-        setTimeout(() => tg.close(), 400);
-        return;
-      }
-    } catch {}
 
     const nukeMainButton = () => {
       try {
