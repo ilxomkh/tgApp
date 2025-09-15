@@ -443,10 +443,8 @@ const ProfileEditPage = () => {
 
   useTelegramBackButton(handleBack, true);
   
-  // Обработка изменения состояния клавиатуры
   useEffect(() => {
     if (isKeyboardOpen) {
-      // Когда клавиатура открывается, прокручиваем к активному элементу
       const activeElement = document.activeElement;
       if (activeElement && activeElement.tagName === 'INPUT') {
         scrollToActiveInput(activeElement);
@@ -468,7 +466,7 @@ const ProfileEditPage = () => {
       
       <div className={`p-4 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <div className="max-w-md mx-auto">
-          <div className={`bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl text-white shadow-lg mb-6 transition-all duration-300 ${isKeyboardOpen ? 'mt-4 p-4' : 'mt-0 p-6'}`}>
+          <div className={`bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl text-white shadow-lg mb-2 transition-all duration-300 ${isKeyboardOpen ? 'mt-4 p-4' : 'mt-0 p-4'}`}>
             <div className={`flex relative gap-2 items-center transition-all duration-300 ${isKeyboardOpen ? 'mb-4' : 'mb-6'}`}>
               <div className="w-12 h-12 flex items-center justify-center">
                 <UserAvatar 
@@ -493,7 +491,7 @@ const ProfileEditPage = () => {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className={`space-y-4 transition-all duration-300 ${isKeyboardOpen ? 'space-y-3' : 'space-y-4'}`}>
+            <form onSubmit={handleSubmit} className={`space-y-2 transition-all duration-300 ${isKeyboardOpen ? 'space-y-2' : 'space-y-2'}`}>
               <div>
                 <label className="block text-white/90 text-sm mb-2 font-medium">
                   {t.name}

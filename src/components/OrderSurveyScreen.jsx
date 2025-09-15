@@ -260,12 +260,12 @@ const OrderSurveyScreen = () => {
     <div className="min-h-screen bg-white allow-scroll">
       <Header />
       
-      <div className="px-6 pt-8 pb-24">
-        <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
+      <div className="px-4 pt-4 pb-2">
+        <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-4">
           {t.title}
         </h2>
 
-        <form className="space-y-4">
+        <form className="space-y-2">
           {submitSuccess && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
               <p className="text-green-600 text-sm font-medium">{t.orderCreated}</p>
@@ -286,7 +286,7 @@ const OrderSurveyScreen = () => {
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.fullName}
               required
-              className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none  transition-colors ${
+              className={`w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none  transition-colors ${
                 formErrors.fullName ? 'border-red-300 bg-red-50' : ''
               }`}
             />
@@ -302,7 +302,7 @@ const OrderSurveyScreen = () => {
               onChange={(e) => handleInputChange('organization', e.target.value)}
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.organization}
-              className="w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
+              className="w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
             />
           </div>
 
@@ -313,7 +313,7 @@ const OrderSurveyScreen = () => {
               onChange={(e) => handleInputChange('position', e.target.value)}
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.position}
-              className="w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
+              className="w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
             />
           </div>
 
@@ -325,7 +325,7 @@ const OrderSurveyScreen = () => {
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.phone}
               required
-              className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
+              className={`w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
                 formErrors.phone ? 'border-red-300 bg-red-50' : ''
               }`}
             />
@@ -341,7 +341,7 @@ const OrderSurveyScreen = () => {
               onChange={(e) => handleInputChange('email', e.target.value)}
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.email}
-              className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
+              className={`w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
                 formErrors.email ? 'border-red-300 bg-red-50' : ''
               }`}
             />
