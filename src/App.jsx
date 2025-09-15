@@ -22,7 +22,7 @@ function useTelegramInit() {
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) {
-      alert("Telegram WebApp SDK не найден!");
+      console.warn("Telegram WebApp SDK не найден!");
       return;
     }
 
@@ -30,9 +30,11 @@ function useTelegramInit() {
     tg.expand();
 
     console.log("Telegram WebApp version:", tg.version);
-    alert(`Telegram WebApp version: ${tg.version}`);
 
-    // ✅ Отключаем свайпы (новый API, доступно с версии 6.9)
+    // ✅ Скрыть MainButton (чтобы не было “Continue”)
+    tg.MainButton.hide();
+
+    // ✅ Отключаем свайпы (API >= 6.9)
     if (tg.disableVerticalSwipes) {
       tg.disableVerticalSwipes();
       setTimeout(() => tg.disableVerticalSwipes(), 300);
@@ -60,7 +62,7 @@ function useTelegramInit() {
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    // ✅ Вибрация при клике (API доступен с версии 6.1)
+    // ✅ Вибрация при клике (API >= 6.1)
     const vibrateOnClick = () => {
       if (tg.HapticFeedback?.impactOccurred) {
         tg.HapticFeedback.impactOccurred('medium');
