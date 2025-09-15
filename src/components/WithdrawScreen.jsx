@@ -196,7 +196,7 @@ const WithdrawScreen = () => {
   const scrollToActiveInput = (inputElement) => {
     if (!inputElement) return;
     
-    const immediateScroll = () => {
+    const scrollToInput = () => {
       const rect = inputElement.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       
@@ -207,8 +207,11 @@ const WithdrawScreen = () => {
       
       const availableHeight = viewportHeight - keyboardHeight;
       
-      if (rect.bottom > availableHeight) {
-        const scrollAmount = rect.bottom - availableHeight + 50;
+      const inputCenter = rect.top + rect.height / 2;
+      const targetPosition = availableHeight / 2;
+      
+      if (inputCenter !== targetPosition) {
+        const scrollAmount = inputCenter - targetPosition + 50;
         window.scrollBy({
           top: scrollAmount,
           behavior: 'smooth'
@@ -216,47 +219,11 @@ const WithdrawScreen = () => {
       }
     };
     
-    immediateScroll();
+    scrollToInput();
     
-    setTimeout(() => {
-      const rect = inputElement.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      
-      let keyboardHeight = 0;
-      if (isKeyboardOpen) {
-        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
-      }
-      
-      const availableHeight = viewportHeight - keyboardHeight;
-      
-      if (rect.bottom > availableHeight) {
-        const scrollAmount = rect.bottom - availableHeight + 30;
-        window.scrollBy({
-          top: scrollAmount,
-          behavior: 'smooth'
-        });
-      }
-    }, 400);
-    
-    setTimeout(() => {
-      const rect = inputElement.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      
-      let keyboardHeight = 0;
-      if (isKeyboardOpen) {
-        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
-      }
-      
-      const availableHeight = viewportHeight - keyboardHeight;
-      
-      if (rect.bottom > availableHeight) {
-        const scrollAmount = rect.bottom - availableHeight + 20;
-        window.scrollBy({
-          top: scrollAmount,
-          behavior: 'smooth'
-        });
-      }
-    }, 800);
+    setTimeout(scrollToInput, 100);
+    setTimeout(scrollToInput, 300);
+    setTimeout(scrollToInput, 600);
   };
 
   useEffect(() => {
@@ -973,7 +940,7 @@ const WithdrawScreen = () => {
           className={`w-full rounded-xl font-medium transition ${
             validateAmount() && !isPaymentProcessing
               ? "bg-[#5E5AF6] text-white hover:bg-[#4A46E8] active:scale-[0.99]"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-[#8888FC] text-white/80 cursor-not-allowed"
           } ${isKeyboardOpen ? 'h-10' : 'h-12'}`}
         >
           {isPaymentProcessing

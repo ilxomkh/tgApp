@@ -24,7 +24,7 @@ const OrderSurveyScreen = () => {
   const scrollToActiveInput = (inputElement) => {
     if (!inputElement) return;
     
-    const immediateScroll = () => {
+    const scrollToInput = () => {
       const rect = inputElement.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       
@@ -35,8 +35,11 @@ const OrderSurveyScreen = () => {
       
       const availableHeight = viewportHeight - keyboardHeight;
       
-      if (rect.bottom > availableHeight) {
-        const scrollAmount = rect.bottom - availableHeight + 50;
+      const inputCenter = rect.top + rect.height / 2;
+      const targetPosition = availableHeight / 2;
+      
+      if (inputCenter !== targetPosition) {
+        const scrollAmount = inputCenter - targetPosition + 50;
         window.scrollBy({
           top: scrollAmount,
           behavior: 'smooth'
@@ -44,48 +47,11 @@ const OrderSurveyScreen = () => {
       }
     };
     
-    immediateScroll();
+    scrollToInput();
     
-    setTimeout(() => {
-      const rect = inputElement.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      
-      let keyboardHeight = 0;
-      if (isKeyboardOpen) {
-        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
-      }
-      
-      const availableHeight = viewportHeight - keyboardHeight;
-      
-      if (rect.bottom > availableHeight) {
-        const scrollAmount = rect.bottom - availableHeight + 30;
-        window.scrollBy({
-          top: scrollAmount,
-          behavior: 'smooth'
-        });
-      }
-    }, 400);
-    
-    // Финальная проверка и корректировка
-    setTimeout(() => {
-      const rect = inputElement.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      
-      let keyboardHeight = 0;
-      if (isKeyboardOpen) {
-        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
-      }
-      
-      const availableHeight = viewportHeight - keyboardHeight;
-      
-      if (rect.bottom > availableHeight) {
-        const scrollAmount = rect.bottom - availableHeight + 20;
-        window.scrollBy({
-          top: scrollAmount,
-          behavior: 'smooth'
-        });
-      }
-    }, 800);
+    setTimeout(scrollToInput, 100);
+    setTimeout(scrollToInput, 300);
+    setTimeout(scrollToInput, 600);
   };
   const [formData, setFormData] = React.useState({
     fullName: user?.full_name || user?.name || '',
