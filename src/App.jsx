@@ -18,6 +18,9 @@ import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
+const BOT_USERNAME = 'pro_surveybot';
+const STARTAPP_PAYLOAD = 'home';
+
 function useTelegramInit() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,6 +33,18 @@ function useTelegramInit() {
     tg.ready();
     tg.expand();
 
+    const redirectedKey = '__sa_redirect_done__';
+    try {
+      const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
+      const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
+
+      if (!samePayload && !alreadyRedirected) {
+        sessionStorage.setItem(redirectedKey, '1');
+        tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
+        return;
+      }
+    } catch {}
+
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -40,9 +55,7 @@ function useTelegramInit() {
       } catch {}
     };
     nukeMainButton();
-    setTimeout(nukeMainButton, 100);
-    setTimeout(nukeMainButton, 300);
-    setTimeout(nukeMainButton, 1000);
+    [100, 300, 1000].forEach((delay) => setTimeout(nukeMainButton, delay));
 
     tg.onEvent('web_app_ready', nukeMainButton);
     tg.onEvent('mainButtonParamsChanged', nukeMainButton);
@@ -65,16 +78,16 @@ function useTelegramInit() {
           }
         };
         document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', () => {
-          document.removeEventListener('touchmove', onMove);
-        }, { once: true });
+        document.addEventListener(
+          'touchend',
+          () => document.removeEventListener('touchmove', onMove),
+          { once: true }
+        );
       }
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    const vibrateOnClick = () => {
-      tg.HapticFeedback?.impactOccurred?.('medium');
-    };
+    const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
     const backPages = new Set([

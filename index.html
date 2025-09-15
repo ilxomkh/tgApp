@@ -6,46 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Pro Survey</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-      html.tg-redirecting body { opacity: 0; }
-    </style>
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      (function () {
-        const BOT_USERNAME = 'pro_surveybot';
-        const STARTAPP_PAYLOAD = 'home';
-        const KEY = '__sa_redirect_done__';
-        const tg = window.Telegram && window.Telegram.WebApp;
-
-        const loadApp = () => {
-          const s = document.createElement('script');
-          s.type = 'module';
-          s.src = '/src/main.jsx';
-          document.body.appendChild(s);
-        };
-
-        if (!tg) {
-          loadApp();
-          return;
-        }
-
-        try {
-          const fromChat = !!tg.initDataUnsafe?.chat?.id;
-          const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
-          const redirected = sessionStorage.getItem(KEY) === '1';
-
-          if (fromChat && !samePayload && !redirected) {
-            document.documentElement.classList.add('tg-redirecting');
-            sessionStorage.setItem(KEY, '1');
-            tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
-            return;
-          }
-        } catch {}
-
-        loadApp();
-      })();
-    </script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
