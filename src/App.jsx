@@ -21,25 +21,23 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 function useTelegramInit() {
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
-    if (!tg) {
-      console.warn("Telegram WebApp SDK не найден!");
-      return;
-    }
+    if (!tg) return;
 
     tg.ready();
     tg.expand();
 
     console.log("Telegram WebApp version:", tg.version);
 
-    // ✅ Скрыть MainButton (чтобы не было “Continue”)
-    tg.MainButton.hide();
+    // ⛔️ Скрываем MainButton сразу и навсегда по умолчанию
+    if (tg.MainButton) {
+      tg.MainButton.hide();
+      tg.MainButton.setParams({ text: "" }); // обнуляем текст, чтобы он не всплывал
+    }
 
-    // ✅ Отключаем свайпы (API >= 6.9)
+    // ✅ Отключаем свайпы
     if (tg.disableVerticalSwipes) {
       tg.disableVerticalSwipes();
       setTimeout(() => tg.disableVerticalSwipes(), 300);
-    } else {
-      console.log("⚠️ disableVerticalSwipes не поддерживается");
     }
 
     // ✅ Фолбэк для iOS Safari
@@ -62,7 +60,7 @@ function useTelegramInit() {
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    // ✅ Вибрация при клике (API >= 6.1)
+    // ✅ Вибрация
     const vibrateOnClick = () => {
       if (tg.HapticFeedback?.impactOccurred) {
         tg.HapticFeedback.impactOccurred('medium');
@@ -76,6 +74,7 @@ function useTelegramInit() {
     };
   }, []);
 }
+
 
 function AppContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
