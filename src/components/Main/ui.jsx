@@ -57,10 +57,7 @@ export const SuccessModal = ({ isOpen, onClose, surveyResult, t }) => {
     <div className="fixed inset-0 z-50 flex items-end justify-end">
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]" />
       <WaveOverlay />
-      {/* Упрощаем слои фона */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-0" />
-
-      {/* Модальное окно */}
       <div className="relative z-10 w-full">
         <div className="bg-white rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
           {/* Иконка успеха */}

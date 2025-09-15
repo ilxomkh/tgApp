@@ -1,4 +1,3 @@
-// tg-app/src/components/Main/tabs/LotteryTab.jsx
 import { Play } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useApi } from "../../../hooks/useApi";
@@ -8,7 +7,6 @@ const LotteryTab = ({ t }) => {
   const { getRaffles, loading, error } = useApi();
   const [raffles, setRaffles] = useState([]);
 
-  // Загружаем лотереи при монтировании компонента
   useEffect(() => {
     const loadRaffles = async () => {
       const result = await getRaffles();
@@ -22,7 +20,6 @@ const LotteryTab = ({ t }) => {
     loadRaffles();
   }, [getRaffles]);
 
-  // Функция для форматирования даты
   const formatEndDate = (dateString) => {
     if (!dateString) return '';
     try {
@@ -33,44 +30,35 @@ const LotteryTab = ({ t }) => {
     }
   };
 
-  // Функция для форматирования суммы приза
   const formatPrizeAmount = (amount) => {
     return new Intl.NumberFormat('ru-RU').format(amount);
   };
 
   return (
     <div className="">
-      {/* Основной контент с кастомным скроллбаром */}
       <div className="px-2 py-2 overflow-y-auto custom-scrollbar">
-        {/* Заголовок страницы */}
         <h2 className="text-md font-semibold text-gray-500 mb-6 text-left">
           {t.lottery}
         </h2>
 
-        {/* Скелетон загрузки лотерей */}
         {loading && (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-gradient-to-b from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-6 text-white shadow-lg animate-pulse">
-                {/* Заголовок и статус скелетона */}
                 <div className="flex justify-between items-start mb-2">
                   <div className="h-6 bg-white/20 rounded-lg w-3/4"></div>
                   <div className="h-5 bg-white/20 rounded-full w-16"></div>
                 </div>
                 
-                {/* Описание скелетона */}
                 <div className="space-y-2 mb-2">
                   <div className="h-4 bg-white/20 rounded-lg w-full"></div>
                   <div className="h-4 bg-white/20 rounded-lg w-2/3"></div>
                 </div>
                 
-                {/* Дата скелетона */}
                 <div className="h-4 bg-white/20 rounded-lg w-1/2 mb-2"></div>
                 
-                {/* Сумма приза скелетона */}
                 <div className="h-4 bg-white/20 rounded-lg w-1/3 mb-4"></div>
 
-                {/* Видео плейсхолдер скелетона */}
                 <div className="bg-white/10 rounded-xl p-8 text-center">
                   <div className="w-12 h-12 bg-white/20 rounded-full mx-auto mb-2"></div>
                   <div className="h-4 bg-white/20 rounded-lg w-24 mx-auto"></div>
@@ -80,14 +68,12 @@ const LotteryTab = ({ t }) => {
           </div>
         )}
 
-        {/* Ошибка загрузки */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
             <p className="text-red-600 text-sm">{t.errorLoadingLottery}: {error}</p>
           </div>
         )}
 
-        {/* Карточки розыгрышей */}
         <div className="space-y-6">
           {raffles.length === 0 && !loading && !error && (
             <div className="text-center py-8">
@@ -123,7 +109,6 @@ const LotteryTab = ({ t }) => {
                 {t.lotSum}: {formatPrizeAmount(raffle.prize_amount)} {t.sum}
               </p>
 
-              {/* Видео или плейсхолдер */}
               <div className="bg-white rounded-xl p-8 text-center text-gray-400 font-medium shadow-inner">
                 {raffle.video_url ? (
                   <div className="relative">

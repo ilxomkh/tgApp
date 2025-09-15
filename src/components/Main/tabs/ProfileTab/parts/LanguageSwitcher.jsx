@@ -6,7 +6,6 @@ const LanguageSwitcher = ({ onClose }) => {
 
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
-    // Автоматически закрываем модалку после смены языка
     if (onClose) {
       onClose();
     }

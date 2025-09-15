@@ -15,7 +15,6 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
   const { isKeyboardOpen } = useKeyboard();
 
   if (isKeyboardOpen) {
-    // Клавиатура открыта → прячем навбар
     return null;
   }
 
@@ -49,7 +48,6 @@ const BottomNav = ({ tabs, activeTab, onChange }) => {
                   ${isActive ? 'text-[#5E5AF6]' : 'text-[#7A7A8F] hover:text-[#5E5AF6]'}
                 `}
               >
-                {/* Индикатор активного */}
                 <span
                   aria-hidden
                   className={`

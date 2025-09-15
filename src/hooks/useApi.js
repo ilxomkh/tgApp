@@ -53,7 +53,6 @@ export const useApi = () => {
       const errorMessage = err.message || 'Failed to get user profile';
       setError(errorMessage);
       
-      // 401 ошибка уже обрабатывается глобально в API сервисе
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
@@ -71,7 +70,6 @@ export const useApi = () => {
       const errorMessage = err.message || 'Failed to update user profile';
       setError(errorMessage);
       
-      // 401 ошибка уже обрабатывается глобально в API сервисе
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
@@ -174,10 +172,6 @@ export const useApi = () => {
     }
   }, []);
 
-  // =======================
-  // Tally API методы
-  // =======================
-
   const getTallyForms = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -259,7 +253,6 @@ export const useApi = () => {
     getInviteStats,
     createOrder,
     createPayment,
-    // Tally API методы
     getTallyForms,
     getTallyFormById,
     getTallyFormResponses,

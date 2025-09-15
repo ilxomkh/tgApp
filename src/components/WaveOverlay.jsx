@@ -1,23 +1,19 @@
 import React from 'react';
 
-/**
- * Волновой оверлей: полукруги появляются мгновенно за счёт отрицательных задержек.
- */
 const WaveOverlay = ({
-  count = 5,               // сколько полукругов
-  baseSize = 500,          // начальный диаметр (px)
-  step = 250,              // инкремент диаметра (px)
-  duration = 3,            // длительность одного цикла (сек)
-  topOffset = '-50vh',     // вертикальное смещение всей волны
-  borderColor = 'rgba(255,255,255,0.3)' // цвет границ
+  count = 5,
+  baseSize = 500,
+  step = 250,
+  duration = 3,
+  topOffset = '-50vh',
+  borderColor = 'rgba(255,255,255,0.3)'
 }) => {
-  // Распределяем фазы по окружности и запускаем их НЕМЕДЛЕННО (отрицательный delay)
   const circles = React.useMemo(() => {
     return Array.from({ length: count }).map((_, i) => {
-      const phase = (i * duration) / count; // сдвиг фазы
+      const phase = (i * duration) / count;
       return {
         size: `${baseSize + i * step}px`,
-        delay: -phase // отрицательная задержка => мгновенный старт с середины цикла
+        delay: -phase
       };
     });
   }, [count, baseSize, step, duration]);
@@ -32,11 +28,9 @@ const WaveOverlay = ({
             top: topOffset,
             width: circle.size,
             height: circle.size,
-            // начальное состояние не важно, т.к. мы стартуем с отрицательной задержки:
             transform: 'translateX(-50%)',
             animation: `waveMove ${duration}s ease-in-out infinite`,
             animationDelay: `${circle.delay}s`,
-            // чуть-чуть производительности:
             willChange: 'transform, opacity',
             contain: 'layout paint',
             backfaceVisibility: 'hidden',
@@ -77,7 +71,6 @@ const WaveOverlay = ({
           }
         }
 
-        /* Уважение к reduce-motion (по желанию можно убрать) */
         @media (prefers-reduced-motion: reduce) {
           .fixed > div {
             animation: none !important;

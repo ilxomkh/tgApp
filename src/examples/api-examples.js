@@ -1,9 +1,5 @@
-// Примеры использования API для тестирования
 import api from '../services/api';
 
-/**
- * Пример отправки OTP кода
- */
 export const exampleRequestOtp = async () => {
   try {
     const result = await api.requestOtp('+998414736544');
@@ -13,10 +9,6 @@ export const exampleRequestOtp = async () => {
     throw error;
   }
 };
-
-/**
- * Пример проверки OTP кода
- */
 export const exampleVerifyOtp = async () => {
   try {
     const result = await api.verifyOtp('+998414736544', '123456');
@@ -26,15 +18,10 @@ export const exampleVerifyOtp = async () => {
   }
 };
 
-/**
- * Пример полного процесса аутентификации
- */
+
 export const exampleFullAuth = async () => {
   try {
-    // Шаг 1: Отправка OTP
     await exampleRequestOtp();
-    
-    // Шаг 2: Проверка OTP (симулируем ввод кода)
     const userData = await exampleVerifyOtp();
     
     
@@ -45,9 +32,7 @@ export const exampleFullAuth = async () => {
   }
 };
 
-/**
- * Пример получения профиля пользователя
- */
+
 export const exampleGetUserProfile = async () => {
   try {
     const result = await api.getUserProfile();
@@ -58,9 +43,6 @@ export const exampleGetUserProfile = async () => {
   }
 };
 
-/**
- * Пример обновления профиля пользователя
- */
 export const exampleUpdateUserProfile = async () => {
   try {
     const updateData = {
@@ -78,9 +60,6 @@ export const exampleUpdateUserProfile = async () => {
   }
 };
 
-/**
- * Пример получения списка лотерей
- */
 export const exampleGetRaffles = async () => {
   try {
     const result = await api.getRaffles();
@@ -91,16 +70,12 @@ export const exampleGetRaffles = async () => {
   }
 };
 
-/**
- * Пример полного цикла работы с профилем
- */
+
 export const exampleProfileWorkflow = async () => {
   try {
     
-    // 1. Получение профиля
     const profile = await api.getUserProfile();
     
-    // 2. Обновление профиля
     const updateData = {
       phone_number: '+998344777518',
       full_name: 'Иван Иванов',
@@ -110,7 +85,7 @@ export const exampleProfileWorkflow = async () => {
     
     const updatedProfile = await api.updateUserProfile(updateData);
     
-    // 3. Повторное получение для проверки
+    
     const refreshedProfile = await api.getUserProfile();
     
     return refreshedProfile;
@@ -120,20 +95,18 @@ export const exampleProfileWorkflow = async () => {
   }
 };
 
-/**
- * Пример работы с картами
- */
+
 export const exampleCardsWorkflow = async () => {
   try {
     
-    // 1. Получение списка карт
+    
     const cards = await api.getCards();
     
-    // 2. Добавление новой карты
+    
     const testCardNumber = '4111111111111111'; // Тестовый номер Visa
     const newCard = await api.addCard(testCardNumber);
     
-    // 3. Повторное получение списка карт
+    
     const updatedCards = await api.getCards();
     
     return updatedCards;
@@ -143,9 +116,7 @@ export const exampleCardsWorkflow = async () => {
   }
 };
 
-/**
- * Пример получения статистики приглашений
- */
+
 export const exampleGetInviteStats = async () => {
   try {
     
@@ -159,9 +130,7 @@ export const exampleGetInviteStats = async () => {
   }
 };
 
-/**
- * Пример создания заказа опроса
- */
+
 export const exampleCreateOrder = async () => {
   try {
     
@@ -183,9 +152,7 @@ export const exampleCreateOrder = async () => {
   }
 };
 
-/**
- * Пример создания платежа (вывод на карту)
- */
+
 export const exampleCreatePayment = async () => {
   try {
     
@@ -204,9 +171,7 @@ export const exampleCreatePayment = async () => {
   }
 };
 
-/**
- * Пример обработки различных ошибок
- */
+
 export const exampleErrorHandling = async () => {
   const testCases = [
     {
@@ -255,7 +220,6 @@ export const exampleErrorHandling = async () => {
   }
 };
 
-// Экспорт для использования в консоли браузера
 if (typeof window !== 'undefined') {
   window.apiExamples = {
     requestOtp: exampleRequestOtp,

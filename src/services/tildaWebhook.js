@@ -1,23 +1,18 @@
 import config from '../config.js';
 import { API_ENDPOINTS } from '../types/api.js';
 
-/**
- * Сервис для работы с Tilda webhook
- */
 class TildaWebhookService {
   constructor() {
     this.webhookUrl = `${config.API_BASE_URL}${API_ENDPOINTS.TALLY_WEBHOOK}`;
   }
 
   /**
-   * Обработка входящего webhook от Tilda
-   * @param {Object} webhookData - Данные webhook от Tilda
-   * @returns {Promise<Object>} - Результат обработки
+   * @param {Object} webhookData
+   * @returns {Promise<Object>}
    */
   async processWebhook(webhookData) {
     try {
 
-      // Отправляем данные на наш сервер
       const response = await fetch(this.webhookUrl, {
         method: 'POST',
         headers: {
@@ -42,20 +37,17 @@ class TildaWebhookService {
   }
 
   /**
-   * Получение URL формы Tilda для определенного языка
-   * @param {string} language - Язык (ru/uz)
-   * @returns {string} - URL формы
+   * @param {string} language
+   * @returns {string}
    */
   getFormUrl(language = 'ru') {
-    // Используем ID формы из конфигурации
     const formId = config.TALLY.FORM_IDS[language] || config.TALLY.FORM_IDS.ru;
     return `https://tally.so/forms/${formId}`;
   }
 
   /**
-   * Получение списка доступных форм для языка
-   * @param {string} language - Язык (ru/uz)
-   * @returns {Array} - Массив доступных форм
+   * @param {string} language
+   * @returns {Array}
    */
   getAvailableForms(language = 'ru') {
     const forms = [
@@ -80,9 +72,8 @@ class TildaWebhookService {
   }
 
   /**
-   * Получение статистики ответов
-   * @param {string} language - Язык (ru/uz)
-   * @returns {Promise<Object>} - Статистика
+   * @param {string} language
+   * @returns {Promise<Object>}
    */
   async getSurveyStats(language = 'ru') {
     try {
@@ -105,8 +96,7 @@ class TildaWebhookService {
   }
 
   /**
-   * Проверка доступности webhook endpoint
-   * @returns {Promise<boolean>} - Доступность endpoint
+   * @returns {Promise<boolean>}
    */
   async checkWebhookHealth() {
     try {
@@ -124,7 +114,6 @@ class TildaWebhookService {
   }
 }
 
-// Создаем экземпляр сервиса
 const tildaWebhookService = new TildaWebhookService();
 
 export default tildaWebhookService;

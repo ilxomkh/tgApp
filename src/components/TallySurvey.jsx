@@ -14,13 +14,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const [loading, setLoading] = useState(true); // Собственное состояние загрузки для данных опроса
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const hapticClick = useHapticClick();
   const inputRef = useRef(null);
   const [shouldMaintainFocus, setShouldMaintainFocus] = useState(false);
-  const answersRef = useRef({}); // Ref для хранения ответов без перерендеринга
-  const [numberFieldValid, setNumberFieldValid] = useState(false); // Состояние валидности для полей типа number
+  const answersRef = useRef({});
+  const [numberFieldValid, setNumberFieldValid] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -28,12 +28,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     
     const loadSurvey = async () => {
       try {
-        // Получаем детальную информацию о форме через новый API
         const details = await tallyApiService.getFormDetails(surveyId);
         
         setFormDetails(details);
         
-        // Создаем объект опроса для совместимости
         const surveyData = {
           id: surveyId,
           title: details.title,
@@ -47,7 +45,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         console.error('❌ Ошибка при загрузке опроса:', err);
         setError(err.message);
         
-        // Fallback: создаем базовую структуру опроса
         const fallbackDetails = tallyApiService.getFallbackFormDetails(surveyId);
         
         setFormDetails(fallbackDetails);
@@ -69,32 +66,25 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     loadSurvey();
   }, [surveyId]);
 
-  // Отслеживание состояния клавиатуры на мобильных устройствах
   useEffect(() => {
-    // Сохраняем изначальную высоту viewport
     const initialViewportHeight = window.innerHeight;
     
     const handleResize = () => {
-      // Определяем, открыта ли клавиатура по изменению высоты viewport
       const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
       
-      // Если высота уменьшилась более чем на 150px, считаем что клавиатура открыта
       const keyboardThreshold = 150;
       const isKeyboardVisible = initialViewportHeight - currentViewportHeight > keyboardThreshold;
       
       setIsKeyboardOpen(isKeyboardVisible);
     };
 
-    // Слушаем изменения размера viewport
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleResize);
     } else {
       window.addEventListener('resize', handleResize);
     }
 
-    // Полностью отключаем обработку фокуса для полей number
     const handleFocusIn = (e) => {
-      // Игнорируем все события фокуса для полей number
       if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
         return;
       }
@@ -110,13 +100,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       }
     };
 
-    // Дополнительная обработка для iOS Safari
     const handleOrientationChange = () => {
       setTimeout(() => {
         const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
         const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
         setIsKeyboardOpen(isKeyboardVisible);
-      }, 500); // Задержка для корректного определения после поворота
+      }, 500);
     };
 
     document.addEventListener('focusin', handleFocusIn);
@@ -133,7 +122,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     };
   }, []);
 
-  // Эффект для восстановления фокуса после перерендеринга
   useEffect(() => {
     if (shouldMaintainFocus && inputRef.current) {
       setTimeout(() => {
@@ -145,47 +133,39 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   }, [answers, shouldMaintainFocus]);
 
-  // Эффект для инициализации состояния валидности при смене вопроса
   useEffect(() => {
     if (formDetails && formDetails.questions) {
       const currentQuestion = formDetails.questions[currentQuestionIndex];
       const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
       
       if (questionType === 'number') {
-        // Проверяем, есть ли уже значение в ref
         const existingValue = answersRef.current[currentQuestion.id];
         const isValid = existingValue !== null && existingValue !== undefined && existingValue !== '';
         setNumberFieldValid(isValid);
       } else {
-        // Сбрасываем состояние для не-числовых полей
         setNumberFieldValid(false);
       }
     }
   }, [currentQuestionIndex, formDetails]);
 
-  // Специальный эффект для предотвращения потери фокуса на полях number
   useEffect(() => {
     const currentQuestion = formDetails?.questions?.[currentQuestionIndex];
     const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
     if (questionType === 'number') {
       
-      // Находим все поля number на странице
       const numberInputs = document.querySelectorAll('input[type="number"]');
       
       numberInputs.forEach(input => {
-        // Добавляем дополнительную защиту от потери фокуса
         const handleFocusProtection = (e) => {
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
           
-          // Принудительно сохраняем фокус немедленно - с проверкой
           if (e.target && typeof e.target.focus === 'function') {
             e.target.focus();
           }
           
-          // Дополнительная защита через setTimeout
           setTimeout(() => {
             if (e.target && typeof e.target.focus === 'function' && document.activeElement !== e.target) {
               e.target.focus();
@@ -193,11 +173,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           }, 0);
         };
         
-        // Добавляем обработчик на несколько событий
         input.addEventListener('blur', handleFocusProtection);
         input.addEventListener('focusout', handleFocusProtection);
         
-        // Cleanup функция
         return () => {
           input.removeEventListener('blur', handleFocusProtection);
           input.removeEventListener('focusout', handleFocusProtection);
@@ -207,31 +185,26 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   }, [currentQuestionIndex, formDetails]);
 
   const handleAnswerChange = (questionId, value) => {
-    // Проверяем тип текущего вопроса
     const currentQuestion = formDetails?.questions?.find(q => q.id === questionId);
     const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
-    // Для полей типа number НЕ обрабатываем через этот метод
     if (questionType === 'number') {
       return;
     }
     
     hapticClick();
     
-    // Обновляем ref для всех типов вопросов
     answersRef.current = {
       ...answersRef.current,
       [questionId]: value
     };
     
-    // Для других типов вопросов вызываем setState как обычно
     setAnswers(prev => ({
       ...prev,
       [questionId]: value
     }));
   };
 
-  // Функция для проверки валидности ответа на текущий вопрос
   const isCurrentQuestionValid = () => {
     if (!formDetails || !formDetails.questions) return false;
     
@@ -240,25 +213,20 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     
     const questionType = getQuestionType(currentQuestion);
     
-    // Для полей типа number используем состояние валидности
     if (questionType === 'number') {
       return numberFieldValid;
     }
     
-    // Для других типов используем обычную логику
     const answer = answers[currentQuestion.id];
     
-    // Если вопрос не обязательный, всегда валиден
     if (!currentQuestion.required) return true;
     
-    // Проверяем в зависимости от определенного типа вопроса
     switch (questionType) {
       case 'choice':
         return answer && answer.trim() !== '';
       case 'multichoice':
         return Array.isArray(answer) && answer.length > 0;
       case 'text':
-        // Для текстовых вопросов проверяем есть ли опции
         if (currentQuestion.options && currentQuestion.options.length > 0) {
           return answer && answer.trim() !== '';
         }
@@ -272,10 +240,8 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < formDetails.questions.length - 1) {
-      // Синхронизируем данные из ref в state перед переходом
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
       
-      // Сбрасываем состояние валидности для полей типа number
       setNumberFieldValid(false);
       
       setCurrentQuestionIndex(prev => prev + 1);
@@ -284,10 +250,8 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      // Синхронизируем данные из ref в state перед переходом
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
       
-      // Сбрасываем состояние валидности для полей типа number
       setNumberFieldValid(false);
       
       setCurrentQuestionIndex(prev => prev - 1);
@@ -296,16 +260,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const handleFormSubmit = async () => {
     try {
-      // Используем formId из formDetails для отправки
       const formId = formDetails.formId;
       
-      // Получаем актуальные данные из DOM для полей типа number
       const currentQuestionForSubmit = formDetails.questions[currentQuestionIndex];
       const questionTypeForSubmit = getQuestionType(currentQuestionForSubmit);
       
       let finalAnswers = { ...answers, ...answersRef.current };
       
-      // Если текущий вопрос типа number, получаем актуальное значение из ref
       if (questionTypeForSubmit === 'number') {
         const numberValue = answersRef.current[currentQuestionForSubmit.id];
         if (numberValue !== undefined) {
@@ -313,16 +274,14 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         }
       }
       
-      // Подготавливаем данные для отправки
       const submitData = {
         formId,
         answers: finalAnswers,
         language,
         submittedAt: new Date().toISOString(),
-        userId: null, // Будет добавлен на сервере если пользователь авторизован
+        userId: null,
       };
 
-      // Отправляем ответы через useSurvey hook
       const result = await submitSurvey(formId, finalAnswers);
       setIsFormSubmitted(true);
       
@@ -341,7 +300,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   };
 
-  // Кастомный компонент радиокнопки
   const CustomRadio = ({ checked, onChange, value, label }) => (
     <label className="flex items-center space-x-4 cursor-pointer p-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
@@ -370,7 +328,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     </label>
   );
 
-  // Кастомный компонент чекбокса
   const CustomCheckbox = ({ checked, onChange, value, label }) => (
     <label className="flex items-center space-x-4 cursor-pointer p-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
@@ -401,57 +358,45 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     </label>
   );
 
-  // Полностью статичный компонент для полей number - БЕЗ React lifecycle
   const NumberInput = ({ questionId, placeholder, className }) => {
     const numberInputRef = useRef(null);
     
-    // Дополнительный useEffect для инициализации после первого рендера
     useEffect(() => {
       const input = numberInputRef.current;
       if (input) {
-        // Убеждаемся что обработчики установлены
         input.focus();
       }
     }, [questionId]);
     
-    // Используем useLayoutEffect для синхронной настройки
     useLayoutEffect(() => {
       const input = numberInputRef.current;
       if (!input) return;
       
       
-      // Нативный обработчик ввода
       const handleNativeInput = (e) => {
         const inputValue = e.target.value;
         
-        // Обновляем только ref
         answersRef.current = {
           ...answersRef.current,
           [questionId]: inputValue
         };
         
-        // Обновляем состояние валидности
         const isValid = inputValue !== null && inputValue !== undefined && inputValue !== '';
         setNumberFieldValid(isValid);
       };
       
-      // Нативный обработчик фокуса
       const handleNativeFocus = (e) => {
-        // Ничего не делаем, позволяем естественному поведению
       };
       
-      // Нативный обработчик потери фокуса - ПОЛНОСТЬЮ БЛОКИРУЕМ
       const handleNativeBlur = (e) => {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
         
-        // Немедленно возвращаем фокус - с проверкой
         if (e.target && typeof e.target.focus === 'function') {
           e.target.focus();
         }
         
-        // Дополнительная защита
         setTimeout(() => {
           if (e.target && typeof e.target.focus === 'function' && document.activeElement !== e.target) {
             e.target.focus();
@@ -459,7 +404,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         }, 0);
       };
       
-      // Добавляем нативные обработчики
       input.addEventListener('input', handleNativeInput);
       input.addEventListener('focus', handleNativeFocus);
       input.addEventListener('blur', handleNativeBlur);
@@ -500,7 +444,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     );
   };
 
-  // Кастомный компонент инпута для не-number полей
   const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => {
     return (
       <div className="relative">
@@ -521,7 +464,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     );
   };
 
-  // Локализованные тексты
   const texts = {
     ru: {
       questionCounter: 'Вопрос',
@@ -563,34 +505,27 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const t = texts[language] || texts.ru;
 
-  // Обработчик нажатия Enter для инпутов
   const handleKeyPress = (e) => {
-    // Для полей типа number НЕ обрабатываем Enter - позволяем стандартное поведение
     if (e.target.type === 'number') {
       return;
     }
     
-    // Для других полей предотвращаем стандартное поведение Enter
     if (e.key === 'Enter') {
       e.preventDefault();
     }
   };
 
-  // Функция для определения типа вопроса с дополнительной логикой
   const getQuestionType = (question) => {
     const type = question.type?.toLowerCase();
     
-    // Если тип явно указан как множественный выбор
     if (['multichoice', 'multiple_choice', 'checkbox'].includes(type)) {
       return 'multichoice';
     }
     
-    // Если тип явно указан как одиночный выбор
     if (['choice', 'single_choice', 'radio'].includes(type)) {
       return 'choice';
     }
     
-    // Дополнительная логика для определения типа по тексту вопроса
     const questionText = question.text?.toLowerCase() || '';
     const multipleChoiceKeywords = [
       'можно выбрать несколько',
@@ -602,7 +537,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       'отметьте все'
     ];
     
-    // Проверяем есть ли ключевые слова для множественного выбора
     const isMultipleChoice = multipleChoiceKeywords.some(keyword => 
       questionText.includes(keyword)
     );
@@ -611,7 +545,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       return 'multichoice';
     }
     
-    // Если есть опции и тип не определен, считаем одиночным выбором
     if (question.options && question.options.length > 0) {
       return 'choice';
     }
@@ -619,11 +552,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     return type || 'text';
   };
 
-  // Компонент для отображения вопроса
   const QuestionComponent = ({ question }) => {
     const questionType = getQuestionType(question);
     
-    // Для полей типа number используем данные из ref, для остальных - из state
     const currentAnswer = questionType === 'number' 
       ? answersRef.current[question.id] 
       : answers[question.id];
@@ -676,7 +607,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           );
 
         case 'text':
-          // Если у текстового вопроса есть опции, показываем их как радиокнопки
           if (question.options && question.options.length > 0) {
           return (
             <div className="space-y-3">
@@ -692,7 +622,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             </div>
             );
           }
-          // Если опций нет, показываем текстовый инпут
           return (
             <CustomInput
               type="text"
@@ -741,11 +670,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     );
   };
 
-  // Компонент скелетона для загрузки
   const SkeletonLoader = () => {
     return (
       <div className={`bg-white border-b border-px border-gray-200 rounded-t-3xl overflow-hidden flex flex-col relative z-10 transition-all duration-500 ease-in-out`} style={{ height: '400px' }}>
-        {/* Скелетон заголовка */}
         <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] p-4 sm:p-6 relative overflow-hidden flex-shrink-0">
           <div className="w-full">
             <div className="h-6 bg-white/20 rounded-lg mb-2 animate-pulse"></div>
@@ -753,12 +680,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           </div>
         </div>
 
-        {/* Скелетон прогресс-бара */}
         <div className="bg-gray-100 h-1">
           <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-1 w-1/4 animate-pulse"></div>
         </div>
 
-        {/* Скелетон контента */}
         <div className="flex-1 p-4 sm:p-6 bg-gray-50">
           <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
@@ -767,7 +692,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             </div>
             <div className="max-w-md mx-auto px-2">
               <div className="space-y-3">
-                {/* Скелетон опций */}
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center space-x-4 p-4 rounded-xl border-2 border-gray-200 animate-pulse">
                     <div className="w-6 h-6 rounded-full bg-gray-200"></div>
@@ -779,7 +703,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           </div>
         </div>
 
-        {/* Скелетон навигации */}
         <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex-shrink-0 pb-20">
           <div className="flex justify-between items-center mb-2 sm:mb-4">
             <div className="p-3 rounded-full bg-gray-200 animate-pulse w-12 h-12"></div>
@@ -810,24 +733,20 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
         <div className="relative z-10 w-full">
         <div className="bg-white pb-32 rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
-          {/* Иконка успеха */}
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-green-600">
               <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
 
-           {/* Заголовок */}
            <h2 className="text-2xl font-bold text-[#5E5AF6] mb-4">
              {t.congratulations}
            </h2>
 
-           {/* Сообщение */}
            <p className="text-gray-600 text-base leading-relaxed mb-8">
              {t.surveyCompleted}
            </p>
 
-           {/* Кнопка закрытия */}
            <button
              onClick={onClose}
              className="w-full h-12 rounded-xl bg-gradient-to-r from-[#6A4CFF] to-[#7A5CFF] text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl"
@@ -849,55 +768,44 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const isFirstQuestion = currentQuestionIndex === 0;
   const isCurrentQuestionAnswered = isCurrentQuestionValid();
 
-  // Вычисляем динамическую высоту на основе количества опций
   const getModalHeight = () => {
     const currentQuestion = formDetails.questions[currentQuestionIndex];
     const questionType = getQuestionType(currentQuestion);
     
-    // Базовая высота для заголовка (80px) + прогресс-бар (12px) + навигация (100px) + отступ для BottomNav (80px)
     let baseHeight = 272;
     
-    // Высота для текста вопроса (примерно 60px)
     baseHeight += 60;
     
     if (questionType === 'choice' || questionType === 'multichoice') {
       const optionsCount = currentQuestion.options?.length || 0;
       if (optionsCount > 0) {
-        // Высота каждой опции: 56px (padding + border) + отступы между опциями: 12px
         const optionsHeight = optionsCount * 56 + (optionsCount - 1) * 12;
         baseHeight += optionsHeight;
       }
     } else {
-      // Для текстовых полей фиксированная высота
       baseHeight += 80;
     }
-    
-    // Добавляем отступы контента (24px сверху и снизу)
+
     baseHeight += 48;
     
-    // Ограничиваем максимальную высоту
     const maxHeight = window.innerHeight * 0.75;
-    const minHeight = 360; // Минимальная высота с учетом отступа для BottomNav
+    const minHeight = 360;
     
     return Math.max(minHeight, Math.min(baseHeight, maxHeight));
   };
 
   const modalHeight = getModalHeight();
 
-  // Определяем, нужно ли поднимать опросник
   const currentQuestionForLift = formDetails?.questions?.[currentQuestionIndex];
   const questionTypeForLift = currentQuestionForLift ? getQuestionType(currentQuestionForLift) : 'unknown';
   
-  // Для полей типа number НЕ поднимаем опросник, чтобы избежать потери фокуса
   const shouldLiftSurvey = isKeyboardOpen && questionTypeForLift !== 'number';
 
   return (
     <div className={`bg-white border-b border-px border-gray-200 rounded-t-3xl overflow-hidden flex flex-col relative z-10 transition-all duration-500 ease-in-out ${
       shouldLiftSurvey ? 'transform -translate-y-32' : ''
     }`} style={{ height: `${modalHeight}px` }}>
-      {/* Заголовок - адаптивный */}
       <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] p-4 sm:p-6 relative overflow-hidden flex-shrink-0">
-        {/* Декоративные элементы */}
         <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
         <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
         
@@ -911,7 +819,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         </div>
       </div>
 
-      {/* Прогресс бар - тонкий */}
       <div className="bg-gray-100 h-1">
         <div 
           className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-1 transition-all duration-500 ease-out"
@@ -919,12 +826,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         />
       </div>
 
-      {/* Контент вопроса - адаптивный с кастомным скроллбаром */}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-gray-50 custom-scrollbar">
         <QuestionComponent question={currentQuestion} />
       </div>
 
-      {/* Навигация - адаптивная */}
       <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex-shrink-0 pb-25">
         <div className="flex justify-between items-center mb-2 sm:mb-4">
           <button

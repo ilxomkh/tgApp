@@ -1,8 +1,3 @@
-/**
- * Пример правильного использования Tally API
- * Демонстрирует разницу между внутренними ID и реальными ID Tally
- */
-
 import { useApi } from '../hooks/useApi.js';
 import { useSurvey } from '../hooks/useSurvey.js';
 import tallyApiService from '../services/tallyApi.js';
@@ -11,14 +6,12 @@ export const TallyApiCorrectUsage = () => {
   const { getTallyForms, getTallyFormById, loading: apiLoading, error: apiError } = useApi();
   const { getAvailableSurveys, getSurvey, loading: surveyLoading, error: surveyError } = useSurvey();
 
-  // ✅ ПРАВИЛЬНО: Получение всех форм с сервера
   const handleGetAllForms = async () => {
     try {
       const result = await getTallyForms();
       
       if (result.success) {
         
-        // Выводим информацию о каждой форме
         result.data.forEach(form => {
         });
         
@@ -31,7 +24,6 @@ export const TallyApiCorrectUsage = () => {
     }
   };
 
-  // ✅ ПРАВИЛЬНО: Получение конкретной формы по реальному ID Tally
   const handleGetFormByRealId = async (realFormId) => {
     try {
       const result = await getTallyFormById(realFormId);
@@ -46,7 +38,6 @@ export const TallyApiCorrectUsage = () => {
     }
   };
 
-  // ✅ ПРАВИЛЬНО: Использование внутренних ID через хуки (с fallback)
   const handleGetSurveyByInternalId = async (internalId) => {
     try {
       const survey = await getSurvey(internalId);
@@ -56,7 +47,6 @@ export const TallyApiCorrectUsage = () => {
     }
   };
 
-  // ✅ ПРАВИЛЬНО: Получение доступных опросов (автоматический fallback)
   const handleGetAvailableSurveys = async () => {
     try {
       const surveys = await getAvailableSurveys();
@@ -66,11 +56,10 @@ export const TallyApiCorrectUsage = () => {
     }
   };
 
-  // ❌ НЕПРАВИЛЬНО: Попытка использовать внутренний ID в API
   const handleWrongUsage = async () => {
     try {
       
-      const result = await getTallyFormById('registration'); // Это вызовет ошибку 500!
+      const result = await getTallyFormById('registration');
       
       if (result.success) {
       } else {
@@ -80,11 +69,9 @@ export const TallyApiCorrectUsage = () => {
     }
   };
 
-  // Демонстрация правильного workflow
   const handleCorrectWorkflow = async () => {
     try {
       
-      // Шаг 1: Получаем все формы с сервера
       const forms = await handleGetAllForms();
       
       if (forms && forms.length > 0) {
@@ -92,13 +79,10 @@ export const TallyApiCorrectUsage = () => {
         const realId = firstForm.id;
         
         
-        // Шаг 2: Получаем конкретную форму по реальному ID
         await handleGetFormByRealId(realId);
         
-        // Шаг 3: Получаем доступные опросы (для UI)
         await handleGetAvailableSurveys();
         
-        // Шаг 4: Получаем опрос по внутреннему ID (для совместимости)
         await handleGetSurveyByInternalId('registration');
       }
     } catch (error) {
@@ -106,7 +90,6 @@ export const TallyApiCorrectUsage = () => {
     }
   };
 
-  // Получение маппинга ID форм
   const handleGetIdMapping = async () => {
     try {
       const mapping = await tallyApiService.getFormIdMapping();
@@ -129,7 +112,6 @@ export const TallyApiCorrectUsage = () => {
   };
 };
 
-// Пример использования в компоненте
 export const TallyUsageExample = () => {
   const {
     handleGetAllForms,
@@ -144,14 +126,9 @@ export const TallyUsageExample = () => {
   } = TallyApiCorrectUsage();
 
   const runAllExamples = async () => {
-    
-    // Правильный workflow
+
     await handleCorrectWorkflow();
-    
-    // Получение маппинга
     await handleGetIdMapping();
-    
-    // Демонстрация неправильного использования
     await handleWrongUsage();
     
   };

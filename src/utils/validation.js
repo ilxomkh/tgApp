@@ -1,19 +1,14 @@
 /**
- * Валидация номера телефона Узбекистана
- * @param {string} phone - Номер телефона
- * @returns {boolean} - Валидность номера
+ * @param {string} phone
+ * @returns {boolean}
  */
 export const isValidUzbekPhone = (phone) => {
-  // Убираем все нецифровые символы
   const digits = phone.replace(/\D/g, '');
   
-  // Проверяем что это узбекский номер (998 + 9 цифр)
   if (digits.length !== 12) return false;
   
-  // Проверяем код страны
   if (!digits.startsWith('998')) return false;
   
-  // Проверяем что номер начинается с правильных кодов операторов
   const operatorCodes = ['33', '88', '90', '91', '93', '94', '95', '97', '99'];
   const operatorCode = digits.slice(3, 5);
   
@@ -21,54 +16,46 @@ export const isValidUzbekPhone = (phone) => {
 };
 
 /**
- * Форматирование номера телефона в E.164 формат
- * @param {string} phone - Номер телефона
- * @returns {string} - Отформатированный номер
+ * @param {string} phone
+ * @returns {string}
  */
 export const formatPhoneE164 = (phone) => {
   const digits = phone.replace(/\D/g, '');
   
-  // Если номер уже в формате E.164
   if (digits.startsWith('998') && digits.length === 12) {
     return `+${digits}`;
   }
   
-  // Если номер без кода страны (9 цифр)
   if (digits.length === 9) {
     return `+998${digits}`;
   }
   
-  // Если номер с кодом страны но без +
   if (digits.length === 12 && digits.startsWith('998')) {
     return `+${digits}`;
   }
   
-  return phone; // Возвращаем как есть если не можем отформатировать
+  return phone;
 };
 
 /**
- * Валидация OTP кода
- * @param {string} otp - OTP код
- * @returns {boolean} - Валидность кода
+ * @param {string} otp
+ * @returns {boolean}
  */
 export const isValidOtp = (otp) => {
-  // OTP должен быть 6-значным числом
   return /^\d{6}$/.test(otp);
 };
 
 /**
- * Очистка OTP кода от нецифровых символов
- * @param {string} otp - OTP код
- * @returns {string} - Очищенный код
+ * @param {string} otp
+ * @returns {string}
  */
 export const cleanOtp = (otp) => {
   return otp.replace(/\D/g, '').slice(0, 6);
 };
 
 /**
- * Валидация email адреса
- * @param {string} email - Email адрес
- * @returns {boolean} - Валидность email
+ * @param {string} email
+ * @returns {boolean}
  */
 export const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,29 +63,26 @@ export const isValidEmail = (email) => {
 };
 
 /**
- * Проверка минимальной длины строки
- * @param {string} value - Значение для проверки
- * @param {number} minLength - Минимальная длина
- * @returns {boolean} - Результат проверки
+ * @param {string} value
+ * @param {number} minLength
+ * @returns {boolean}
  */
 export const hasMinLength = (value, minLength) => {
   return value && value.length >= minLength;
 };
 
 /**
- * Проверка максимальной длины строки
- * @param {string} value - Значение для проверки
- * @param {number} maxLength - Максимальная длина
- * @returns {boolean} - Результат проверки
+ * @param {string} value
+ * @param {number} maxLength
+ * @returns {boolean}
  */
 export const hasMaxLength = (value, maxLength) => {
   return value && value.length <= maxLength;
 };
 
 /**
- * Валидация даты рождения
- * @param {string} date - Дата в формате YYYY-MM-DD
- * @returns {boolean} - Валидность даты
+ * @param {string} date
+ * @returns {boolean}
  */
 export const isValidBirthDate = (date) => {
   if (!date) return false;
@@ -110,30 +94,25 @@ export const isValidBirthDate = (date) => {
   const today = new Date();
   const age = today.getFullYear() - birthDate.getFullYear();
   
-  // Проверяем что возраст от 13 до 120 лет
   return age >= 13 && age <= 120;
 };
 
 /**
- * Валидация полного имени
- * @param {string} name - Полное имя
- * @returns {boolean} - Валидность имени
+ * @param {string} name
+ * @returns {boolean}
  */
 export const isValidFullName = (name) => {
   if (!name) return false;
   
-  // Имя должно содержать минимум 2 символа и максимум 100
   if (name.length < 2 || name.length > 100) return false;
   
-  // Имя должно содержать только буквы, пробелы и дефисы
   const nameRegex = /^[a-zA-Zа-яА-ЯёЁ\s\-']+$/;
   return nameRegex.test(name);
 };
 
 /**
- * Форматирование даты для отображения
- * @param {string} date - Дата в формате YYYY-MM-DD
- * @returns {string} - Отформатированная дата
+ * @param {string} date
+ * @returns {string}
  */
 export const formatDate = (date) => {
   if (!date) return '';
@@ -147,9 +126,8 @@ export const formatDate = (date) => {
 };
 
 /**
- * Парсинг даты из строки
- * @param {string} dateString - Строка с датой
- * @returns {string} - Дата в формате YYYY-MM-DD
+ * @param {string} dateString
+ * @returns {string}
  */
 export const parseDate = (dateString) => {
   if (!dateString) return '';
@@ -163,34 +141,26 @@ export const parseDate = (dateString) => {
 };
 
 /**
- * Валидация номера карты (алгоритм Луна)
- * @param {string} cardNumber - Номер карты
- * @returns {boolean} - Валидность номера карты
+ * @param {string} cardNumber
+ * @returns {boolean}
  */
 export const isValidCardNumber = (cardNumber) => {
   if (!cardNumber) return false;
-  
-  // Убираем все пробелы и дефисы
+
   const cleanNumber = cardNumber.replace(/\s|-/g, '');
   
-  // Проверяем что это только цифры и длина от 13 до 19
   if (!/^\d{13,19}$/.test(cleanNumber)) return false;
   
-  // Для тестовых номеров карт (начинающихся с 5614, 8600, 6262, 9860) 
-  // делаем более мягкую валидацию - только проверяем длину
   const testPrefixes = ['5614', '8600', '6262', '9860'];
   const isTestCard = testPrefixes.some(prefix => cleanNumber.startsWith(prefix));
   
   if (isTestCard) {
-    // Для тестовых карт достаточно проверить длину от 13 до 19 цифр
     return cleanNumber.length >= 13 && cleanNumber.length <= 19;
   }
   
-  // Для остальных карт используем алгоритм Луна
   let sum = 0;
   let isEven = false;
   
-  // Идем справа налево
   for (let i = cleanNumber.length - 1; i >= 0; i--) {
     let digit = parseInt(cleanNumber[i]);
     
@@ -209,37 +179,30 @@ export const isValidCardNumber = (cardNumber) => {
 };
 
 /**
- * Определение типа карты по номеру
- * @param {string} cardNumber - Номер карты
- * @returns {string} - Тип карты (visa, mastercard, etc.)
+ * @param {string} cardNumber
+ * @returns {string}
  */
 export const getCardType = (cardNumber) => {
   if (!cardNumber) return 'unknown';
   
   const cleanNumber = cardNumber.replace(/\s|-/g, '');
   
-  // Visa: начинается с 4
   if (/^4/.test(cleanNumber)) return 'visa';
   
-  // Mastercard: начинается с 51-55 или 2221-2720
   if (/^5[1-5]/.test(cleanNumber) || /^2[2-7][2-9][0-9]/.test(cleanNumber)) return 'mastercard';
   
-  // American Express: начинается с 34 или 37
   if (/^3[47]/.test(cleanNumber)) return 'amex';
   
-  // Discover: начинается с 6011, 622126-622925, 644-649, 65
   if (/^6(?:011|5)/.test(cleanNumber) || /^622(?:12[6-9]|1[3-9][0-9]|[2-8][0-9][0-9]|9[0-1][0-9]|92[0-5])/.test(cleanNumber)) return 'discover';
   
-  // UnionPay: начинается с 62
   if (/^62/.test(cleanNumber)) return 'unionpay';
   
   return 'unknown';
 };
 
 /**
- * Маскирование номера карты
- * @param {string} cardNumber - Номер карты
- * @returns {string} - Маскированный номер
+ * @param {string} cardNumber
+ * @returns {string}
  */
 export const maskCardNumber = (cardNumber) => {
   if (!cardNumber) return '';
@@ -248,7 +211,6 @@ export const maskCardNumber = (cardNumber) => {
   
   if (cleanNumber.length < 4) return cleanNumber;
   
-  // Показываем первые 4 и последние 4 цифры
   const firstFour = cleanNumber.slice(0, 4);
   const lastFour = cleanNumber.slice(-4);
   const middle = '*'.repeat(cleanNumber.length - 8);
@@ -257,16 +219,14 @@ export const maskCardNumber = (cardNumber) => {
 };
 
 /**
- * Форматирование номера карты для отображения
- * @param {string} cardNumber - Номер карты
- * @returns {string} - Отформатированный номер
+ * @param {string} cardNumber
+ * @returns {string}
  */
 export const formatCardNumber = (cardNumber) => {
   if (!cardNumber) return '';
   
   const cleanNumber = cardNumber.replace(/\s|-/g, '');
   
-  // Группируем по 4 цифры
   const groups = [];
   for (let i = 0; i < cleanNumber.length; i += 4) {
     groups.push(cleanNumber.slice(i, i + 4));

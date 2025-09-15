@@ -13,7 +13,6 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
     setLanguage(selected);
     onClose();
     
-    // Перенаправляем на онбординг только если это указано явно
     if (shouldNavigateToOnboarding) {
       navigate('/onboarding');
     }
@@ -22,7 +21,6 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
   const hapticSetSelected = useHapticClick(setSelected, 'selection');
   const hapticConfirm = useHapticClick(confirm, 'medium');
 
-  // Тексты на двух языках
   const texts = {
     uz: {
       title: "O'zingizga qulay bo'lgan tilni tanlang",
@@ -60,7 +58,6 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className={`fixed inset-0 bg-black/20 transition-opacity duration-200 z-40 ${
           isVisible ? 'opacity-100' : 'opacity-0'
@@ -68,7 +65,6 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
         onClick={closeSoft}
       />
 
-      {/* Bottom Sheet */}
       <div
         className={`fixed left-0 right-0 bottom-0 z-50 transition-transform duration-300 ${
           isVisible ? 'translate-y-0' : 'translate-y-full'
@@ -76,10 +72,7 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
       >
         <div className="mx-auto w-full max-w-[440px]">
           <div className="relative rounded-t-[28px] overflow-hidden shadow-2xl">
-            {/* Верхний градиентный кап – как на макете */}
-            {/* Тело модалки */}
             <div className="bg-[#F4F1FF] p-5 sm:p-6">
-              {/* Заголовок: две строки */}
               <div className="text-center mb-4">
                 <p className="text-[15px] leading-5 text-[#111827] font-medium">
                   {currentTexts.title}
@@ -89,9 +82,7 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
                 </p>
               </div>
 
-              {/* Языковые карточки */}
               <div className="space-y-3 mb-5">
-                {/* Uzbek */}
                 <button
                   type="button"
                   onClick={() => hapticSetSelected('uz')}
@@ -113,7 +104,6 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
                   </div>
                 </button>
 
-                {/* Russian */}
                 <button
                   type="button"
                   onClick={() => hapticSetSelected('ru')}
@@ -136,7 +126,6 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
                 </button>
               </div>
 
-              {/* Кнопка "Продолжить" как на скрине */}
               <button
                 type="button"
                 onClick={hapticConfirm}

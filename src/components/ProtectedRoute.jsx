@@ -7,28 +7,23 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isInitializing } = useAuth();
 
   useEffect(() => {
-    // Проверяем localStorage напрямую для быстрого перенаправления
     const sessionId = localStorage.getItem('session_id');
     const user = localStorage.getItem('user');
     
-    // Если нет session_id или user в localStorage, сразу перенаправляем на /auth
     if (!sessionId || !user) {
       navigate('/auth', { replace: true });
       return;
     }
     
-    // Если AuthContext еще инициализируется, ждем
     if (isInitializing) {
       return;
     }
     
-    // Если после инициализации пользователь не авторизован, перенаправляем
     if (!isAuthenticated) {
       navigate('/auth', { replace: true });
     }
   }, [navigate, isAuthenticated, isInitializing]);
 
-  // Показываем загрузку во время инициализации
   if (isInitializing) {
     return (
       <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
@@ -40,7 +35,6 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // Если пользователь не авторизован, не показываем контент
   if (!isAuthenticated) {
     return null;
   }

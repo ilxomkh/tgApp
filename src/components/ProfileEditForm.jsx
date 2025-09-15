@@ -24,7 +24,6 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // Загружаем данные пользователя при монтировании
   useEffect(() => {
     if (user) {
       setFormData({
@@ -39,22 +38,18 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Валидация номера телефона
     if (formData.phone_number && !isValidUzbekPhone(formatPhoneE164(formData.phone_number))) {
       newErrors.phone_number = getMessage('INVALID_PHONE', language);
     }
 
-    // Валидация имени
     if (formData.full_name && !isValidFullName(formData.full_name)) {
       newErrors.full_name = getMessage('INVALID_NAME', language);
     }
 
-    // Валидация email
     if (formData.email && !isValidEmail(formData.email)) {
       newErrors.email = getMessage('INVALID_EMAIL', language);
     }
 
-    // Валидация даты рождения
     if (formData.birth_date && !isValidBirthDate(formData.birth_date)) {
       newErrors.birth_date = getMessage('INVALID_BIRTH_DATE', language);
     }
@@ -69,7 +64,6 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
       [field]: value
     }));
     
-    // Очищаем ошибку при изменении поля
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -148,7 +142,6 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Номер телефона */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             {t.phone}
@@ -167,7 +160,6 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
           )}
         </div>
 
-        {/* Полное имя */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             {t.fullName}
@@ -186,7 +178,6 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
           )}
         </div>
 
-        {/* Email */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             {t.email}
@@ -205,7 +196,6 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
           )}
         </div>
 
-        {/* Дата рождения */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             {t.birthDate}
@@ -224,14 +214,12 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
           )}
         </div>
 
-        {/* Общая ошибка */}
         {errors.general && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3">
             <p className="text-red-600 text-sm">{errors.general}</p>
           </div>
         )}
 
-        {/* Кнопки */}
         <div className="flex gap-3 pt-4">
           <button
             type="button"

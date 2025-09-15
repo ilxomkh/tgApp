@@ -13,18 +13,15 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Пытаемся получить пользователя из localStorage
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Проверяем наличие пользователя в localStorage
     return !!localStorage.getItem('user');
   });
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  // Проверяем валидность токена при инициализации
   useEffect(() => {
     const checkAuthStatus = async () => {
       const token = localStorage.getItem('auth_token');
@@ -36,14 +33,11 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       
-      // Устанавливаем флаг инициализации
       setInitializing(true);
       
       try {
-        // Проверяем валидность токена через API запрос
         const userProfile = await api.getUserProfile();
         
-        // Обновляем данные пользователя
         const updatedUser = { ...JSON.parse(savedUser), ...userProfile };
         setUser(updatedUser);
         setIsAuthenticated(true);
@@ -52,7 +46,6 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Token validation failed:', error);
         
-        // Если токен недействителен, очищаем данные
         setUser(null);
         setIsAuthenticated(false);
         localStorage.removeItem('user');
@@ -81,19 +74,16 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.verifyOtp(phoneNumber, otp);
       
-      // Сохраняем session_id если он есть
       const sessionId = response.session_id;
       if (sessionId) {
         localStorage.setItem('session_id', sessionId);
       }
       
-      // Сохраняем токен если он есть
       const token = response.token || response.access_token;
       if (token) {
         localStorage.setItem('auth_token', token);
       }
       
-      // Получаем полные данные пользователя
       const userProfile = await api.getUserProfile();
       
       const newUser = {
@@ -111,7 +101,6 @@ export const AuthProvider = ({ children }) => {
       
       setUser(newUser);
       setIsAuthenticated(true);
-      // Сохраняем пользователя в localStorage
       localStorage.setItem('user', JSON.stringify(newUser));
       
       return true;
@@ -124,24 +113,20 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    // Удаляем пользователя, токен и session_id из localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('session_id');
     
-    // Перенаправляем на главную страницу
     window.location.href = '/';
   };
 
   const resetToOnboarding = () => {
     setUser(null);
     setIsAuthenticated(false);
-    // Удаляем все данные из localStorage
     localStorage.removeItem('user');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('session_id');
     
-    // Перенаправляем на онбординг
     window.location.href = '/onboarding';
   };
 
@@ -159,8 +144,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error updating profile:', error);
       
-      // 401 ошибка уже обрабатывается глобально в API сервисе
-      // Здесь просто возвращаем false
       return false;
     }
   };
@@ -180,8 +163,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error refreshing profile:', error);
       
-      // 401 ошибка уже обрабатывается глобально в API сервисе
-      // Здесь просто возвращаем false
       return false;
     } finally {
       setIsLoadingProfile(false);

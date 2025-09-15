@@ -1,283 +1,283 @@
 /**
  * @typedef {Object} ApiResponse
- * @property {boolean} success - Успешность запроса
- * @property {string} [message] - Сообщение ответа
- * @property {Object} [data] - Данные ответа
+ * @property {boolean} success
+ * @property {string} [message]
+ * @property {Object} [data]
  */
 
 /**
  * @typedef {Object} RequestOtpRequest
- * @property {string} phone_number - Номер телефона в формате E.164
+ * @property {string} phone_number
  */
 
 /**
  * @typedef {Object} RequestOtpResponse
- * @property {boolean} success - Успешность запроса
- * @property {string} message - Сообщение о результате
+ * @property {boolean} success
+ * @property {string} message
  */
 
 /**
  * @typedef {Object} VerifyOtpRequest
- * @property {string} phone_number - Номер телефона в формате E.164
- * @property {string} code - OTP код
+ * @property {string} phone_number
+ * @property {string} code
  */
 
 /**
  * @typedef {Object} VerifyOtpResponse
- * @property {boolean} success - Успешность запроса
- * @property {string} user_id - ID пользователя
- * @property {string} name - Имя пользователя
- * @property {string} phone_number - Номер телефона
- * @property {number} bonus_balance - Баланс бонусов
- * @property {string} referral_code - Реферальный код
- * @property {string} token - JWT токен для авторизации
- * @property {string} session_id - ID сессии для авторизации
+ * @property {boolean} success
+ * @property {string} user_id
+ * @property {string} name
+ * @property {string} phone_number
+ * @property {number} bonus_balance
+ * @property {string} referral_code
+ * @property {string} token
+ * @property {string} session_id
  */
 
 /**
  * @typedef {Object} UserProfile
- * @property {string} phone_number - Номер телефона
- * @property {string} full_name - Полное имя пользователя
- * @property {string} email - Email адрес
- * @property {string} birth_date - Дата рождения (YYYY-MM-DD)
- * @property {number} id - ID пользователя
- * @property {number} balance - Баланс пользователя
- * @property {string} created_at - Дата создания
- * @property {string} updated_at - Дата обновления
+ * @property {string} phone_number
+ * @property {string} full_name
+ * @property {string} email
+ * @property {string} birth_date
+ * @property {number} id
+ * @property {number} balance
+ * @property {string} created_at
+ * @property {string} updated_at
  */
 
 /**
  * @typedef {Object} UpdateUserProfileRequest
- * @property {string} phone_number - Номер телефона
- * @property {string} full_name - Полное имя пользователя
- * @property {string} email - Email адрес
- * @property {string} birth_date - Дата рождения (YYYY-MM-DD)
+ * @property {string} phone_number
+ * @property {string} full_name
+ * @property {string} email
+ * @property {string} birth_date
  */
 
 /**
  * @typedef {Object} UpdateUserProfileResponse
- * @property {boolean} success - Успешность запроса
- * @property {UserProfile} user - Обновленные данные пользователя
+ * @property {boolean} success
+ * @property {UserProfile} user
  */
 
 /**
  * @typedef {Object} Raffle
- * @property {number} id - ID лотереи
- * @property {string} title - Название лотереи
- * @property {string} description - Описание лотереи
- * @property {number} prize_amount - Сумма приза
- * @property {string} video_url - URL видео
- * @property {boolean} is_active - Активна ли лотерея
- * @property {string} end_date - Дата окончания
+ * @property {number} id
+ * @property {string} title
+ * @property {string} description
+ * @property {number} prize_amount
+ * @property {string} video_url
+ * @property {boolean} is_active
+ * @property {string} end_date
  */
 
 /**
  * @typedef {Object} GetRafflesResponse
- * @property {Raffle[]} raffles - Массив лотерей
+ * @property {Raffle[]} raffles
  */
 
 /**
  * @typedef {Object} Card
- * @property {number} id - ID карты
- * @property {string} card_number - Номер карты (маскированный)
- * @property {string} card_type - Тип карты (visa, mastercard, etc.)
- * @property {string} created_at - Дата создания
- * @property {string} updated_at - Дата обновления
+ * @property {number} id
+ * @property {string} card_number
+ * @property {string} card_type
+ * @property {string} created_at
+ * @property {string} updated_at
  */
 
 /**
  * @typedef {Object} AddCardRequest
- * @property {string} card_number - Номер карты
+ * @property {string} card_number
  */
 
 /**
  * @typedef {Object} AddCardResponse
- * @property {boolean} success - Успешность запроса
- * @property {Card} card - Добавленная карта
+ * @property {boolean} success
+ * @property {Card} card
  */
 
 /**
  * @typedef {Object} GetCardsResponse
- * @property {Card[]} cards - Массив карт
+ * @property {Card[]} cards
  */
 
 /**
  * @typedef {Object} InviteStats
- * @property {number} invited - Количество приглашенных пользователей
- * @property {number} active - Количество активных приглашенных пользователей
- * @property {number} waiting_amount - Сумма ожидающих выплат
- * @property {number} profit - Общая прибыль от рефералов
+ * @property {number} invited
+ * @property {number} active
+ * @property {number} waiting_amount
+ * @property {number} profit
  */
 
 /**
  * @typedef {Object} OrderRequest
- * @property {string} full_name - Полное имя заказчика
- * @property {string} company_name - Название компании
- * @property {string} job_title - Должность
- * @property {string} phone_number - Номер телефона
- * @property {string} email - Email адрес
+ * @property {string} full_name
+ * @property {string} company_name
+ * @property {string} job_title
+ * @property {string} phone_number
+ * @property {string} email
  */
 
 /**
  * @typedef {Object} OrderResponse
- * @property {boolean} success - Успешность запроса
- * @property {string} message - Сообщение о результате
- * @property {number} [order_id] - ID заказа
+ * @property {boolean} success
+ * @property {string} message
+ * @property {number} [order_id]
  */
 
 /**
  * @typedef {Object} PaymentRequest
- * @property {string} card_number - Номер карты
- * @property {number} amount - Сумма для вывода
+ * @property {string} card_number
+ * @property {number} amount
  */
 
 /**
  * @typedef {Object} PaymentResponse
- * @property {boolean} success - Успешность запроса
- * @property {string} message - Сообщение о результате
- * @property {number} [payment_id] - ID платежа
- * @property {string} [status] - Статус платежа
+ * @property {boolean} success
+ * @property {string} message
+ * @property {number} [payment_id]
+ * @property {string} [status]
  */
 
 /**
  * @typedef {Object} ApiError
- * @property {string} error - Код ошибки
- * @property {string} message - Сообщение об ошибке
+ * @property {string} error
+ * @property {string} message
  */
 
 /**
  * @typedef {Object} User
- * @property {string} id - ID пользователя
- * @property {string} full_name - Полное имя пользователя
- * @property {string} phone_number - Номер телефона
- * @property {string} email - Email адрес
- * @property {string} birth_date - Дата рождения
- * @property {number} balance - Баланс пользователя
- * @property {string} created_at - Дата создания
- * @property {string} updated_at - Дата обновления
- * @property {string} [token] - JWT токен
+ * @property {string} id
+ * @property {string} full_name
+ * @property {string} phone_number
+ * @property {string} email
+ * @property {string} birth_date
+ * @property {number} balance
+ * @property {string} created_at
+ * @property {string} updated_at
+ * @property {string} [token]
  */
 
 /**
  * @typedef {Object} TallyWebhookPayload
- * @property {string} eventId - ID события
- * @property {string} eventType - Тип события (formResponse)
- * @property {string} createdAt - Дата создания
- * @property {Object} payload - Данные ответа
- * @property {string} payload.responseId - ID ответа
- * @property {string} payload.submissionId - ID отправки
- * @property {string} payload.respondentId - ID респондента
- * @property {string} payload.formId - ID формы
- * @property {string} payload.formName - Название формы
- * @property {Object} payload.answers - Ответы на вопросы
- * @property {string} payload.createdAt - Дата создания ответа
+ * @property {string} eventId
+ * @property {string} eventType
+ * @property {string} createdAt
+ * @property {Object} payload
+ * @property {string} payload.responseId
+ * @property {string} payload.submissionId
+ * @property {string} payload.respondentId
+ * @property {string} payload.formId
+ * @property {string} payload.formName
+ * @property {Object} payload.answers
+ * @property {string} payload.createdAt
  */
 
 /**
  * @typedef {Object} TallyAnswer
- * @property {string} fieldId - ID поля
- * @property {string} fieldRef - Ссылка на поле
- * @property {string} type - Тип поля
- * @property {string} label - Метка поля
- * @property {string|string[]} value - Значение ответа
+ * @property {string} fieldId
+ * @property {string} fieldRef
+ * @property {string} type
+ * @property {string} label
+ * @property {string|string[]} value
  */
 
 /**
  * @typedef {Object} SurveyResponse
- * @property {string} id - ID ответа
- * @property {string} formId - ID формы Tally
- * @property {string} formName - Название формы
- * @property {string} language - Язык опроса (ru/uz)
- * @property {Object} answers - Ответы на вопросы
- * @property {string} createdAt - Дата создания
- * @property {string} userId - ID пользователя (если привязан)
+ * @property {string} id
+ * @property {string} formId
+ * @property {string} formName
+ * @property {string} language
+ * @property {Object} answers
+ * @property {string} createdAt
+ * @property {string} userId
  */
 
 /**
  * @typedef {Object} ProcessSurveyResponse
- * @property {boolean} success - Успешность обработки
- * @property {string} message - Сообщение о результате
- * @property {number} [prizeAmount] - Сумма приза
- * @property {boolean} [isLotteryParticipant] - Участие в лотерее
- * @property {string} [lotteryId] - ID лотереи
+ * @property {boolean} success
+ * @property {string} message
+ * @property {number} [prizeAmount]
+ * @property {boolean} [isLotteryParticipant]
+ * @property {string} [lotteryId]
  */
 
 /**
  * @typedef {Object} TallyForm
- * @property {string} id - ID формы
- * @property {string} title - Название формы
- * @property {string} description - Описание формы
- * @property {string} status - Статус формы (published, draft, etc.)
- * @property {string} createdAt - Дата создания
- * @property {string} updatedAt - Дата обновления
- * @property {string} url - URL формы
- * @property {number} responseCount - Количество ответов
+ * @property {string} id
+ * @property {string} title
+ * @property {string} description
+ * @property {string} status
+ * @property {string} createdAt
+ * @property {string} updatedAt
+ * @property {string} url
+ * @property {number} responseCount
  */
 
 /**
  * @typedef {Object} TallyFormResponse
- * @property {string} id - ID ответа
- * @property {string} formId - ID формы
- * @property {string} submissionId - ID отправки
- * @property {string} respondentId - ID респондента
- * @property {Object} answers - Ответы на вопросы
- * @property {string} createdAt - Дата создания ответа
- * @property {string} updatedAt - Дата обновления ответа
+ * @property {string} id
+ * @property {string} formId
+ * @property {string} submissionId
+ * @property {string} respondentId
+ * @property {Object} answers
+ * @property {string} createdAt
+ * @property {string} updatedAt
  */
 
 /**
  * @typedef {Object} TallySyncRequest
- * @property {string} formId - ID формы для синхронизации
- * @property {string} [action] - Действие синхронизации (sync, refresh, etc.)
+ * @property {string} formId
+ * @property {string} [action]
  */
 
 /**
  * @typedef {Object} TallySyncResponse
- * @property {boolean} success - Успешность синхронизации
- * @property {string} message - Сообщение о результате
- * @property {number} [syncedResponses] - Количество синхронизированных ответов
- * @property {string} [lastSyncAt] - Время последней синхронизации
+ * @property {boolean} success
+ * @property {string} message
+ * @property {number} [syncedResponses]
+ * @property {string} [lastSyncAt]
  */
 
 /**
  * @typedef {Object} TallyFormApiResponse
- * @property {string} id - ID формы
- * @property {string} name - Название формы
- * @property {boolean} isNameModifiedByUser - Изменено ли название пользователем
- * @property {string} workspaceId - ID рабочего пространства
- * @property {string} organizationId - ID организации
- * @property {string} status - Статус формы (PUBLISHED, DRAFT, etc.)
- * @property {boolean} hasDraftBlocks - Есть ли черновики блоков
- * @property {number} numberOfSubmissions - Количество отправленных ответов
- * @property {string} createdAt - Дата создания
- * @property {string} updatedAt - Дата обновления
- * @property {number} index - Индекс формы
- * @property {boolean} isClosed - Закрыта ли форма
+ * @property {string} id
+ * @property {string} name
+ * @property {boolean} isNameModifiedByUser
+ * @property {string} workspaceId
+ * @property {string} organizationId
+ * @property {string} status
+ * @property {boolean} hasDraftBlocks
+ * @property {number} numberOfSubmissions
+ * @property {string} createdAt
+ * @property {string} updatedAt
+ * @property {number} index
+ * @property {boolean} isClosed
  */
 
 /**
  * @typedef {Object} GetTallyFormsResponse
- * @property {TallyFormApiResponse[]} items - Массив форм Tally
- * @property {number} page - Номер страницы
- * @property {number} limit - Лимит на страницу
- * @property {number} total - Общее количество форм
- * @property {boolean} hasMore - Есть ли еще страницы
+ * @property {TallyFormApiResponse[]} items
+ * @property {number} page
+ * @property {number} limit
+ * @property {number} total
+ * @property {boolean} hasMore
  */
 
 /**
  * @typedef {Object} TallyQuestion
- * @property {string} id - ID вопроса
- * @property {string} text - Текст вопроса
- * @property {string} type - Тип вопроса (choice, number, text, multichoice)
- * @property {boolean} required - Обязательный ли вопрос
- * @property {string[]} [options] - Варианты ответов (для choice, multichoice)
+ * @property {string} id
+ * @property {string} text
+ * @property {string} type
+ * @property {boolean} required
+ * @property {string[]} [options]
  */
 
 /**
  * @typedef {Object} TallyFormDetails
- * @property {string} formId - ID формы
- * @property {string} title - Название формы
- * @property {TallyQuestion[]} questions - Массив вопросов
+ * @property {string} formId
+ * @property {string} title
+ * @property {TallyQuestion[]} questions
  */
 
 export const API_ENDPOINTS = {
@@ -291,11 +291,9 @@ export const API_ENDPOINTS = {
   GET_INVITE_STATS: '/referrals/stats',
   CREATE_ORDER: '/order',
   CREATE_PAYMENT: '/payments/take_off',
-  // Tally webhook endpoints
   TALLY_WEBHOOK: '/webhooks/tilda',
   GET_SURVEY_RESPONSES: '/surveys/responses',
   PROCESS_SURVEY_RESPONSE: '/surveys/process',
-  // Новые Tally API endpoints через сервер
   TALLY_FORMS: '/tally/forms',
   TALLY_FORM_BY_ID: '/tally/forms',
   TALLY_FORM_RESPONSES: '/tally/tally/forms',

@@ -23,7 +23,6 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
   const [userProfile, setUserProfile] = useState(null);
 
-  // ---------- Переводы ----------
   const translations = {
     ru: {
       phoneNumber: "Номер телефона:",
@@ -60,7 +59,6 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
   };
   const localT = translations[language || "ru"];
 
-  // Загружаем профиль пользователя при монтировании
   useEffect(() => {
     const loadProfile = async () => {
       if (user) {
@@ -70,8 +68,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
             setUserProfile(result.data);
           }
         } catch (error) {
-          console.error('Error loading profile:', error);
-          // 401 ошибка уже обрабатывается глобально в API сервисе
+          console.error("Error loading profile:", error);
         }
       }
     };
@@ -88,7 +85,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
   };
 
   const handleEditProfile = () => {
-    navigate('/profile-edit?tab=profile');
+    navigate("/profile-edit?tab=profile");
   };
 
   const handleLanguageClose = () => {
@@ -110,27 +107,20 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
 
   return (
     <div className="">
-      {/* Основной контент */}
       <div className="px-2 py-2">
-        {/* Карточка профиля */}
         <div className="bg-gradient-to-r relative from-[#5E5AF6] to-[#7C65FF] rounded-2xl px-4 py-2 text-white shadow-lg mb-8">
           <div className="text-center">
-            {/* Аватарка пользователя */}
             <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 relative">
-              <UserAvatar 
-                avatarUrl={userProfile?.avatar_url} 
+              <UserAvatar
+                avatarUrl={userProfile?.avatar_url}
                 size="w-full h-full"
                 className="bg-white/20"
                 showBorder={true}
               />
             </div>
 
-            {/* Скелетон загрузки профиля */}
             {loading && (
               <div className="text-center py-4 animate-pulse">
-                {/* Скелетон аватарки */}
-                
-                {/* Скелетон текста */}
                 <div className="space-y-2">
                   <div className="h-4 bg-white/20 rounded-lg w-32 mx-auto"></div>
                   <div className="h-6 bg-white/20 rounded-lg w-24 mx-auto"></div>
@@ -138,23 +128,21 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
               </div>
             )}
 
-            {/* Ошибка загрузки */}
             {error && (
               <div className="text-center py-4">
                 <p className="text-red-200 text-sm">{localT.error}</p>
               </div>
             )}
 
-            {/* Данные профиля */}
             {userProfile && !loading && !error && (
               <>
-                {/* Номер телефона */}
-                <p className="text-white/90 text-sm mb-1">{localT.phoneNumber}</p>
+                <p className="text-white/90 text-sm mb-1">
+                  {localT.phoneNumber}
+                </p>
                 <p className="text-xl font-bold">{userProfile.phone_number}</p>
               </>
             )}
 
-            {/* Кнопка редактирования */}
             {userProfile && !loading && !error && (
               <button
                 onClick={handleEditProfile}
@@ -166,9 +154,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
           </div>
         </div>
 
-        {/* Меню опций */}
         <div className="space-y-2">
-          {/* Информация о проекте */}
           <button
             onClick={() => handleMenuClick("/project-info")}
             className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
@@ -221,7 +207,6 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
             </svg>
           </button>
 
-          {/* Публичная оферта */}
           <button
             onClick={() => handleMenuClick("/public-offer")}
             className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
@@ -274,7 +259,6 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
             </svg>
           </button>
 
-          {/* Изменить язык */}
           <button
             onClick={() => handleMenuClick("/change-language")}
             className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
@@ -327,7 +311,6 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
             </svg>
           </button>
 
-          {/* Служба поддержки */}
           <button
             onClick={() => handleMenuClick("/support")}
             className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
@@ -425,7 +408,6 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
             </svg>
           </button>
 
-          {/* Заказать опрос */}
           <button
             onClick={() => handleMenuClick("/order-survey")}
             className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
@@ -477,78 +459,51 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
               />
             </svg>
           </button>
-
-          {/* Кнопка сброса для разработки */}
-          {/* <button
-            onClick={handleLogoutClick}
-            className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
-          >
-            <div className="flex items-center gap-4">
-              <LogOutIcon className="text-red-600" />
-
-              <span className="text-red-600 font-medium">
-                {localT.resetToOnboarding}
-              </span>
-            </div>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="text-red-400"
-            >
-              <path
-                d="M9 18l6-6-6-6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button> */}
         </div>
       </div>
 
-      {/* Используем существующий LanguageSelector */}
-      <LanguageSelector 
-        isOpen={isLanguageModalOpen} 
-        onClose={handleLanguageClose} 
+      <LanguageSelector
+        isOpen={isLanguageModalOpen}
+        onClose={handleLanguageClose}
       />
 
-      {/* Модальное окно подтверждения выхода */}
       {isLogoutModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="absolute inset-0 z-30 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]">
-          <WaveOverlay />
-          <img src={ProSVG} alt="Pro" className="absolute w-[260px] top-1/5 right-1/2 left-1/2 -translate-x-1/2 z-999"/>
+            <WaveOverlay />
+            <img
+              src={ProSVG}
+              alt="Pro"
+              className="absolute w-[260px] top-1/5 right-1/2 left-1/2 -translate-x-1/2 z-999"
+            />
           </div>
           <div className="absolute bottom-0 bg-white rounded-t-2xl p-6 w-full z-40 min-h-[300px]">
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <LogOutIcon className="w-8 h-8 text-red-600" />
               </div>
-              
+
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {getMessage('LOGOUT_CONFIRMATION_TITLE', language)}
+                {getMessage("LOGOUT_CONFIRMATION_TITLE", language)}
               </h3>
-              
+
               <p className="text-gray-600 mb-6">
-                {getMessage('LOGOUT_CONFIRMATION_MESSAGE', language)}
+                {getMessage("LOGOUT_CONFIRMATION_MESSAGE", language)}
               </p>
-              
+
               <div className="flex gap-3">
                 <button
                   onClick={handleLogoutCancel}
                   className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium transition-colors hover:bg-gray-200"
                 >
-                  {getMessage('LOGOUT_CANCEL', language)}
+                  {getMessage("LOGOUT_CANCEL", language)}
                 </button>
-                
+
                 <button
                   onClick={handleLogoutConfirm}
                   className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-medium transition-colors hover:bg-red-700"
                 >
-                  {getMessage('LOGOUT_CONFIRM', language)}
+                  {getMessage("LOGOUT_CONFIRM", language)}
                 </button>
               </div>
             </div>

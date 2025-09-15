@@ -1,4 +1,3 @@
-// tg-app/src/components/Main/icons.jsx
 import React from "react";
 
 export function HomeIcon({ active = false }) {
@@ -46,7 +45,6 @@ export function UsersIcon({ active = false }) {
         strokeLinejoin="round"
         className={active ? "opacity-100" : "opacity-80"}
       />
-      {/* Плюс справа вверху */}
       <path
         d="M18 8h2M19 7v2"
         stroke="currentColor"

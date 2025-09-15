@@ -7,7 +7,6 @@ const PublicOfferScreen = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // ---------- Переводы ----------
   const translations = {
     ru: {
       title: "Публичная оферта",
@@ -48,22 +47,17 @@ const PublicOfferScreen = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F4FF]">
-      {/* Фиксированный хедер */}
       <div className="fixed top-0 left-0 right-0 z-30">
         <Header />
       </div>
 
-      {/* Контейнер контента между хедером и кнопкой */}
       <div className="fixed top-40 bottom-32 left-0 right-0 z-10">
         <div className="h-full px-6 py-4 overflow-y-auto custom-scrollbar">
-          {/* Заголовок страницы */}
           <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
             {t.title}
           </h2>
 
-          {/* Контент */}
           <div className="space-y-6 text-gray-800">
-            {/* Заголовок оферты */}
             <div>
               <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
                 {t.offerTitle}
@@ -74,7 +68,6 @@ const PublicOfferScreen = () => {
               <p className="text-base leading-relaxed">{t.address}</p>
             </div>
 
-            {/* Условия */}
             <div>
               <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
                 {t.terms}
@@ -88,7 +81,6 @@ const PublicOfferScreen = () => {
               </div>
             </div>
 
-            {/* Контакты */}
             <div>
               <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
                 {t.contact}
@@ -99,7 +91,6 @@ const PublicOfferScreen = () => {
         </div>
       </div>
 
-      {/* Фиксированная кнопка "Назад" */}
       <div className="fixed bottom-3 left-0 right-0 z-20 p-4 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-md mx-auto">
           <div className="rounded-2xl bg-[#EDEAFF] p-2">

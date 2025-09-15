@@ -1,4 +1,3 @@
-// src/screens/AuthScreen.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -13,7 +12,6 @@ import error from "../assets/X.svg";
 const OTP_LENGTH = 6;
 
 const extractUzDigits = (val) => (val || "").replace(/\D/g, "").slice(0, 9);
-/** 99 999 99 99 */
 const formatUzPhone = (rawDigits) => {
   const d = rawDigits.slice(0, 9);
   const p1 = d.slice(0, 2);
@@ -35,21 +33,19 @@ const AuthScreen = () => {
 
   const [phoneDigits, setPhoneDigits] = useState("");
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
-  const [step, setStep] = useState("phone"); // 'phone' | 'otp'
+  const [step, setStep] = useState("phone");
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
 
   const otpRefs = useRef(Array.from({ length: OTP_LENGTH }, () => React.createRef()));
 
-  // Функция для закрытия клавиатуры
   const closeKeyboard = () => {
     if (document.activeElement && document.activeElement.blur) {
       document.activeElement.blur();
     }
   };
 
-  // Таймер для кнопки "Отправить код повторно"
   useEffect(() => {
     let interval;
     if (resendTimer > 0) {
@@ -122,7 +118,6 @@ const AuthScreen = () => {
     if (val && i < OTP_LENGTH - 1) {
       otpRefs.current[i + 1]?.current?.focus();
     } else if (val && i === OTP_LENGTH - 1) {
-      // Закрываем клавиатуру при заполнении последнего поля OTP
       setTimeout(closeKeyboard, 100);
     }
   };
@@ -142,18 +137,16 @@ const AuthScreen = () => {
     const focusIndex = Math.min(paste.length, OTP_LENGTH - 1);
     otpRefs.current[focusIndex]?.current?.focus();
     
-    // Закрываем клавиатуру если вставлен полный код
     if (paste.length === OTP_LENGTH) {
       setTimeout(closeKeyboard, 100);
     }
   };
 
   const startResendTimer = () => {
-    setResendTimer(60); // 60 секунд = 1 минута
+    setResendTimer(60);
   };
 
   const onSendOtp = async () => {
-    // Валидация номера телефона
     if (!isValidUzbekPhone(phoneE164)) {
       setErrorText(getMessage('INVALID_PHONE', language));
       return;
@@ -165,9 +158,7 @@ const AuthScreen = () => {
       const ok = await sendOtp(phoneE164);
       if (ok) {
         setStep("otp");
-        // Очищаем OTP поля при переходе к следующему шагу
         setOtp(Array(OTP_LENGTH).fill(""));
-        // Запускаем таймер для повторной отправки
         startResendTimer();
       } else {
         setErrorText(getMessage('NETWORK_ERROR', language));
@@ -176,7 +167,6 @@ const AuthScreen = () => {
       console.error('Send OTP error:', error);
       const errorMessage = getApiErrorMessage(error, language);
       
-      // Если ошибка связана с неправильным номером телефона, показываем специальное сообщение
       if (errorMessage.includes('phone') || errorMessage.includes('номер') || errorMessage.includes('raqam')) {
         setErrorText(getMessage('WRONG_PHONE_NUMBER', language));
       } else {
@@ -190,7 +180,6 @@ const AuthScreen = () => {
   const onVerify = async () => {
     const code = otpToString();
     
-    // Валидация OTP кода
     if (!isValidOtp(code)) {
       setErrorText(getMessage('INVALID_OTP', language));
       return;
@@ -221,14 +210,13 @@ const AuthScreen = () => {
   };
 
   const onResendOtp = async () => {
-    if (resendTimer > 0) return; // Не позволяем отправлять, если таймер активен
+    if (resendTimer > 0) return;
     
     setIsLoading(true);
     setErrorText("");
     try {
       const ok = await sendOtp(phoneE164);
       if (ok) {
-        // Запускаем таймер заново
         startResendTimer();
       } else {
         setErrorText(getMessage('NETWORK_ERROR', language));
@@ -244,16 +232,13 @@ const AuthScreen = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFF] flex flex-col">
-      {/* Шапка */}
       <header className="h-36 bg-gradient-to-b from-[#6A4CFF] to-[#5936F2] text-white shadow-md">
         <div className="h-full max-w-[480px] mx-auto flex items-end justify-center pb-3">
           <img src={PRO} alt="Pro Survey" className="h-9" />
         </div>
       </header>
 
-      {/* Контент */}
       <main className="flex-1 max-w-[480px] w-full mx-auto px-6 flex flex-col">
-        {/* Заголовок сверху */}
         <h1
           className={[
             "text-center font-bold pt-20",
@@ -263,8 +248,6 @@ const AuthScreen = () => {
         >
           {T.title}
         </h1>
-
-        {/* PHONE STEP — адаптивный макет для клавиатуры */}
         {step === "phone" && (
           <>
             <div className={`transition-all duration-300 ${isKeyboardOpen ? 'pt-8' : 'pt-40'}`}>
@@ -292,7 +275,6 @@ const AuthScreen = () => {
                     onChange={(e) => {
                       const newDigits = extractUzDigits(e.target.value);
                       setPhoneDigits(newDigits);
-                      // Закрываем клавиатуру при вводе 9-й цифры
                       if (newDigits.length === 9) {
                         setTimeout(closeKeyboard, 100);
                       }
@@ -303,13 +285,9 @@ const AuthScreen = () => {
                 </div>
               </div>
             </div>
-
-            {/* Адаптивный отступ снизу для клавиатуры */}
             <div className={`transition-all duration-300 ${isKeyboardOpen ? 'h-[20px]' : 'flex-1'}`} />
           </>
         )}
-
-        {/* OTP STEP — адаптивный макет для клавиатуры */}
         {step === "otp" && (
           <>
             <div className={`transition-all duration-300 flex flex-col items-center justify-start pb-4 ${isKeyboardOpen ? 'pt-4' : 'pt-8 flex-1'}`}>
@@ -371,18 +349,13 @@ const AuthScreen = () => {
                 </button>
               </div>
             </div>
-
-            {/* Адаптивный отступ снизу для клавиатуры */}
             <div className={`transition-all duration-300 ${isKeyboardOpen ? 'h-[20px]' : 'h-[20px] sm:h-[112px]'}`} />
           </>
         )}
       </main>
 
-      {/* НИЖНИЕ ПАНЕЛИ */}
-      {/* PHONE: кнопка снизу с возможной ошибкой */}
       {step === "phone" && (
         <div className={`w-full max-w-[480px] mx-auto px-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-2' : 'pb-6'}`}>
-          {/* Показываем ошибку если есть */}
           {errorText && (
             <div className="mb-3 w-full max-w-[420px] mx-auto px-2">
               <div className="rounded-xl border border-[#FFD2D2] bg-[#FFE9E9] p-4 text-[#C03A3A] flex items-center justify-center gap-3">
@@ -410,7 +383,6 @@ const AuthScreen = () => {
         </div>
       )}
 
-      {/* OTP: текст политики + кнопка снизу (адаптивно) */}
       {step === "otp" && !errorText && (
         <div className={`w-full max-w-[480px] mx-auto px-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-2' : 'pb-6'}`}>
           <p className="text-center text-[12px] text-[#8B8B99] mb-3">
@@ -440,10 +412,8 @@ const AuthScreen = () => {
         </div>
       )}
 
-      {/* OTP error: текст ошибки + кнопка "Назад" снизу (адаптивно) */}
       {step === "otp" && errorText && (
         <div className={`w-full max-w-[480px] mx-auto px-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-2' : 'pb-6'}`}>
-          {/* Текст ошибки над кнопкой */}
           <div className="mb-3 w-full max-w-[420px] mx-auto px-2">
             <div className="rounded-xl border border-[#FFD2D2] bg-[#FFE9E9] p-4 text-[#C03A3A] flex items-center justify-center gap-3">
               <div className="flex items-center justify-center gap-3">

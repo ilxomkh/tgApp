@@ -59,15 +59,13 @@ export const useLanguage = () => {
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
-    // Пытаемся получить язык из localStorage, по умолчанию 'uz'
     return localStorage.getItem('language') || 'uz';
   });
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
 
   const openLanguageModal = () => setIsLanguageModalOpen(true);
   const closeLanguageModal = () => setIsLanguageModalOpen(false);
-
-  // Сохраняем язык в localStorage при изменении
+  
   const changeLanguage = (newLanguage) => {
     setLanguage(newLanguage);
     localStorage.setItem('language', newLanguage);

@@ -4,12 +4,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useHapticClick } from "../utils/hapticFeedback";
 import PRO from '../assets/Pro.svg';
 import WaveOverlay from "./WaveOverlay";
-import FilePNG from '../assets/File Folder 1.png';
-import MemoPNG from '../assets/Memo 1.png';
-import RocketPNG from '../assets/Rocket 1.png';
-import TrophyPNG from '../assets/Trophy 1.png';
 
-// Небольшой SVG‑логотип (как в макете слева от "Pro Survey")
 const Logo = ({ className = "" }) => (
   <svg
     viewBox="0 0 48 48"
@@ -94,7 +89,6 @@ const Onboarding = () => {
   const prev = () => setCurrentSlide((s) => Math.max(0, s - 1));
   const skip = () => navigate("/auth");
 
-  // Клавиатура
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "ArrowRight") next();
@@ -102,10 +96,8 @@ const Onboarding = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlide, isLast]);
 
-  // Свайпы
   const onTouchStart = (e) => (touchX.current = e.touches[0].clientX);
   const onTouchEnd = (e) => {
     if (touchX.current == null) return;
@@ -122,13 +114,10 @@ const Onboarding = () => {
       onTouchEnd={onTouchEnd}
     >
       <WaveOverlay />
-      {/* Фон: фиолетовый градиент + волны */}
 
 
-      {/* Шапка: логотип и сегменты прогресса */}
       <div className="px-5 pt-20">
 
-        {/* Сегменты (как на макете — 5 тонких полосок) */}
         <div className="mt-3 grid grid-cols-5 gap-2">
           {Array.from({ length: slides.length }).map((_, i) => (
             <div
@@ -145,10 +134,8 @@ const Onboarding = () => {
         <img src={PRO} alt="Pro Survey" className="w-[204px]" />
       </div>
 
-      {/* Контент с картинкой */}
       <div className="flex-1 px-8 flex items-center">
         <div className="w-full">
-          {/* Центровка изображения как в макете — крупно, по центру */}
           <div className="flex justify-center mt-6 mb-6">
             {slides[currentSlide].image && (
               <img 
@@ -161,13 +148,11 @@ const Onboarding = () => {
         </div>
       </div>
 
-      {/* Нижние кнопки как на макете — две белые с фиолетовым текстом */}
       <div className="px-5 pb-8">
       <h1 className="whitespace-pre-line text-[38px] font-extrabold pb-8">
             {slides[currentSlide].title}
           </h1>
 
-          {/* Описание (в макете его почти не видно — делаем полупрозрачным) */}
           {slides[currentSlide].desc && (
             <p className="mt-3 text-white/80">{slides[currentSlide].desc}</p>
           )}

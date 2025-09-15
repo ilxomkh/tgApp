@@ -1,24 +1,18 @@
 import api from './api.js';
 import config from '../config.js';
 
-/**
- * Сервис для работы с Tally API через сервер
- * Использует API ключи вместо прямого обращения к Tally
- */
 class TallyApiService {
   constructor() {
     this.apiBaseUrl = config.API_BASE_URL;
   }
 
   /**
-   * Получение списка всех форм Tally через сервер
-   * @returns {Promise<Array>} - Массив форм
+   * @returns {Promise<Array>}
    */
   async getForms() {
     try {
       const result = await api.getTallyForms();
       
-      // Проверяем структуру ответа - теперь ожидаем { items: [...] }
       if (result && result.items && Array.isArray(result.items)) {
         return result.items;
       } else if (Array.isArray(result)) {
@@ -34,13 +28,11 @@ class TallyApiService {
   }
 
   /**
-   * Получение конкретной формы по ID через сервер
-   * @param {string} formId - ID формы (реальный ID формы Tally, например '3xqyg9')
-   * @returns {Promise<Object>} - Данные формы с вопросами
+   * @param {string} formId
+   * @returns {Promise<Object>}
    */
   async getFormById(formId) {
     try {
-      // Используем реальный ID формы Tally, а не наш внутренний ID
       const result = await api.getTallyFormById(formId);
       return result;
     } catch (error) {
@@ -50,38 +42,32 @@ class TallyApiService {
   }
 
   /**
-   * Получение детальной информации о форме с вопросами
-   * @param {string} formId - ID формы
-   * @returns {Promise<Object>} - Детальная информация о форме
+   * @param {string} formId
+   * @returns {Promise<Object>}
    */
   async getFormDetails(formId) {
     try {
       const formDetails = await this.getFormById(formId);
       
-      // Преобразуем ответ в удобный формат
       return {
         formId: formDetails.formId,
         title: formDetails.title,
         questions: formDetails.questions || [],
-        // Дополнительная информация
         totalQuestions: formDetails.questions ? formDetails.questions.length : 0,
         requiredQuestions: formDetails.questions ? formDetails.questions.filter(q => q.required).length : 0
       };
     } catch (error) {
       console.error(`Error getting form details for ${formId}:`, error);
       
-      // Fallback: возвращаем базовую структуру формы
       return this.getFallbackFormDetails(formId);
     }
   }
 
   /**
-   * Fallback метод для получения детальной информации о форме
-   * @param {string} formId - ID формы
-   * @returns {Object} - Базовая информация о форме
+   * @param {string} formId
+   * @returns {Object}
    */
   getFallbackFormDetails(formId) {
-    // Определяем язык по ID формы
     const isUzbekForm = formId.includes('uz') || formId === 'wbp8L6';
     const language = isUzbekForm ? 'uz' : 'ru';
     
@@ -96,9 +82,8 @@ class TallyApiService {
   }
 
   /**
-   * Получение fallback вопросов для формы
-   * @param {string} language - Язык (ru/uz)
-   * @returns {Array} - Массив вопросов
+   * @param {string} language
+   * @returns {Array}
    */
   getFallbackQuestions(language) {
     if (language === 'uz') {
@@ -179,9 +164,8 @@ class TallyApiService {
   }
 
   /**
-   * Получение ответов на форму через сервер
-   * @param {string} formId - ID формы
-   * @returns {Promise<Array>} - Массив ответов
+   * @param {string} formId
+   * @returns {Promise<Array>}
    */
   async getFormResponses(formId) {
     try {
@@ -194,10 +178,9 @@ class TallyApiService {
   }
 
   /**
-   * Синхронизация данных с Tally через сервер
-   * @param {string} formId - ID формы для синхронизации
-   * @param {string} action - Действие синхронизации
-   * @returns {Promise<Object>} - Результат синхронизации
+   * @param {string} formId
+   * @param {string} action
+   * @returns {Promise<Object>}
    */
   async syncData(formId, action = 'sync') {
     try {
@@ -214,52 +197,42 @@ class TallyApiService {
   }
 
   /**
-   * Получение доступных форм для языка с fallback на локальную конфигурацию
-   * @param {string} language - Язык (ru/uz)
-   * @returns {Promise<Array>} - Массив доступных форм
+   * @param {string} language
+   * @returns {Promise<Array>}
    */
   async getAvailableForms(language = 'ru') {
-    // Проверяем, включен ли серверный API
     if (!config.TALLY.SERVER_API.ENABLED) {
       return this.getFallbackForms(language);
     }
 
     try {
-      // Сначала пытаемся получить формы через сервер
       const serverForms = await this.getForms();
       
       if (serverForms && serverForms.length > 0) {
-        // Фильтруем формы по языку, если сервер поддерживает это
         const filteredForms = serverForms.filter(form => {
-          // Если форма имеет поле language, фильтруем по нему
           if (form.language) {
             return form.language === language;
           }
-          // Если сервер не поддерживает фильтрацию по языку,
-          // возвращаем все формы
           return true;
         });
 
         return filteredForms.map(form => {
-          // Определяем язык по названию формы
           const detectedLanguage = form.name && form.name.toLowerCase().includes('uz') ? 'uz' : 'ru';
           
           return {
-            id: form.id, // используем ID с сервера
-            formId: form.id, // реальный ID формы Tally
+            id: form.id,
+            formId: form.id,
             title: form.name || 'Опрос',
             description: `Статус: ${form.status}, Ответов: ${form.numberOfSubmissions}`,
             type: 'registration',
             url: `https://tally.so/forms/${form.id}`,
             language: detectedLanguage,
-            // Информация о призах на основе языка
             prizeInfo: {
               basePrize: 20000,
               additionalPrize: 5000,
               lotteryAmount: 3000000,
               lotteryEligible: true
             },
-            // Дополнительная информация с сервера
             serverInfo: {
               status: form.status,
               numberOfSubmissions: form.numberOfSubmissions,
@@ -274,14 +247,12 @@ class TallyApiService {
       console.warn('Failed to get forms from server, using fallback:', error);
     }
 
-    // Fallback: используем локальную конфигурацию
     return this.getFallbackForms(language);
   }
 
   /**
-   * Fallback метод для получения форм из локальной конфигурации
-   * @param {string} language - Язык (ru/uz)
-   * @returns {Array} - Массив форм из конфигурации
+   * @param {string} language
+   * @returns {Array}
    */
   getFallbackForms(language = 'ru') {
     const formIds = config.TALLY.FORM_IDS;
@@ -308,10 +279,9 @@ class TallyApiService {
   }
 
   /**
-   * Получение URL формы для определенного языка
-   * @param {string} language - Язык (ru/uz)
-   * @param {string} formId - ID формы (опционально)
-   * @returns {string} - URL формы
+   * @param {string} language
+   * @param {string} formId
+   * @returns {string}
    */
   getFormUrl(language = 'ru', formId = null) {
     const formIds = config.TALLY.FORM_IDS;
@@ -321,8 +291,7 @@ class TallyApiService {
   }
 
   /**
-   * Получение реальных ID форм с сервера для маппинга
-   * @returns {Promise<Object>} - Объект с маппингом внутренних ID на реальные ID Tally
+   * @returns {Promise<Object>}
    */
   async getFormIdMapping() {
     try {
@@ -331,18 +300,15 @@ class TallyApiService {
       
       serverForms.forEach(form => {
         const realId = form.id || form.formId;
-        // Создаем маппинг для разных типов форм
         if (form.title && form.title.toLowerCase().includes('регистрация')) {
           mapping['registration'] = realId;
         }
-        // Можно добавить другие маппинги по названию или другим критериям
-        mapping[realId] = realId; // Прямой маппинг для реальных ID
+        mapping[realId] = realId;
       });
       
       return mapping;
     } catch (error) {
       console.warn('Failed to get form ID mapping from server:', error);
-      // Возвращаем fallback маппинг из конфигурации
       return {
         'registration': config.TALLY.FORM_IDS.ru || '3xqyg9'
       };
@@ -350,8 +316,7 @@ class TallyApiService {
   }
 
   /**
-   * Проверка доступности серверного API
-   * @returns {Promise<boolean>} - Доступен ли серверный API
+   * @returns {Promise<boolean>}
    */
   async isServerApiAvailable() {
     try {
@@ -363,7 +328,6 @@ class TallyApiService {
   }
 }
 
-// Создаем экземпляр сервиса
 const tallyApiService = new TallyApiService();
 
 export default tallyApiService;

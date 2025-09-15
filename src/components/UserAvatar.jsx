@@ -10,7 +10,6 @@ const UserAvatar = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   
-  // Определяем, какую картинку показывать
   const shouldShowPlaceholder = !avatarUrl || imageError;
   
   return (
@@ -19,7 +18,6 @@ const UserAvatar = ({
       {...props}
     >
       {shouldShowPlaceholder ? (
-        // Показываем placeholder
         <img
           src={placeholderAvatar}
           alt="User Avatar"
@@ -27,7 +25,6 @@ const UserAvatar = ({
           onError={() => setImageError(true)}
         />
       ) : (
-        // Показываем аватарку пользователя
         <img
           src={avatarUrl}
           alt="User Avatar"
@@ -36,7 +33,6 @@ const UserAvatar = ({
         />
       )}
       
-      {/* Опциональная рамка */}
       {showBorder && (
         <div className="absolute inset-0 rounded-full border-2 border-white/20 pointer-events-none" />
       )}

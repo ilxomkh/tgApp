@@ -11,7 +11,6 @@ const WelcomeScreen = () => {
   const { language, openLanguageModal } = useLanguage();
   const { isAuthenticated } = useAuth();
 
-  // Проверяем авторизацию при загрузке
   React.useEffect(() => {
     if (isAuthenticated) {
       navigate("/main");

@@ -12,14 +12,12 @@ export const useSurvey = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
 
-  // Получение списка доступных опросов
   const getAvailableSurveys = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
       
-      // Используем новый сервис для получения форм
       const forms = await tallyApiService.getAvailableForms(language);
       
       const surveys = forms.map(form => ({
@@ -27,11 +25,9 @@ export const useSurvey = () => {
         title: form.title,
         type: 'tally',
         formUrl: form.url || tallyApiService.getFormUrl(language, form.formId),
-        language: form.language, // Используем язык из данных формы, а не из контекста
+        language: form.language,
         formId: form.formId,
-        // Информация о призах
         prizeInfo: form.prizeInfo,
-        // Описание для отображения
         displayInfo: {
           lines: [
             form.language === 'ru' 
@@ -60,10 +56,8 @@ export const useSurvey = () => {
     setError(null);
     
     try {
-      // Сначала получаем список всех форм
       const forms = await tallyApiService.getAvailableForms(language);
       
-      // Ищем форму по ID в списке доступных форм
       const form = forms.find(f => f.id === surveyId);
       
       if (!form) {
@@ -77,7 +71,6 @@ export const useSurvey = () => {
         formUrl: form.url || tallyApiService.getFormUrl(language, form.formId),
         language,
         formId: form.formId,
-        // Для совместимости с существующим кодом, возвращаем базовую структуру
         questions: [
           {
             id: 1,
@@ -106,31 +99,24 @@ export const useSurvey = () => {
     setError(null);
     
     try {
-      // Получаем formId из surveyId (предполагаем, что surveyId это formId)
       const formId = surveyId;
       
-      // Получаем userId из AuthContext или localStorage
       const userId = user?.id || user?.user_id || null;
 
-      // Получаем токены из разных источников
       const authToken = localStorage.getItem('auth_token') || user?.token || null;
       const sessionId = localStorage.getItem('session_id');
-      
-      // Подготавливаем данные для отправки в новом формате
+
       const submitData = {
-        answers, // Передаем answers напрямую
+        answers,
         language,
         submittedAt: new Date().toISOString(),
-        userId: userId, // Добавляем userId в данные
-        // Добавляем данные для аутентификации
+        userId: userId,
         sessionId: sessionId,
         authToken: authToken,
-        // Попробуем добавить OTP код (может быть нужен для некоторых операций)
         otp: localStorage.getItem('last_otp') || null
       };
 
       
-      // Отправляем данные на новый endpoint с userId
       const result = await api.submitTallyForm(formId, submitData, userId);
 
       
@@ -144,11 +130,6 @@ export const useSurvey = () => {
     }
   }, [language]);
 
-  // =======================
-  // Дополнительные методы для работы с Tally API
-  // =======================
-
-  // Получение ответов на форму
   const getFormResponses = useCallback(async (formId) => {
     setLoading(true);
     setError(null);
@@ -164,7 +145,6 @@ export const useSurvey = () => {
     }
   }, []);
 
-  // Синхронизация данных с Tally
   const syncTallyData = useCallback(async (formId) => {
     setLoading(true);
     setError(null);

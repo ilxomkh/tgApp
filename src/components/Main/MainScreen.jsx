@@ -18,7 +18,6 @@ const MainScreen = () => {
   const [showProfile, setShowProfile] = useState(false);
   const { isKeyboardOpen } = useKeyboard();
 
-  // Проверяем URL параметры для показа профиля
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tabParam = searchParams.get('tab');
@@ -32,7 +31,6 @@ const MainScreen = () => {
     }
   }, [location.search]);
 
-  // Загружаем актуальные данные пользователя при монтировании
   useEffect(() => {
     const loadUserProfile = async () => {
       if (user) {
@@ -41,7 +39,7 @@ const MainScreen = () => {
     };
 
     loadUserProfile();
-  }, []); // Убираем зависимости, чтобы избежать бесконечного цикла
+  }, []);
 
   const t = useMemo(() => ({
     ru: {
@@ -63,7 +61,6 @@ const MainScreen = () => {
       profile: "Профиль",
       sum: "сум",
       noSurveys: "Нет доступных опросов",
-      // Новые переводы для LotteryTab
       lotThemeIntro: "Тема: Знакомство",
       lotThemeShop: "Тема: Интернет магазины",
       lotDate: "Дата проведения",
@@ -95,7 +92,6 @@ const MainScreen = () => {
       profile: "Profil",
       sum: "so'm",
       noSurveys: "Mavjud so'rovlar yo'q",
-      // Новые переводы для LotteryTab
       lotThemeIntro: "Mavzu: Tanishuv",
       lotThemeShop: "Mavzu: Internet do'konlar",
       lotDate: "O'tkazilgan sana",
@@ -140,7 +136,6 @@ const MainScreen = () => {
   return (
     <div className="min-h-screen bg-[#F4F4FF]">
       <Header />
-      {/* Отступ под нижнюю навигацию - адаптируется к клавиатуре */}
       <div className={`p-4 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         {showProfile ? (
           <ProfileTab t={t} onClose={closeProfile} onResetToOnboarding={resetToOnboarding} />

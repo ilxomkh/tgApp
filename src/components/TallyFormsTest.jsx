@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
 import tallyApiService from '../services/tallyApi.js';
 
-/**
- * Тестовый компонент для проверки интеграции с новым API /api/tally/forms
- */
 const TallyFormsTest = () => {
   const [forms, setForms] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
@@ -14,7 +11,6 @@ const TallyFormsTest = () => {
   const [apiStatus, setApiStatus] = useState('unknown');
   const { language } = useLanguage();
 
-  // Проверка доступности API
   const checkApiStatus = async () => {
     try {
       const isAvailable = await tallyApiService.isServerApiAvailable();
@@ -25,7 +21,6 @@ const TallyFormsTest = () => {
     }
   };
 
-  // Загрузка форм
   const loadForms = async () => {
     setLoading(true);
     setError(null);
@@ -40,7 +35,6 @@ const TallyFormsTest = () => {
     }
   };
 
-  // Загрузка форм напрямую через API
   const loadFormsDirectly = async () => {
     setLoading(true);
     setError(null);
@@ -56,7 +50,6 @@ const TallyFormsTest = () => {
     }
   };
 
-  // Загрузка деталей формы
   const loadFormDetails = async (formId) => {
     setLoading(true);
     setError(null);
@@ -99,7 +92,6 @@ const TallyFormsTest = () => {
     <div className="p-4 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4">Тест интеграции с API /api/tally/forms</h2>
       
-      {/* Статус API */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
           <span className="font-medium">Статус API:</span>
@@ -112,7 +104,6 @@ const TallyFormsTest = () => {
         </div>
       </div>
 
-      {/* Кнопки управления */}
       <div className="flex gap-2 mb-4">
         <button
           onClick={loadForms}
@@ -138,14 +129,12 @@ const TallyFormsTest = () => {
         </button>
       </div>
 
-      {/* Ошибки */}
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           <strong>Ошибка:</strong> {error}
         </div>
       )}
 
-      {/* Список форм */}
       <div className="space-y-3">
         <h3 className="text-lg font-semibold">Загруженные формы ({forms.length}):</h3>
         
@@ -180,7 +169,6 @@ const TallyFormsTest = () => {
               </div>
             )}
 
-            {/* Кнопка для загрузки деталей формы */}
             <div className="mt-2">
               <button
                 onClick={() => loadFormDetails(form.id)}
@@ -220,7 +208,6 @@ const TallyFormsTest = () => {
         ))}
       </div>
 
-      {/* Детали выбранной формы */}
       {formDetails && (
         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <h3 className="text-lg font-semibold mb-3 text-green-800">
@@ -271,7 +258,6 @@ const TallyFormsTest = () => {
         </div>
       )}
 
-      {/* Отладочная информация */}
       <details className="mt-4">
         <summary className="cursor-pointer font-medium">Отладочная информация</summary>
         <div className="mt-2 p-3 bg-gray-100 rounded text-sm">

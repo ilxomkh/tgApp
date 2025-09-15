@@ -8,7 +8,6 @@ const PrivacyPolicy = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
-  // Текст — как в присланном коде
   const privacyText = {
     uz: {
       title: "Maxfiylik siyosati",
@@ -94,14 +93,12 @@ Ushbu ommaviy oferta (keyingi o'rinlarda - "Oferta") ProSurvey xizmatidan foydal
 
   return (
     <div className="min-h-screen bg-[#F6F6FF] flex flex-col">
-      {/* Шапка как на макете */}
       <header className="h-36 bg-gradient-to-b from-[#6A4CFF] to-[#5936F2] text-white shadow-md">
         <div className="h-full max-w-[480px] mx-auto flex items-end justify-center pb-2">
           <img src={PRO} alt="Pro Survey" className="h-10" />
         </div>
       </header>
 
-      {/* Кастомный скроллбар только для области политики */}
       <style>{`
         .policy-scroll {
           scrollbar-width: thin;              /* Firefox */
@@ -121,14 +118,11 @@ Ushbu ommaviy oferta (keyingi o'rinlarda - "Oferta") ProSurvey xizmatidan foydal
         }
       `}</style>
 
-      {/* Контент страницы */}
       <main className="flex-1 max-w-[480px] w-full mx-auto px-4 sm:px-6 pt-6 pb-28">
-        {/* Заголовок по центру */}
         <h1 className="text-center text-[28px] leading-8 font-bold text-[#6A4CFF] mb-4">
           {privacyText.title}
         </h1>
 
-        {/* Прокручиваемая область с текстом (на самой странице) */}
         <div
           ref={contentRef}
           className="policy-scroll min-h-[420px] max-h-[62vh] sm:max-h-[66vh] overflow-y-auto rounded-2xl bg-white border border-[#E7E7F5] px-4 py-3 text-[13px] leading-[20px] text-[#4B5563] shadow-[0_6px_20px_rgba(2,6,23,0.06)]"
@@ -139,7 +133,6 @@ Ushbu ommaviy oferta (keyingi o'rinlarda - "Oferta") ProSurvey xizmatidan foydal
         </div>
       </main>
 
-      {/* Нижняя панель — кнопка как в экране авторизации */}
       <div className="fixed left-0 right-0 bottom-0">
         <div className="mx-auto w-full max-w-[480px] px-4 sm:px-6 pb-5">
           <div className="rounded-2xl bg-[#EDEAFF] p-2">

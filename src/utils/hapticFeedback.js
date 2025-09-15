@@ -1,12 +1,5 @@
 import React from 'react';
 
-/**
- * Утилита для работы с haptic feedback в Telegram WebApp
- */
-
-/**
- * Проверяет доступность Telegram WebApp API
- */
 const isTelegramWebApp = () => {
   return typeof window !== 'undefined' && 
          window.Telegram && 
@@ -14,9 +7,6 @@ const isTelegramWebApp = () => {
          window.Telegram.WebApp.HapticFeedback;
 };
 
-/**
- * Вызывает легкую вибрацию при нажатии на кнопку
- */
 export const lightImpact = () => {
   if (isTelegramWebApp()) {
     try {
@@ -27,9 +17,6 @@ export const lightImpact = () => {
   }
 };
 
-/**
- * Вызывает среднюю вибрацию при нажатии на кнопку
- */
 export const mediumImpact = () => {
   if (isTelegramWebApp()) {
     try {
@@ -40,9 +27,6 @@ export const mediumImpact = () => {
   }
 };
 
-/**
- * Вызывает сильную вибрацию при нажатии на кнопку
- */
 export const heavyImpact = () => {
   if (isTelegramWebApp()) {
     try {
@@ -53,9 +37,6 @@ export const heavyImpact = () => {
   }
 };
 
-/**
- * Вызывает вибрацию при успешном действии
- */
 export const notificationSuccess = () => {
   if (isTelegramWebApp()) {
     try {
@@ -66,9 +47,6 @@ export const notificationSuccess = () => {
   }
 };
 
-/**
- * Вызывает вибрацию при ошибке
- */
 export const notificationError = () => {
   if (isTelegramWebApp()) {
     try {
@@ -79,9 +57,6 @@ export const notificationError = () => {
   }
 };
 
-/**
- * Вызывает вибрацию при предупреждении
- */
 export const notificationWarning = () => {
   if (isTelegramWebApp()) {
     try {
@@ -92,9 +67,6 @@ export const notificationWarning = () => {
   }
 };
 
-/**
- * Вызывает вибрацию при выборе элемента
- */
 export const selectionChanged = () => {
   if (isTelegramWebApp()) {
     try {
@@ -106,14 +78,12 @@ export const selectionChanged = () => {
 };
 
 /**
- * Хук для создания обработчика клика с haptic feedback
- * @param {Function} originalOnClick - оригинальный обработчик клика
- * @param {string} feedbackType - тип вибрации ('light', 'medium', 'heavy', 'success', 'error', 'warning', 'selection')
- * @returns {Function} - новый обработчик клика с вибрацией
+ * @param {Function} originalOnClick
+ * @param {string} feedbackType
+ * @returns {Function}
  */
 export const useHapticClick = (originalOnClick, feedbackType = 'light') => {
   return (event) => {
-    // Вызываем haptic feedback
     switch (feedbackType) {
       case 'light':
         lightImpact();
@@ -140,7 +110,6 @@ export const useHapticClick = (originalOnClick, feedbackType = 'light') => {
         lightImpact();
     }
     
-    // Вызываем оригинальный обработчик
     if (originalOnClick) {
       originalOnClick(event);
     }
@@ -148,10 +117,9 @@ export const useHapticClick = (originalOnClick, feedbackType = 'light') => {
 };
 
 /**
- * HOC для добавления haptic feedback к компоненту кнопки
- * @param {React.Component} ButtonComponent - компонент кнопки
- * @param {string} feedbackType - тип вибрации
- * @returns {React.Component} - обернутый компонент с haptic feedback
+ * @param {React.Component} ButtonComponent
+ * @param {string} feedbackType
+ * @returns {React.Component}
  */
 export const withHapticFeedback = (ButtonComponent, feedbackType = 'light') => {
   return React.forwardRef(({ onClick, ...props }, ref) => {
@@ -166,12 +134,10 @@ export const withHapticFeedback = (ButtonComponent, feedbackType = 'light') => {
 };
 
 /**
- * Глобальная функция для инициализации автоматического haptic feedback
- * Добавляет обработчик клика ко всему документу для автоматической вибрации
- * @param {Object} options - опции конфигурации
- * @param {string} options.feedbackType - тип вибрации по умолчанию
- * @param {Array} options.excludeSelectors - селекторы элементов для исключения
- * @param {Array} options.includeSelectors - дополнительные селекторы для включения
+ * @param {Object} options
+ * @param {string} options.feedbackType
+ * @param {Array} options.excludeSelectors
+ * @param {Array} options.includeSelectors
  */
 export const initGlobalHapticFeedback = (options = {}) => {
   const {
@@ -183,7 +149,6 @@ export const initGlobalHapticFeedback = (options = {}) => {
   const handleGlobalClick = (event) => {
     const target = event.target;
     
-    // Проверяем исключения
     const isExcluded = excludeSelectors.some(selector => {
       try {
         return target.matches(selector) || target.closest(selector);
@@ -194,7 +159,6 @@ export const initGlobalHapticFeedback = (options = {}) => {
     
     if (isExcluded) return;
     
-    // Проверяем включения
     const isIncluded = includeSelectors.some(selector => {
       try {
         return target.matches(selector) || target.closest(selector);
@@ -205,7 +169,6 @@ export const initGlobalHapticFeedback = (options = {}) => {
     
     if (!isIncluded) return;
     
-    // Вызываем haptic feedback
     if (isTelegramWebApp()) {
       try {
         switch (feedbackType) {
@@ -239,10 +202,8 @@ export const initGlobalHapticFeedback = (options = {}) => {
     }
   };
 
-  // Добавляем обработчик
   document.addEventListener('click', handleGlobalClick, true);
   
-  // Возвращаем функцию для удаления обработчика
   return () => {
     document.removeEventListener('click', handleGlobalClick, true);
   };

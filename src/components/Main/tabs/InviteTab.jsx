@@ -12,10 +12,9 @@ const InviteTab = ({ locale = "ru", user }) => {
     invited: 0,
     active: 0,
     waiting_amount: 0,
-    profit: 0
+    profit: 0,
   });
 
-  // ---------- Переводы ----------
   const translations = {
     ru: {
       inviteTitle: "Пригласите друга и получайте средства",
@@ -56,21 +55,19 @@ const InviteTab = ({ locale = "ru", user }) => {
   };
   const t = translations[language || locale];
 
-  // Загружаем статистику приглашений при монтировании
   useEffect(() => {
     const loadInviteStats = async () => {
       const result = await getInviteStats();
       if (result.success) {
         setInviteStats(result.data);
       } else {
-        console.error('Failed to load invite stats:', result.error);
+        console.error("Failed to load invite stats:", result.error);
       }
     };
 
     loadInviteStats();
   }, [getInviteStats]);
 
-  // ---------- Реферальная ссылка ----------
   const refLink = React.useMemo(() => {
     const code = user?.referral_code || "demo123";
     const origin =
@@ -114,19 +111,17 @@ const InviteTab = ({ locale = "ru", user }) => {
   };
 
   const onHowItWorks = () => {
-    navigate('/referral-program');
+    navigate("/referral-program");
   };
 
   return (
     <div className="space-y-6">
-      {/* Заголовок */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-[#5E5AF6] mb-2">
           {t.inviteTitle}
         </h1>
       </div>
 
-      {/* Блок заработка */}
       <div className="bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-6 text-white shadow-lg">
         <div className="text-start">
           <p className="text-white text-sm font-medium mb-1">{t.earn}</p>
@@ -135,14 +130,13 @@ const InviteTab = ({ locale = "ru", user }) => {
         </div>
       </div>
 
-      {/* Кнопка "Как это работает?" */}
-      <button 
+      <button
         onClick={onHowItWorks}
         className="w-full bg-[#8888FC] rounded-2xl p-4 flex items-center justify-between hover:bg-[#8585fc] transition-colors"
       >
         <div className="flex items-center justify-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-[#8888FC] flex items-center justify-center">
-          <span className='text-3xl'>📖</span>
+            <span className="text-3xl">📖</span>
           </div>
           <span className="text-white font-medium">{t.howItWorks}</span>
         </div>
@@ -163,39 +157,42 @@ const InviteTab = ({ locale = "ru", user }) => {
         </svg>
       </button>
 
-      {/* Статистика */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Скелетон загрузки статистики */}
         {loading && (
           <>
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white border border-px border-gray-200 rounded-xl p-4 animate-pulse">
-                {/* Заголовок скелетона */}
+              <div
+                key={i}
+                className="bg-white border border-px border-gray-200 rounded-xl p-4 animate-pulse"
+              >
                 <div className="h-4 bg-gray-200 rounded-lg mb-2 w-3/4"></div>
-                {/* Значение скелетона */}
                 <div className="h-6 bg-gray-200 rounded-lg w-1/2"></div>
               </div>
             ))}
           </>
         )}
 
-        {/* Ошибка загрузки */}
         {error && (
           <div className="col-span-2 bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p className="text-red-600 text-sm">{t.error}: {error}</p>
+            <p className="text-red-600 text-sm">
+              {t.error}: {error}
+            </p>
           </div>
         )}
 
-        {/* Статистика */}
         {!loading && !error && (
           <>
             <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
               <p className="text-gray-600 text-sm mb-2">{t.invited}</p>
-              <p className="text-[#5E5AF6] text-xl font-bold">{inviteStats.invited}</p>
+              <p className="text-[#5E5AF6] text-xl font-bold">
+                {inviteStats.invited}
+              </p>
             </div>
             <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
               <p className="text-gray-600 text-sm mb-2">{t.active}</p>
-              <p className="text-[#5E5AF6] text-xl font-bold">{inviteStats.active}</p>
+              <p className="text-[#5E5AF6] text-xl font-bold">
+                {inviteStats.active}
+              </p>
             </div>
             <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
               <p className="text-gray-600 text-sm mb-2">{t.pending}</p>
@@ -213,7 +210,6 @@ const InviteTab = ({ locale = "ru", user }) => {
         )}
       </div>
 
-      {/* Кнопки действий */}
       <div className="flex gap-3">
         <button
           onClick={onInvite}
@@ -265,7 +261,6 @@ const InviteTab = ({ locale = "ru", user }) => {
         </button>
       </div>
 
-      {/* Тост */}
       <div
         className={`pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-20 transition-opacity duration-200 ${
           toast ? "opacity-100" : "opacity-0"

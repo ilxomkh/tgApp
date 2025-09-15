@@ -13,7 +13,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [surveyResult, setSurveyResult] = useState(null);
 
-  // Локализованные тексты
   const texts = {
     ru: {
       questionCounter: 'Вопрос',
@@ -56,7 +55,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
     if (currentQuestion < survey.questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      // Опрос завершен
       completeSurvey();
     }
   };
@@ -69,7 +67,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
 
   const completeSurvey = async () => {
     try {
-      // Здесь будет вызов API для отправки ответов
       const result = await onComplete(survey.id, answers);
       setSurveyResult(result);
       setIsCompleted(true);
@@ -90,21 +87,17 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const isLastQuestion = currentQuestion === survey.questions.length - 1;
   const canProceed = answers[question?.id];
 
-  // Если это Tally форма, показываем специальный компонент
   if (survey?.type === 'tally') {
     return (
       <div className="fixed inset-0 z-50 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] flex flex-col">
-        {/* Фоновый слой с WaveOverlay */}
         <div className="absolute inset-0">
           <WaveOverlay />
         </div>
         
-        {/* Логотип - адаптивный */}
         <div className="flex justify-center pt-30 pb-4 relative z-10">
           <img src={ProSVG} alt="Pro" className="w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px]"/>
         </div>
         
-        {/* Основной контент опроса - адаптивный */}
         <div className="flex justify-center items-end flex-1 relative z-10">
           <div className="w-full max-w-lg">
             <TallySurvey
@@ -118,7 +111,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
           </div>
         </div>
         
-        {/* BottomNav */}
         <div className="relative z-10 flex-shrink-0">
           <BottomNav 
             tabs={[
@@ -129,7 +121,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             ]}
             activeTab="home"
             onChange={(tab) => {
-              // Закрываем модалку опроса при переходе в любую вкладку
               onClose();
             }}
           />
@@ -155,10 +146,8 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
     <div className="fixed inset-0 z-50 flex items-end justify-end">
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]" />
       <WaveOverlay />
-      {/* Модальное окно */}
       <div className="relative z-10 w-full">
         <div className="bg-white rounded-t-3xl p-8 shadow-2xl">
-          {/* Прогресс */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-500">
@@ -176,12 +165,10 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             </div>
           </div>
 
-          {/* Вопрос */}
           <h3 className="text-xl font-semibold text-gray-800 mb-6">
             {question?.text || localizedTexts.questionLoading}
           </h3>
 
-          {/* Варианты ответов */}
           <div className="space-y-3 mb-8">
             {question?.options?.map((option, index) => (
               <label
@@ -214,7 +201,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             ))}
           </div>
 
-          {/* Кнопки навигации */}
           <div className="flex justify-between">
             <button
               onClick={handlePrevious}

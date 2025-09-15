@@ -1,4 +1,3 @@
-// Тесты для API функций
 import { 
   isValidUzbekPhone, 
   isValidOtp, 
@@ -9,7 +8,6 @@ import {
 } from '../utils/validation';
 import api from '../services/api';
 
-// Мокаем fetch для тестирования
 global.fetch = jest.fn();
 
 describe('API Tests', () => {
@@ -33,11 +31,11 @@ describe('API Tests', () => {
 
     test('should reject invalid Uzbek phone numbers', () => {
       const invalidPhones = [
-        '+998000000000', // Несуществующий оператор
-        '+998123456789', // Неправильный формат
-        '+1234567890',   // Не узбекский номер
-        '998414736544',  // Без +
-        '+99841473654'   // Неполный номер
+        '+998000000000',
+        '+998123456789',
+        '+1234567890',
+        '998414736544',
+        '+99841473654'
       ];
       
       invalidPhones.forEach(phone => {
@@ -55,11 +53,11 @@ describe('API Tests', () => {
 
     test('should reject invalid OTP codes', () => {
       const invalidOtps = [
-        '12345',   // Слишком короткий
-        '1234567', // Слишком длинный
-        '12345a',  // Содержит буквы
-        '123 456', // Содержит пробелы
-        ''         // Пустой
+        '12345',
+        '1234567',
+        '12345a',
+        '123 456',
+        ''
       ];
       
       invalidOtps.forEach(otp => {
@@ -194,7 +192,6 @@ describe('API Tests', () => {
     });
 
     test('should handle timeout errors', async () => {
-      // Симулируем таймаут
       fetch.mockImplementationOnce(() => {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
@@ -404,7 +401,6 @@ describe('API Tests', () => {
 
   describe('Profile Integration Tests', () => {
     test('should handle complete profile workflow', async () => {
-      // Мокаем получение профиля
       const mockProfile = {
         id: 1,
         phone_number: '+998414736544',
@@ -421,11 +417,9 @@ describe('API Tests', () => {
         json: async () => mockProfile
       });
 
-      // Получаем профиль
       const profile = await api.getUserProfile();
       expect(profile).toEqual(mockProfile);
 
-      // Мокаем обновление профиля
       const updateData = {
         phone_number: '+998344777518',
         full_name: 'Иван Петров',
@@ -440,7 +434,6 @@ describe('API Tests', () => {
         json: async () => ({ success: true, user: updatedProfile })
       });
 
-      // Обновляем профиль
       const result = await api.updateUserProfile(updateData);
       expect(result.success).toBe(true);
       expect(result.user).toEqual(updatedProfile);

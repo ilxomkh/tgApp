@@ -9,7 +9,6 @@ const SupportScreen = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // ---------- Переводы ----------
   const translations = {
     ru: {
       title: "Служба поддержки",
@@ -50,7 +49,6 @@ const SupportScreen = () => {
   };
   const t = translations[language || "ru"];
 
-  // BottomNav props
   const tabs = [
     { id: "home", label: language === "uz" ? "Asosiy" : "Главная" },
     { id: "invite", label: language === "uz" ? "Taklif qilish" : "Пригласить" },
@@ -82,14 +80,11 @@ const SupportScreen = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-purple-50">
-      {/* Header */}
       <div className="flex-shrink-0">
         <Header />
       </div>
 
-      {/* Контент (как модалка между хедером и навигацией) */}
       <div className="flex-1 overflow-y-auto px-6 py-4 pb-30 custom-scrollbar">
-        {/* Заголовок */}
         <div className="text-center mb-4">
           <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-[#5E5AF6] to-[#8888FC] flex items-center justify-center">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-white">
@@ -106,8 +101,6 @@ const SupportScreen = () => {
           <p className="text-gray-600">{t.supportTitle}</p>
         </div>
 
-        {/* === Карточки === */}
-        {/* Telegram */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-3">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
@@ -131,7 +124,6 @@ const SupportScreen = () => {
           </div>
         </div>
 
-        {/* Email */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-3">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center flex-shrink-0">
@@ -152,7 +144,6 @@ const SupportScreen = () => {
           </div>
         </div>
 
-        {/* Рабочее время */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-3">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center flex-shrink-0">
@@ -181,7 +172,6 @@ const SupportScreen = () => {
           </div>
         </div>
 
-        {/* Время ответа */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-3">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center flex-shrink-0">
@@ -209,7 +199,6 @@ const SupportScreen = () => {
           </div>
         </div>
 
-        {/* Примечание */}
         <div className="mt-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
           <div className="flex items-start gap-3">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-blue-600 flex-shrink-0 mt-0.5">
@@ -225,7 +214,6 @@ const SupportScreen = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
       <div className="flex-shrink-0">
         <BottomNav tabs={tabs} activeTab="profile" onChange={handleTabChange} />
       </div>

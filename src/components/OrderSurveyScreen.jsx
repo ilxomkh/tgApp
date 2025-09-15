@@ -32,7 +32,6 @@ const OrderSurveyScreen = () => {
   const [hasFormData, setHasFormData] = React.useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = React.useState(false);
 
-  // ---------- Переводы ----------
   const translations = {
     ru: {
       title: "Заказать опрос",
@@ -74,7 +73,6 @@ const OrderSurveyScreen = () => {
   const t = translations[language || "ru"];
 
 
-  // BottomNav props
   const tabs = [
     { id: "home", label: language === "uz" ? "Asosiy" : "Главная" },
     { id: "invite", label: language === "uz" ? "Taklif qilish" : "Пригласить" },
@@ -83,7 +81,6 @@ const OrderSurveyScreen = () => {
   ];
 
   const handleTabChange = async (tabId) => {
-    // Автоматически отправляем форму перед переходом
     await autoSubmitForm();
     
     if (tabId === "home") {
@@ -100,21 +97,18 @@ const OrderSurveyScreen = () => {
   const validateForm = () => {
     const errors = {};
 
-    // Валидация имени
     if (!formData.fullName.trim()) {
       errors.fullName = t.required;
     } else if (!isValidFullName(formData.fullName.trim())) {
       errors.fullName = t.invalidName;
     }
 
-    // Валидация телефона
     if (!formData.phone.trim()) {
       errors.phone = t.required;
     } else if (!isValidUzbekPhone(formatPhoneE164(formData.phone))) {
       errors.phone = t.invalidPhone;
     }
 
-    // Валидация email (если заполнен)
     if (formData.email.trim() && !isValidEmail(formData.email.trim())) {
       errors.email = t.invalidEmail;
     }
@@ -127,7 +121,6 @@ const OrderSurveyScreen = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setHasFormData(true);
     
-    // Очищаем ошибку при изменении поля
     if (formErrors[field]) {
       setFormErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -138,7 +131,6 @@ const OrderSurveyScreen = () => {
       return;
     }
 
-    // Проверяем, есть ли хотя бы имя и телефон
     if (!formData.fullName.trim() || !formData.phone.trim()) {
       return;
     }
@@ -169,11 +161,9 @@ const OrderSurveyScreen = () => {
     }
   }, [isFormSubmitted, isSubmitting, hasFormData, formData, createOrder]);
 
-  // Автоматическая отправка при покидании страницы
   React.useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (hasFormData && !isFormSubmitted && !isSubmitting) {
-        // Отправляем форму синхронно при покидании страницы
         autoSubmitForm();
       }
     };
@@ -190,30 +180,24 @@ const OrderSurveyScreen = () => {
     <div className="min-h-screen bg-white">
       <Header />
       
-      {/* Content */}
       <div className="px-6 pt-8 pb-24">
-        {/* Заголовок страницы */}
         <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
           {t.title}
         </h2>
 
-        {/* Форма */}
         <form className="space-y-4">
-          {/* Сообщение об успехе */}
           {submitSuccess && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
               <p className="text-green-600 text-sm font-medium">{t.orderCreated}</p>
             </div>
           )}
 
-          {/* Общая ошибка */}
           {formErrors.submit && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <p className="text-red-600 text-sm">{formErrors.submit}</p>
             </div>
           )}
 
-          {/* ФИО */}
           <div>
             <input
               type="text"
@@ -230,7 +214,6 @@ const OrderSurveyScreen = () => {
             )}
           </div>
 
-          {/* Организация */}
           <div>
             <input
               type="text"
@@ -241,7 +224,6 @@ const OrderSurveyScreen = () => {
             />
           </div>
 
-          {/* Должность */}
           <div>
             <input
               type="text"
@@ -252,7 +234,6 @@ const OrderSurveyScreen = () => {
             />
           </div>
 
-          {/* Телефон */}
           <div>
             <input
               type="tel"
@@ -269,7 +250,6 @@ const OrderSurveyScreen = () => {
             )}
           </div>
 
-          {/* Email */}
           <div>
             <input
               type="email"
@@ -288,7 +268,6 @@ const OrderSurveyScreen = () => {
         </form>
       </div>
 
-      {/* Bottom Navigation */}
       <BottomNav tabs={tabs} activeTab="profile" onChange={handleTabChange} />
     </div>
   );

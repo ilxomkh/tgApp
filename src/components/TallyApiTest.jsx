@@ -3,9 +3,6 @@ import { useSurvey } from '../hooks/useSurvey.js';
 import { useApi } from '../hooks/useApi.js';
 import tallyApiService from '../services/tallyApi.js';
 
-/**
- * Тестовый компонент для проверки работы Tally API через сервер
- */
 const TallyApiTest = () => {
   const [testResults, setTestResults] = useState({});
   const [isRunning, setIsRunning] = useState(false);
@@ -34,7 +31,6 @@ const TallyApiTest = () => {
 
     try {
 
-      // Тест 1: Проверка доступности серверного API
       try {
         const isAvailable = await tallyApiService.isServerApiAvailable();
         results.apiAvailability = {
@@ -50,7 +46,6 @@ const TallyApiTest = () => {
         };
       }
 
-      // Тест 2: Получение списка форм через useSurvey
       try {
         const surveys = await getAvailableSurveys();
         results.surveysViaHook = {
@@ -66,7 +61,6 @@ const TallyApiTest = () => {
         };
       }
 
-      // Тест 3: Получение списка форм через useApi
       try {
         const formsResult = await getTallyForms();
         results.formsViaApi = {
@@ -84,7 +78,6 @@ const TallyApiTest = () => {
         };
       }
 
-      // Тест 4: Получение конкретной формы (если есть формы)
       if (testResults.surveysViaHook?.success && testResults.surveysViaHook.data?.length > 0) {
         const firstSurvey = testResults.surveysViaHook.data[0];
         try {
@@ -118,7 +111,6 @@ const TallyApiTest = () => {
         }
       }
 
-      // Тест 5: Прямое использование tallyApiService
       try {
         const forms = await tallyApiService.getAvailableForms('ru');
         results.directService = {

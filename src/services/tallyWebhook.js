@@ -1,9 +1,6 @@
 import config from '../config.js';
 import { API_ENDPOINTS, ERROR_MESSAGES } from '../types/api.js';
 
-/**
- * Сервис для работы с Tally webhook
- */
 class TallyWebhookService {
   constructor() {
     this.webhookUrl = config.TALLY.WEBHOOK_URL;
@@ -12,44 +9,35 @@ class TallyWebhookService {
   }
 
   /**
-   * Верификация webhook от Tally
-   * @param {string} signature - Подпись от Tally
-   * @param {string} payload - Тело запроса
-   * @returns {boolean} - Валидность подписи
+   * @param {string} signature
+   * @param {string} payload
+   * @returns {boolean}
    */
   verifyWebhookSignature(signature, payload) {
     if (!this.webhookSecret) {
-      // Если секрет не настроен, пропускаем верификацию
       return true;
     }
 
-    // Здесь должна быть логика верификации подписи
-    // Tally может использовать HMAC-SHA256 или другой алгоритм
-    // Пока что возвращаем true для демонстрации
     return true;
   }
 
   /**
-   * Обработка входящего webhook от Tally
-   * @param {Object} webhookData - Данные webhook
-   * @returns {Object} - Обработанные данные
+   * @param {Object} webhookData
+   * @returns {Object}
    */
   processWebhook(webhookData) {
     try {
-      // Проверяем структуру данных
       if (!webhookData || !webhookData.payload) {
         throw new Error('Invalid webhook data structure');
       }
 
       const { payload } = webhookData;
       
-      // Определяем язык на основе названия формы
-      let language = 'ru'; // по умолчанию
+      let language = 'ru';
       if (payload.formName && payload.formName.includes('Uz')) {
         language = 'uz';
       }
 
-      // Преобразуем ответы в удобный формат
       const processedAnswers = this.processAnswers(payload.answers);
 
       return {
@@ -69,9 +57,8 @@ class TallyWebhookService {
   }
 
   /**
-   * Обработка ответов на вопросы
-   * @param {Object} answers - Сырые ответы от Tally
-   * @returns {Object} - Обработанные ответы
+   * @param {Object} answers
+   * @returns {Object}
    */
   processAnswers(answers) {
     const processed = {};
@@ -80,12 +67,10 @@ class TallyWebhookService {
       return processed;
     }
 
-    // Обрабатываем каждый ответ
     Object.keys(answers).forEach(fieldId => {
       const answer = answers[fieldId];
       
       if (answer && answer.value !== undefined) {
-        // Определяем тип вопроса по ID поля
         const questionType = this.getQuestionType(fieldId);
         
         processed[fieldId] = {
@@ -100,26 +85,23 @@ class TallyWebhookService {
   }
 
   /**
-   * Определение типа вопроса по ID поля
-   * @param {string} fieldId - ID поля
-   * @returns {string} - Тип вопроса
+   * @param {string} fieldId
+   * @returns {string}
    */
   getQuestionType(fieldId) {
-    // Маппинг ID полей на типы вопросов
     const fieldTypeMap = {
       'id': 'text',
-      'gender': 'choice', // Укажите свой пол
-      'age': 'number', // Сколько вам лет
+      'gender': 'choice',
+      'age': 'number',
     };
 
     return fieldTypeMap[fieldId] || 'text';
   }
 
   /**
-   * Получение URL формы Tally для определенного языка
-   * @param {string} language - Язык (ru/uz)
-   * @param {string} formId - ID формы (опционально)
-   * @returns {string} - URL формы
+   * @param {string} language
+   * @param {string} formId
+   * @returns {string}
    */
   getFormUrl(language = 'ru', formId = null) {
     const defaultFormId = this.formIds[language] || this.formIds.ru;
@@ -128,9 +110,8 @@ class TallyWebhookService {
   }
 
   /**
-   * Получение списка доступных форм для языка
-   * @param {string} language - Язык (ru/uz)
-   * @returns {Array} - Массив доступных форм
+   * @param {string} language
+   * @returns {Array}
    */
   getAvailableForms(language = 'ru') {
     const forms = [
@@ -155,9 +136,8 @@ class TallyWebhookService {
   }
 
   /**
-   * Получение URL для редактирования формы
-   * @param {string} language - Язык (ru/uz)
-   * @returns {string} - URL для редактирования
+   * @param {string} language
+   * @returns {string}
    */
   getEditFormUrl(language = 'ru') {
     const formId = this.formIds[language] || this.formIds.ru;
@@ -165,9 +145,8 @@ class TallyWebhookService {
   }
 
   /**
-   * Отправка данных на наш сервер для обработки через Tilda webhook
-   * @param {Object} surveyData - Данные опроса
-   * @returns {Promise<Object>} - Результат обработки
+   * @param {Object} surveyData
+   * @returns {Promise<Object>}
    */
   async sendToServer(surveyData) {
     try {
@@ -192,9 +171,8 @@ class TallyWebhookService {
   }
 
   /**
-   * Получение статистики ответов
-   * @param {string} language - Язык (ru/uz)
-   * @returns {Promise<Object>} - Статистика
+   * @param {string} language
+   * @returns {Promise<Object>}
    */
   async getSurveyStats(language = 'ru') {
     try {
@@ -217,7 +195,6 @@ class TallyWebhookService {
   }
 }
 
-// Создаем экземпляр сервиса
 const tallyWebhookService = new TallyWebhookService();
 
 export default tallyWebhookService;

@@ -1,7 +1,5 @@
-// Константы для сообщений об ошибках и уведомлений
 export const MESSAGES = {
   ru: {
-    // Ошибки валидации
     INVALID_PHONE: 'Неверный формат номера телефона',
     INVALID_OTP: 'Неверный формат кода',
     INVALID_EMAIL: 'Неверный формат email',
@@ -10,7 +8,6 @@ export const MESSAGES = {
     PHONE_REQUIRED: 'Номер телефона обязателен',
     OTP_REQUIRED: 'Код обязателен',
     
-    // Ошибки API
     NETWORK_ERROR: 'Ошибка сети. Проверьте подключение к интернету.',
     TIMEOUT_ERROR: 'Превышено время ожидания. Попробуйте еще раз.',
     SERVER_ERROR: 'Ошибка сервера. Попробуйте позже.',
@@ -19,31 +16,26 @@ export const MESSAGES = {
     OTP_EXPIRED: 'Код истек. Запросите новый код.',
     WRONG_PHONE_NUMBER: 'Неверный номер телефона. Проверьте правильность ввода.',
     
-    // Успешные сообщения
     OTP_SENT: 'Код отправлен на ваш номер телефона',
     LOGIN_SUCCESS: 'Успешная авторизация',
     UPDATE_SUCCESS: 'Профиль успешно обновлен',
     UPDATE_FAILED: 'Ошибка обновления профиля',
     
-    // Информационные сообщения
     LOADING: 'Загрузка...',
     SENDING: 'Отправка...',
     VERIFYING: 'Проверка...',
     
-    // Кнопки
     SEND_CODE: 'Отправить код',
     VERIFY_CODE: 'Подтвердить код',
     RESEND_CODE: 'Отправить код повторно',
     BACK: 'Назад',
     
-    // Подсказки
     PHONE_HINT: 'Введите номер телефона,\nна него придет проверочный SMS-код',
     OTP_HINT: 'Введите код, отправленный на номер',
     RESEND_HINT: 'Не получили код?',
     WRONG_NUMBER_HINT: 'Вы неправильно ввели номер?',
     BACK_TO_PHONE: 'Нажмите сюда!',
     
-    // Подтверждение выхода
     LOGOUT_CONFIRMATION_TITLE: 'Подтверждение выхода',
     LOGOUT_CONFIRMATION_MESSAGE: 'Вы уверены, что хотите выйти из аккаунта?',
     LOGOUT_CONFIRM: 'Да, выйти',
@@ -51,7 +43,6 @@ export const MESSAGES = {
   },
   
   uz: {
-    // Ошибки валидации
     INVALID_PHONE: 'Telefon raqami noto\'g\'ri formatda',
     INVALID_OTP: 'Kod noto\'g\'ri formatda',
     INVALID_EMAIL: 'Email noto\'g\'ri formatda',
@@ -60,7 +51,6 @@ export const MESSAGES = {
     PHONE_REQUIRED: 'Telefon raqami majburiy',
     OTP_REQUIRED: 'Kod majburiy',
     
-    // Ошибки API
     NETWORK_ERROR: 'Tarmoq xatosi. Internet aloqasini tekshiring.',
     TIMEOUT_ERROR: 'Kutish vaqti oshdi. Qaytadan urinib ko\'ring.',
     SERVER_ERROR: 'Server xatosi. Keyinroq urinib ko\'ring.',
@@ -69,31 +59,26 @@ export const MESSAGES = {
     OTP_EXPIRED: 'Kod muddati tugadi. Yangi kod so\'rang.',
     WRONG_PHONE_NUMBER: 'Noto\'g\'ri telefon raqami. Kiritishni tekshiring.',
     
-    // Успешные сообщения
     OTP_SENT: 'Kod sizning telefon raqamingizga yuborildi',
     LOGIN_SUCCESS: 'Muvaffaqiyatli avtorizatsiya',
     UPDATE_SUCCESS: 'Profil muvaffaqiyatli yangilandi',
     UPDATE_FAILED: 'Profilni yangilashda xatolik',
     
-    // Информационные сообщения
     LOADING: 'Yuklanmoqda...',
     SENDING: 'Yuborilmoqda...',
     VERIFYING: 'Tekshirilmoqda...',
     
-    // Кнопки
     SEND_CODE: 'Kod yuborish',
     VERIFY_CODE: 'Kodni tasdiqlash',
     RESEND_CODE: 'Kodni qayta yuborish',
     BACK: 'Orqaga',
     
-    // Подсказки
     PHONE_HINT: 'Telefon raqamini kiriting,\nunga tekshiruv SMS kodi keladi',
     OTP_HINT: 'Ushbu raqamga yuborilgan kodni kiriting',
     RESEND_HINT: 'Kod kelmadimi?',
     WRONG_NUMBER_HINT: 'Telefon raqamini noto\'g\'ri kiritdingizmi?',
     BACK_TO_PHONE: 'Bu yerga bosing!',
     
-    // Подтверждение выхода
     LOGOUT_CONFIRMATION_TITLE: 'Chiqishni tasdiqlash',
     LOGOUT_CONFIRMATION_MESSAGE: 'Hisobingizdan chiqishni xohlaysizmi?',
     LOGOUT_CONFIRM: 'Ha, chiqish',
@@ -101,26 +86,21 @@ export const MESSAGES = {
   }
 };
 
-// Функция для получения сообщения на нужном языке
 export const getMessage = (key, language = 'ru') => {
   return MESSAGES[language]?.[key] || MESSAGES.ru[key] || key;
 };
 
-// Функция для получения сообщения об ошибке API
 export const getApiErrorMessage = (error, language = 'ru') => {
   if (!error) return '';
   
-  // Если ошибка уже переведена
   if (typeof error === 'string') {
     return error;
   }
   
-  // Если это объект с сообщением
   if (error.message) {
     return error.message;
   }
   
-  // Если это HTTP статус
   if (typeof error === 'number') {
     switch (error) {
       case 400:

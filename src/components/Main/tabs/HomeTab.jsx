@@ -1,4 +1,3 @@
-// tg-app/src/components/Main/tabs/HomeTab.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -20,17 +19,14 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
   const [surveysLoading, setSurveysLoading] = useState(true);
   const { getSurvey, submitSurvey, getAvailableSurveys, loading } = useSurvey();
 
-  // Загружаем опросы из Tally при монтировании компонента
   useEffect(() => {
     const loadSurveys = async () => {
       try {
         setSurveysLoading(true);
         const availableSurveys = await getAvailableSurveys();
         
-        // Фильтруем опросы по языку
         const filteredSurveys = availableSurveys.filter(survey => {
-          // Проверяем язык опроса
-          const surveyLanguage = survey.language || 'ru'; // По умолчанию русский
+          const surveyLanguage = survey.language || 'ru';
           const matchesLanguage = surveyLanguage === language;
           
           return matchesLanguage;
@@ -39,7 +35,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         setSurveys(filteredSurveys);
       } catch (error) {
         console.error('Error loading surveys:', error);
-        // В случае ошибки показываем пустой список
         setSurveys([]);
       } finally {
         setSurveysLoading(false);
@@ -47,23 +42,20 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     };
 
     loadSurveys();
-  }, [getAvailableSurveys, language]); // Добавляем language в зависимости
+  }, [getAvailableSurveys, language]);
 
   const handleSurveyStart = async (surveyId) => {
     try {
-      // Загружаем опрос с бекенда
       const survey = await getSurvey(surveyId);
       setSelectedSurvey(survey);
       setIsSurveyModalOpen(true);
     } catch (error) {
       console.error('Error loading survey:', error);
-      // Здесь можно показать уведомление об ошибке
     }
   };
 
   const handleSurveyComplete = async (surveyId, answers) => {
     try {
-      // Отправляем ответы на бекенд
       const result = await submitSurvey(surveyId, answers);
       return result;
     } catch (error) {
@@ -116,11 +108,9 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
       <div className="space-y-4">
         {surveysLoading ? (
-          // Показываем скелетон загрузки
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-pulse">
-                {/* Заголовок скелетона */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="h-6 bg-gray-200 rounded-lg mb-2 w-3/4"></div>
@@ -129,19 +119,16 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
                   <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
                 </div>
                 
-                {/* Информационные строки скелетона */}
                 <div className="space-y-3 mb-6">
                   <div className="h-4 bg-gray-200 rounded-lg w-full"></div>
                   <div className="h-4 bg-gray-200 rounded-lg w-2/3"></div>
                 </div>
                 
-                {/* Кнопка скелетона */}
                 <div className="h-12 bg-gray-200 rounded-xl"></div>
               </div>
             ))}
           </div>
         ) : surveys.length > 0 ? (
-          // Показываем опросы
           surveys.map((survey) => {
             
             return (
@@ -155,7 +142,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
             );
           })
         ) : (
-          // Показываем сообщение, если нет опросов
           <div className="text-center py-8 text-gray-500">
             {language === 'ru' 
               ? `Нет доступных опросов для языка: ${language}` 
@@ -165,7 +151,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         )}
       </div>
 
-      {/* Модальное окно опроса */}
       <SurveyModal
         isOpen={isSurveyModalOpen}
         onClose={closeSurveyModal}

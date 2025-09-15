@@ -20,7 +20,7 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function useTelegramInit() {
-  const location = useLocation();      // теперь внутри Router
+  const location = useLocation();
   const navigate = useNavigate();
   const backHandlerRef = useRef(null);
 
@@ -28,16 +28,12 @@ function useTelegramInit() {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
-    // ——— Base init
     tg.ready();
     tg.expand();
-    console.log('Telegram WebApp version:', tg.version);
 
-    // ——— Kill MainButton навсегда
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
-        // делаем методы no-op, чтобы никто случайно не включил
         if (tg.MainButton) {
           tg.MainButton.show = () => {};
           tg.MainButton.setParams = () => {};
@@ -47,7 +43,6 @@ function useTelegramInit() {
       }
     };
     nukeMainButton();
-    // страховочные повторы
     setTimeout(nukeMainButton, 100);
     setTimeout(nukeMainButton, 300);
     setTimeout(nukeMainButton, 1000);
@@ -57,13 +52,11 @@ function useTelegramInit() {
     tg.onEvent('mainButtonTextChanged', nukeMainButton);
     tg.onEvent('themeChanged', nukeMainButton);
 
-    // ——— Disable vertical swipes
     if (tg.disableVerticalSwipes) {
       tg.disableVerticalSwipes();
       setTimeout(() => tg.disableVerticalSwipes(), 300);
     }
 
-    // ——— iOS pull-to-refresh fallback
     const preventPullToRefresh = (e) => {
       if (window.scrollY === 0 && e.touches?.length === 1) {
         const startY = e.touches[0].clientY;
@@ -82,13 +75,11 @@ function useTelegramInit() {
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    // ——— Haptics
     const vibrateOnClick = () => {
       tg.HapticFeedback?.impactOccurred?.('medium');
     };
     document.addEventListener('click', vibrateOnClick);
 
-    // ——— BackButton logic per route
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -102,7 +93,6 @@ function useTelegramInit() {
     const applyBackButtonForPath = (path) => {
       if (!tg.BackButton) return;
 
-      // чистим старый обработчик, если был
       if (backHandlerRef.current) {
         tg.BackButton.offClick(backHandlerRef.current);
         backHandlerRef.current = null;
@@ -118,7 +108,6 @@ function useTelegramInit() {
       }
     };
 
-    // применяем при монтировании и при каждом смене маршрута
     applyBackButtonForPath(location.pathname);
 
     return () => {
@@ -135,8 +124,7 @@ function useTelegramInit() {
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, navigate]); // реагируем только на изменение пути
+  }, [location.pathname, navigate]);
 }
 
 function AppContent() {
@@ -171,13 +159,11 @@ function RouterContent() {
       style={{ backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)' }}
     >
       <Routes>
-        {/* public */}
         <Route path="/" element={<WelcomeScreen />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/auth" element={<AuthScreen />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/public-offer" element={<PublicOfferScreen />} />
-        {/* protected */}
         <Route path="/main" element={<ProtectedRoute><MainScreen /></ProtectedRoute>} />
         <Route path="/withdraw" element={<ProtectedRoute><WithdrawScreen /></ProtectedRoute>} />
         <Route path="/order-survey" element={<ProtectedRoute><OrderSurveyScreen /></ProtectedRoute>} />
@@ -201,7 +187,6 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        {/* ВАЖНО: Router здесь, чтобы все хуки получали контекст */}
         <Router>
           <AuthInitializer>
             <AppContent />

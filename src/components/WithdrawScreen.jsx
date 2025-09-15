@@ -12,7 +12,6 @@ import {
 import Header from "./header";
 import BottomNav from "./Main/BottomNav";
 
-// Import SVG icons
 import UzcardIcon from "../assets/uzcard.svg";
 import VisaIcon from "../assets/visa.svg";
 import MastercardIcon from "../assets/mastercard.svg";
@@ -24,17 +23,14 @@ import UserAvatar from "./UserAvatar";
 
 const MIN_WITHDRAW = 20000;
 
-// ---------- Utils ----------
 const digitsOnly = (v) => (v || "").replace(/\D/g, "");
 const formatMoneyStr = (digits) =>
   String(Number(digits || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 const detectBrand = (digits) => {
   if (!digits) return null;
   const cleanDigits = digits.replace(/\s/g, "");
-  // Убираем звездочки и другие символы для проверки префиксов
   const prefixDigits = cleanDigits.replace(/[^0-9]/g, "");
 
-  // Проверяем UZCARD и HUMO сначала (более специфичные префиксы)
   if (
     prefixDigits.startsWith("5614") ||
     prefixDigits.startsWith("8600") ||
@@ -43,7 +39,6 @@ const detectBrand = (digits) => {
     return "UZCARD";
   if (prefixDigits.startsWith("9860")) return "HUMO";
   
-  // Затем проверяем международные карты
   if (prefixDigits.startsWith("4")) return "VISA";
   if (prefixDigits.startsWith("5")) return "MASTERCARD";
   
@@ -91,7 +86,6 @@ const maskCard = (digits) => {
 };
 const group4 = (v) => (v || "").replace(/(.{4})/g, "$1 ").trim();
 
-// caret helpers: сохраняем позицию каретки при форматировании
 const countDigitsBefore = (str, caret) =>
   (str.slice(0, caret).match(/\d/g) || []).length;
 const caretFromDigitIndex = (formatted, digitIndex) => {
@@ -100,13 +94,12 @@ const caretFromDigitIndex = (formatted, digitIndex) => {
   for (let i = 0; i < formatted.length; i++) {
     if (/\d/.test(formatted[i])) {
       seen++;
-      if (seen === digitIndex) return i + 1; // после этой цифры
+      if (seen === digitIndex) return i + 1;
     }
   }
   return formatted.length;
 };
 
-// ---------- Success Modal Component ----------
 const SuccessModal = ({ isOpen, onClose, t, onContinue }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -122,7 +115,7 @@ const SuccessModal = ({ isOpen, onClose, t, onContinue }) => {
     setIsVisible(false);
     setTimeout(() => {
       onClose();
-      onContinue(); // Вызываем функцию для перехода к списку карт
+      onContinue();
     }, 250);
   };
 
@@ -130,7 +123,6 @@ const SuccessModal = ({ isOpen, onClose, t, onContinue }) => {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className={`fixed inset-0 bg-black/20 transition-opacity duration-200 z-40 ${
           isVisible ? "opacity-100" : "opacity-0"
@@ -138,7 +130,6 @@ const SuccessModal = ({ isOpen, onClose, t, onContinue }) => {
         onClick={closeSoft}
       />
 
-      {/* Modal */}
       <div
         className={`fixed inset-0 z-50 flex items-end justify-center transition-opacity duration-300 ${
           isVisible ? "opacity-100" : "opacity-0"
@@ -181,7 +172,6 @@ const SuccessModal = ({ isOpen, onClose, t, onContinue }) => {
   );
 };
 
-// ---------- Component ----------
 const WithdrawScreen = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -189,7 +179,7 @@ const WithdrawScreen = () => {
   const { getCards, addCard, createPayment, loading, error } = useApi();
   const { isKeyboardOpen } = useKeyboard();
 
-  const [step, setStep] = useState("cards-list"); // success | cards-list | enter-amount
+  const [step, setStep] = useState("cards-list");
   const [cardDigits, setCardDigits] = useState("");
   const [amountDigits, setAmountDigits] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
@@ -203,7 +193,6 @@ const WithdrawScreen = () => {
   const cardInputRef = useRef(null);
   const amountInputRef = useRef(null);
 
-  // Загружаем карты пользователя при монтировании
   useEffect(() => {
     const loadUserCards = async () => {
       const result = await getCards();
@@ -217,7 +206,6 @@ const WithdrawScreen = () => {
     loadUserCards();
   }, [getCards]);
 
-  // BottomNav props
   const tabs = [
     { id: "home", label: language === "uz" ? "Asosiy" : "Главная" },
     { id: "invite", label: language === "uz" ? "Taklif qilish" : "Пригласить" },
@@ -324,22 +312,17 @@ const WithdrawScreen = () => {
     [user?.full_name]
   );
 
-  // ---- Validation ----
+
   const validateCard = () => {
-    // Проверяем что поле не пустое
     if (!cardDigits || cardDigits.length === 0) return false;
     
-    // Проверяем что поле полностью заполнено (минимум 13 цифр)
     if (cardDigits.length < 16) return false;
     
-    // Для тестовых карт (UZCARD/HUMO) проверяем что поле заполнено полностью
     const brand = detectBrand(cardDigits);
     if (brand === "UZCARD" || brand === "HUMO") {
-      // Для UZCARD/HUMO карт обычно 16 цифр, принимаем от 13 до 16
       return cardDigits.length >= 16 && cardDigits.length <= 16;
     }
     
-    // Для остальных карт используем стандартную валидацию
     return isValidCardNumber(cardDigits);
   };
 
@@ -350,7 +333,6 @@ const WithdrawScreen = () => {
   const amountNum = Number(amountDigits || 0);
   const validateAmount = () => amountNum >= MIN_WITHDRAW && amountNum <= bonus;
 
-  // ---- Handlers ----
   const handleNewCard = () => {
     setSelectedCard(null);
     setCardDigits("");
@@ -373,17 +355,13 @@ const WithdrawScreen = () => {
 
     setCardDigits(newDigits);
     
-    // Проверяем тип карты в реальном времени
     const brand = detectBrand(newDigits);
-    // Показываем ошибку для всех типов карт, кроме UZCARD и HUMO
-    // Также показываем ошибку для неизвестных карт (когда brand === null)
     if (brand !== "UZCARD" && brand !== "HUMO") {
       setErrorText(t.onlyUzcardHumo);
     } else {
       setErrorText("");
     }
     
-    // Вернём каретку в «правильное» место после форматирования
     requestAnimationFrame(() => {
       const display = group4(newDigits);
       const newCaret = caretFromDigitIndex(display, digitPos);
@@ -428,7 +406,6 @@ const WithdrawScreen = () => {
       return;
     }
 
-    // Проверяем, не существует ли уже такая карта
     const existingCard = userCards.find(
       (card) =>
         card.card_number &&
@@ -457,13 +434,11 @@ const WithdrawScreen = () => {
         setIsSuccessModalOpen(true);
         setShowAddCardForm(false);
 
-        // Обновляем список карт
         const cardsResult = await getCards();
         if (cardsResult.success) {
           setUserCards(cardsResult.data);
         }
       } else {
-        // Обрабатываем ошибку 409 (карта уже существует)
         if (result.error && result.error.includes("already been added")) {
           setErrorText(t.cardExists);
         } else {
@@ -505,11 +480,9 @@ const WithdrawScreen = () => {
       const result = await createPayment(paymentData);
 
       if (result.success) {
-        // Показываем успешное сообщение
         alert(t.paymentSuccess);
-        // Обновляем баланс пользователя
+        alert(t.paymentSuccess);
         await refreshUserProfile();
-        // Переходим обратно к списку карт
         setStep("cards-list");
       } else {
         setPaymentError(result.error || t.paymentError);
@@ -522,10 +495,8 @@ const WithdrawScreen = () => {
     }
   };
 
-  // ---- UI atoms ----
   const BalanceCard = () => (
     <div className="w-full rounded-2xl p-5 text-white bg-gradient-to-r from-[#5E5AF6] to-[#8888FC] shadow-[0_20px_40px_rgba(94,90,246,0.35)] relative">
-      {/* Кнопка Назад в правом верхнем углу */}
       {showAddCardForm && (
         <button
           onClick={handleBack}
@@ -626,7 +597,6 @@ const WithdrawScreen = () => {
     </button>
   );
 
-  // ---- Step renderers ----
 
   const renderSuccess = () => (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#5538F9] to-[#7C65FF]">
@@ -646,40 +616,30 @@ const WithdrawScreen = () => {
         <BalanceCard />
 
         <div>
-          {/* Показываем заголовок "Мои карты" только если не показываем форму добавления */}
           {!shouldShowAddForm && (
             <h4 className="text-sm font-semibold text-gray-500 mb-4">
               {t.myCards}
             </h4>
           )}
 
-          {/* Скелетон загрузки карт */}
           {loading && (
             <div className="space-y-4">
-              {/* Скелетон карточки */}
               <div className="bg-white rounded-2xl p-5 shadow-[0_20px_40px_rgba(2,6,23,0.2)] animate-pulse">
                 <div className="flex items-center justify-between mb-6">
-                  {/* Скелетон бейджа */}
                   <div className="w-16 h-8 bg-gray-200 rounded-md"></div>
                 </div>
-                {/* Скелетон номера карты */}
                 <div className="h-6 bg-gray-200 rounded-lg mb-4 w-3/4"></div>
-                {/* Скелетон держателя и даты */}
                 <div className="flex items-center justify-between">
                   <div className="h-4 bg-gray-200 rounded-lg w-1/3"></div>
                   <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
                 </div>
               </div>
               
-              {/* Скелетон второй карточки */}
               <div className="bg-white rounded-2xl p-5 shadow-[0_20px_40px_rgba(2,6,23,0.2)] animate-pulse">
                 <div className="flex items-center justify-between mb-6">
-                  {/* Скелетон бейджа */}
                   <div className="w-16 h-8 bg-gray-200 rounded-md"></div>
                 </div>
-                {/* Скелетон номера карты */}
                 <div className="h-6 bg-gray-200 rounded-lg mb-4 w-3/4"></div>
-                {/* Скелетон держателя и даты */}
                 <div className="flex items-center justify-between">
                   <div className="h-4 bg-gray-200 rounded-lg w-1/3"></div>
                   <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
@@ -688,7 +648,6 @@ const WithdrawScreen = () => {
             </div>
           )}
 
-          {/* Ошибка загрузки */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <p className="text-red-600 text-sm">
@@ -697,7 +656,6 @@ const WithdrawScreen = () => {
             </div>
           )}
 
-          {/* Если нет карт или показываем форму добавления */}
           {!loading && !error && shouldShowAddForm && (
             <div className="space-y-4">
               <h4 className="text-sm font-semibold text-gray-500">
@@ -735,7 +693,6 @@ const WithdrawScreen = () => {
                 </div>
               )}
               </div>
-              {/* Превью карты */}
               {cardDigits.length > 0 && (
                 <PrettyCard
                   digits={cardDigits.padEnd(16, "•")}
@@ -746,14 +703,12 @@ const WithdrawScreen = () => {
                 />
               )}
 
-              {/* Ошибка валидации */}
               {errorText && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <p className="text-red-600 text-sm">{errorText}</p>
                 </div>
               )}
 
-              {/* Кнопка добавления карты */}
               <div className="sticky bottom-0 left-0 right-0 pt-2">
                 <button
                   onClick={handleContinue}
@@ -772,7 +727,6 @@ const WithdrawScreen = () => {
             </div>
           )}
 
-          {/* Список карт пользователя */}
           {!loading && !error && userCards.length > 0 && !shouldShowAddForm && (
             <div className="space-y-4">
               {userCards.map((card) => {
@@ -803,7 +757,6 @@ const WithdrawScreen = () => {
                 );
               })}
 
-              {/* Новая добавленная карта (если есть) */}
               {selectedCard &&
                 !userCards.find((card) => card.id === selectedCard.id) && (
                   <PrettyCard
@@ -816,7 +769,6 @@ const WithdrawScreen = () => {
                   />
                 )}
 
-              {/* Кнопка добавления дополнительной карты */}
               <button
                 onClick={handleNewCard}
                 className="w-full mt-4 p-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-[#5E5AF6] hover:text-[#5E5AF6] transition-colors"
@@ -845,7 +797,6 @@ const WithdrawScreen = () => {
           {t.enterWithdrawAmount}
         </h4>
 
-        {/* Выбранная карта */}
         <PrettyCard
           digits={cardDigits}
           holder={selectedCard?.holder || user?.full_name || "User"}
@@ -854,7 +805,6 @@ const WithdrawScreen = () => {
           onClick={() => {}}
         />
 
-        {/* Большая фиолетовая стрелка вверх */}
         <div className="flex justify-center">
           <div className="w-12 h-12 rounded-full bg-[#5E5AF6] grid place-items-center">
             <svg
@@ -875,9 +825,7 @@ const WithdrawScreen = () => {
           </div>
         </div>
 
-        {/* Поле ввода суммы */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgba(2,6,23,0.06)] p-4">
-          {/* Сообщение об ошибке сверху */}
           {amountNum > bonus && (
             <p className="text-sm text-red-600 mb-4 font-medium">
               {t.notEnoughBalance}
@@ -908,7 +856,6 @@ const WithdrawScreen = () => {
             </span>
           </div>
 
-          {/* Кнопки быстрого выбора суммы */}
           <div className="mt-4 grid grid-cols-4 gap-2">
             {[20000, 30000, 50000].map((amount) => (
               <button
@@ -935,18 +882,15 @@ const WithdrawScreen = () => {
             </button>
           </div>
 
-          {/* Информация о минимальной сумме */}
           <p className="mt-3 text-sm text-gray-500">{t.minWithdraw}</p>
         </div>
 
-        {/* Ошибка платежа */}
         {paymentError && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
             <p className="text-red-600 text-sm">{paymentError}</p>
           </div>
         )}
 
-        {/* Кнопка вывода */}
         <button
           onClick={handlePayment}
           disabled={!validateAmount() || isPaymentProcessing}
@@ -966,7 +910,6 @@ const WithdrawScreen = () => {
     );
   };
 
-  // ---- Render ----
   if (step === "success") {
     return (
       <>
@@ -990,7 +933,6 @@ const WithdrawScreen = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      {/* Content */}
       <div className={`px-6 pt-8 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         {step === "cards-list" && renderCardsList()}
         {step === "enter-amount" && renderEnterAmount()}
