@@ -106,7 +106,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
 
     const handleCloseRequest = () => {
       setIsCloseModalOpen(true);
-      return false;
     };
 
     const handleBeforeUnload = (e) => {
@@ -131,6 +130,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     window.addEventListener('beforeunload', handleBeforeUnload);
     
     if (tg.onEvent) {
+      tg.offEvent('web_app_close', handleCloseRequest);
       tg.onEvent('web_app_close', handleCloseRequest);
     }
 
@@ -173,7 +173,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       }
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
-      
       window.removeEventListener('beforeunload', handleBeforeUnload);
       if (tg.onEvent) {
         tg.offEvent('web_app_close', handleCloseRequest);
@@ -191,7 +190,7 @@ function AppContent() {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-          <img src={ProSVG} className='absolute w-[250px] top-1/2 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+        <img src={ProSVG} className='absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50'/>
       </div>
     );
   }
@@ -220,7 +219,7 @@ function AuthInitializer({ children }) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-          <img src={ProSVG} className='absolute w-[250px] top-1/2 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+        <img src={ProSVG} className='absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50'/>
       </div>
     );
   }
