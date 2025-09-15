@@ -193,6 +193,72 @@ const WithdrawScreen = () => {
   const cardInputRef = useRef(null);
   const amountInputRef = useRef(null);
 
+  const scrollToActiveInput = (inputElement) => {
+    if (!inputElement) return;
+    
+    const immediateScroll = () => {
+      const rect = inputElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      let keyboardHeight = 0;
+      if (isKeyboardOpen) {
+        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
+      }
+      
+      const availableHeight = viewportHeight - keyboardHeight;
+      
+      if (rect.bottom > availableHeight) {
+        const scrollAmount = rect.bottom - availableHeight + 50;
+        window.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    };
+    
+    immediateScroll();
+    
+    setTimeout(() => {
+      const rect = inputElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      let keyboardHeight = 0;
+      if (isKeyboardOpen) {
+        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
+      }
+      
+      const availableHeight = viewportHeight - keyboardHeight;
+      
+      if (rect.bottom > availableHeight) {
+        const scrollAmount = rect.bottom - availableHeight + 30;
+        window.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    }, 400);
+    
+    setTimeout(() => {
+      const rect = inputElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      let keyboardHeight = 0;
+      if (isKeyboardOpen) {
+        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
+      }
+      
+      const availableHeight = viewportHeight - keyboardHeight;
+      
+      if (rect.bottom > availableHeight) {
+        const scrollAmount = rect.bottom - availableHeight + 20;
+        window.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    }, 800);
+  };
+
   useEffect(() => {
     const loadUserCards = async () => {
       const result = await getCards();
@@ -205,6 +271,15 @@ const WithdrawScreen = () => {
 
     loadUserCards();
   }, [getCards]);
+
+  useEffect(() => {
+    if (isKeyboardOpen) {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === 'INPUT') {
+        scrollToActiveInput(activeElement);
+      }
+    }
+  }, [isKeyboardOpen]);
 
   const tabs = [
     { id: "home", label: language === "uz" ? "Asosiy" : "Главная" },
@@ -679,6 +754,7 @@ const WithdrawScreen = () => {
                     pattern="[0-9]*"
                     value={group4(cardDigits)}
                     onChange={onCardChange}
+                    onFocus={(e) => scrollToActiveInput(e.target)}
                     placeholder="0123 4567 8901 2345"
                     className={`flex-1 rounded-xl border-2 border-transparent bg-gray-50 px-3 text-lg font-medium text-gray-900
                                focus:outline-none focus:border-blue-500 focus:bg-white transition-all ${isKeyboardOpen ? 'h-10' : 'h-12'}`}
@@ -840,6 +916,7 @@ const WithdrawScreen = () => {
                 pattern="[0-9]*"
                 value={formatMoneyStr(amountDigits)}
                 onChange={onAmountChange}
+                onFocus={(e) => scrollToActiveInput(e.target)}
                 placeholder="20 000"
                 className={`w-full rounded-xl border-2 px-3 text-lg font-semibold text-gray-900
                            focus:outline-none focus:border-blue-500 focus:bg-white transition-all

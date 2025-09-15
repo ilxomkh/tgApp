@@ -28,7 +28,7 @@ const ProfileEditPage = () => {
   const scrollToActiveInput = (inputElement) => {
     if (!inputElement) return;
     
-    setTimeout(() => {
+    const immediateScroll = () => {
       const rect = inputElement.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       
@@ -46,18 +46,49 @@ const ProfileEditPage = () => {
           behavior: 'smooth'
         });
       }
+    };
+    
+    immediateScroll();
+    
+    setTimeout(() => {
+      const rect = inputElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
       
-      setTimeout(() => {
-        const newRect = inputElement.getBoundingClientRect();
-        if (newRect.bottom > availableHeight) {
-          const additionalScroll = newRect.bottom - availableHeight + 30;
-          window.scrollBy({
-            top: additionalScroll,
-            behavior: 'smooth'
-          });
-        }
-      }, 200);
+      let keyboardHeight = 0;
+      if (isKeyboardOpen) {
+        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
+      }
+      
+      const availableHeight = viewportHeight - keyboardHeight;
+      
+      if (rect.bottom > availableHeight) {
+        const scrollAmount = rect.bottom - availableHeight + 30;
+        window.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
     }, 400);
+    
+    setTimeout(() => {
+      const rect = inputElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      let keyboardHeight = 0;
+      if (isKeyboardOpen) {
+        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
+      }
+      
+      const availableHeight = viewportHeight - keyboardHeight;
+      
+      if (rect.bottom > availableHeight) {
+        const scrollAmount = rect.bottom - availableHeight + 20;
+        window.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    }, 800);
   };
   
   const [formData, setFormData] = useState({
