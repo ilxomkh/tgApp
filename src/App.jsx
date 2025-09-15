@@ -168,8 +168,7 @@ function AuthInitializer({ children }) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-          <img src={ProSVG} className='absolute w-[250px] top-1/4 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
-          <p className="text-gray-600">Добро пожаловать в Pro Survey...</p>
+          <img src={ProSVG} className='absolute w-[250px] top-1/2 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
       </div>
     );
   }
