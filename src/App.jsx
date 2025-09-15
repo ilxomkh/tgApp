@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import WelcomeScreen from './components/WelcomeScreen';
 import LanguageSelector from './components/LanguageSelector';
@@ -21,7 +21,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 const BOT_USERNAME = 'pro_surveybot';
 const STARTAPP_PAYLOAD = 'home';
 
-function useTelegramInit() {
+function useTelegramInit(setIsRedirecting) {
   const location = useLocation();
   const navigate = useNavigate();
   const backHandlerRef = useRef(null);
@@ -40,7 +40,11 @@ function useTelegramInit() {
 
       if (!samePayload && !alreadyRedirected) {
         sessionStorage.setItem(redirectedKey, '1');
-        tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
+        setIsRedirecting(true);
+        setTimeout(() => {
+          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
+        }, 300);
+
         return;
       }
     } catch {}
@@ -78,11 +82,9 @@ function useTelegramInit() {
           }
         };
         document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener(
-          'touchend',
-          () => document.removeEventListener('touchmove', onMove),
-          { once: true }
-        );
+        document.addEventListener('touchend', () => {
+          document.removeEventListener('touchmove', onMove);
+        }, { once: true });
       }
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
@@ -130,11 +132,24 @@ function useTelegramInit() {
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
     };
-  }, [location.pathname, navigate]);
+  }, [location.pathname, navigate, setIsRedirecting]);
 }
 
 function AppContent() {
-  useTelegramInit();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  useTelegramInit(setIsRedirecting);
+
+  if (isRedirecting) {
+    return (
+      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7C65FF] mx-auto mb-4"></div>
+          <p className="text-gray-600">Открываем приложение...</p>
+        </div>
+      </div>
+    );
+  }
+
   return <RouterContent />;
 }
 
