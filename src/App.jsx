@@ -1,4 +1,3 @@
-// App.jsx
 import { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import WelcomeScreen from './components/WelcomeScreen';
@@ -19,6 +18,9 @@ import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
+const BOT_USERNAME = 'ProSurvey';
+const STARTAPP_PAYLOAD = 'home';
+
 function useTelegramInit() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -31,6 +33,16 @@ function useTelegramInit() {
     tg.ready();
     tg.expand();
 
+    try {
+      const fromChat = Boolean(tg.initDataUnsafe?.chat?.id);
+      const alreadyStandalone = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
+      if (fromChat && !alreadyStandalone) {
+        tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
+        tg.close();
+        return;
+      }
+    } catch {}
+
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -38,9 +50,7 @@ function useTelegramInit() {
           tg.MainButton.show = () => {};
           tg.MainButton.setParams = () => {};
         }
-      } catch (e) {
-        console.warn('MainButton disable error:', e);
-      }
+      } catch {}
     };
     nukeMainButton();
     setTimeout(nukeMainButton, 100);
@@ -92,12 +102,10 @@ function useTelegramInit() {
 
     const applyBackButtonForPath = (path) => {
       if (!tg.BackButton) return;
-
       if (backHandlerRef.current) {
         tg.BackButton.offClick(backHandlerRef.current);
         backHandlerRef.current = null;
       }
-
       if (backPages.has(path)) {
         tg.BackButton.show();
         const handler = () => navigate(-1);
@@ -115,12 +123,10 @@ function useTelegramInit() {
       tg.offEvent('mainButtonParamsChanged', nukeMainButton);
       tg.offEvent('mainButtonTextChanged', nukeMainButton);
       tg.offEvent('themeChanged', nukeMainButton);
-
       if (tg.BackButton && backHandlerRef.current) {
         tg.BackButton.offClick(backHandlerRef.current);
         tg.BackButton.hide();
       }
-
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
     };
@@ -130,7 +136,6 @@ function useTelegramInit() {
 function AppContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
   useTelegramInit();
-
   return <RouterContent />;
 }
 
