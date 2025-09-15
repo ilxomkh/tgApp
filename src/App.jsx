@@ -19,34 +19,26 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function useTelegramInit() {
-
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
-    if (!tg) return;
-  
-    console.log("Telegram WebApp version:", tg.version);
-    alert(`Telegram WebApp version: ${tg.version}`);
-  }, []);
-
-  
-  useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    if (!tg) return;
+    if (!tg) {
+      alert("Telegram WebApp SDK не найден!");
+      return;
+    }
 
     tg.ready();
     tg.expand();
 
-    // ✅ Отключаем свайпы (новый API)
+    console.log("Telegram WebApp version:", tg.version);
+    alert(`Telegram WebApp version: ${tg.version}`);
+
+    // ✅ Отключаем свайпы (новый API, доступно с версии 6.9)
     if (tg.disableVerticalSwipes) {
       tg.disableVerticalSwipes();
+      setTimeout(() => tg.disableVerticalSwipes(), 300);
+    } else {
+      console.log("⚠️ disableVerticalSwipes не поддерживается");
     }
-
-    // ✅ Повтор через 300мс (иногда первый вызов игнорится)
-    setTimeout(() => {
-      if (tg.disableVerticalSwipes) {
-        tg.disableVerticalSwipes();
-      }
-    }, 300);
 
     // ✅ Фолбэк для iOS Safari
     const preventPullToRefresh = (e) => {
@@ -60,16 +52,15 @@ function useTelegramInit() {
           }
         };
         document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener(
-          'touchend',
-          () => document.removeEventListener('touchmove', onMove),
+        document.addEventListener('touchend', () =>
+          document.removeEventListener('touchmove', onMove),
           { once: true }
         );
       }
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    // ✅ Вибрация при любом клике
+    // ✅ Вибрация при клике (API доступен с версии 6.1)
     const vibrateOnClick = () => {
       if (tg.HapticFeedback?.impactOccurred) {
         tg.HapticFeedback.impactOccurred('medium');
@@ -77,7 +68,6 @@ function useTelegramInit() {
     };
     document.addEventListener('click', vibrateOnClick);
 
-    // Очистка
     return () => {
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
@@ -109,7 +99,6 @@ function AuthInitializer({ children }) {
       </div>
     );
   }
-
   return children;
 }
 
