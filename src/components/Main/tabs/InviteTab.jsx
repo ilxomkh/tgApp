@@ -9,10 +9,11 @@ const InviteTab = ({ locale = "ru", user }) => {
   const { getInviteStats, loading, error } = useApi();
   const [toast, setToast] = React.useState(null);
   const [inviteStats, setInviteStats] = useState({
-    invited: 0,
-    active: 0,
-    waiting_amount: 0,
-    profit: 0,
+    total_invited: 0,
+    active_invited: 0,
+    pending_amount: 0,
+    earned_amount: 0,
+    referral_code: null,
   });
 
   const translations = {
@@ -59,7 +60,13 @@ const InviteTab = ({ locale = "ru", user }) => {
     const loadInviteStats = async () => {
       const result = await getInviteStats();
       if (result.success) {
-        setInviteStats(result.data);
+        setInviteStats({
+          total_invited: result.data.total_invited ?? 0,
+          active_invited: result.data.active_invited ?? 0,
+          pending_amount: result.data.pending_amount ?? 0,
+          earned_amount: result.data.earned_amount ?? 0,
+          referral_code: result.data.referral_code ?? null,
+        });
       } else {
         console.error("Failed to load invite stats:", result.error);
       }
@@ -185,25 +192,25 @@ const InviteTab = ({ locale = "ru", user }) => {
             <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
               <p className="text-gray-600 text-sm mb-2">{t.invited}</p>
               <p className="text-[#5E5AF6] text-xl font-bold">
-                {inviteStats.invited}
+                {inviteStats.total_invited}
               </p>
             </div>
             <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
               <p className="text-gray-600 text-sm mb-2">{t.active}</p>
               <p className="text-[#5E5AF6] text-xl font-bold">
-                {inviteStats.active}
+                {inviteStats.active_invited}
               </p>
             </div>
             <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
               <p className="text-gray-600 text-sm mb-2">{t.pending}</p>
               <p className="text-[#5E5AF6] text-xl font-bold">
-                {inviteStats.waiting_amount?.toLocaleString()} {t.currency}
+                {inviteStats.pending_amount?.toLocaleString()} {t.currency}
               </p>
             </div>
             <div className="bg-white border border-px border-gray-200 rounded-xl p-4">
               <p className="text-gray-600 text-sm mb-2">{t.earned}</p>
               <p className="text-[#5E5AF6] text-xl font-bold">
-                {inviteStats.profit?.toLocaleString()} {t.currency}
+                {inviteStats.earned_amount?.toLocaleString()} {t.currency}
               </p>
             </div>
           </>
