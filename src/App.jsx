@@ -28,10 +28,31 @@ function useTelegramInit() {
 
     console.log("Telegram WebApp version:", tg.version);
 
-    // ⛔️ Скрываем MainButton (без setParams!)
-    if (tg.MainButton) {
-      tg.MainButton.hide();
-    }
+    // Функция для полного скрытия MainButton
+    const forceHideMainButton = () => {
+      if (tg.MainButton) {
+        try {
+          tg.MainButton.setParams({
+            text: " ",         // пробел вместо пустой строки
+            color: "#000000",  // можно любой
+            is_visible: false,
+          });
+          tg.MainButton.hide();
+        } catch (e) {
+          console.warn("Ошибка скрытия MainButton:", e);
+        }
+      }
+    };
+
+    // Скрываем кнопку сразу
+    forceHideMainButton();
+
+    // И повторно (фикс бага SDK)
+    setTimeout(forceHideMainButton, 300);
+    setTimeout(forceHideMainButton, 1000);
+
+    // Слушаем событие web_app_ready и тоже скрываем
+    tg.onEvent("web_app_ready", forceHideMainButton);
 
     // ✅ Отключаем свайпы
     if (tg.disableVerticalSwipes) {
@@ -39,7 +60,7 @@ function useTelegramInit() {
       setTimeout(() => tg.disableVerticalSwipes(), 300);
     }
 
-    // ✅ Фолбэк для iOS Safari
+    // ✅ Фолбэк для iOS Safari (pull-to-refresh)
     const preventPullToRefresh = (e) => {
       if (window.scrollY === 0 && e.touches.length === 1) {
         const startY = e.touches[0].clientY;
@@ -50,26 +71,28 @@ function useTelegramInit() {
             ev.stopPropagation();
           }
         };
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', () =>
-          document.removeEventListener('touchmove', onMove),
+        document.addEventListener("touchmove", onMove, { passive: false });
+        document.addEventListener(
+          "touchend",
+          () => document.removeEventListener("touchmove", onMove),
           { once: true }
         );
       }
     };
-    document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
+    document.addEventListener("touchstart", preventPullToRefresh, { passive: true });
 
     // ✅ Вибрация
     const vibrateOnClick = () => {
       if (tg.HapticFeedback?.impactOccurred) {
-        tg.HapticFeedback.impactOccurred('medium');
+        tg.HapticFeedback.impactOccurred("medium");
       }
     };
-    document.addEventListener('click', vibrateOnClick);
+    document.addEventListener("click", vibrateOnClick);
 
     return () => {
-      document.removeEventListener('touchstart', preventPullToRefresh);
-      document.removeEventListener('click', vibrateOnClick);
+      tg.offEvent("web_app_ready", forceHideMainButton);
+      document.removeEventListener("touchstart", preventPullToRefresh);
+      document.removeEventListener("click", vibrateOnClick);
     };
   }, []);
 }
@@ -109,7 +132,7 @@ function RouterContent() {
     <div
       className="min-h-[100dvh] bg-gray-50"
       style={{
-        backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)'
+        backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)',
       }}
     >
       <Routes>
