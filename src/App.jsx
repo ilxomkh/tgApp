@@ -28,27 +28,31 @@ function useTelegramInit() {
 
     console.log("Telegram WebApp version:", tg.version);
 
-    // 🔥 Глобально прячем кнопку
-    const disableMainButton = () => {
+    // 🔥 Полностью убиваем MainButton
+    const nukeMainButton = () => {
       try {
         tg.MainButton.hide();
-        tg.MainButton.setParams({ is_visible: false, text: " " });
+        tg.MainButton.isVisible = false; // форсим флаг
+        tg.MainButton.setParams = () => {}; // вырубаем setParams
+        tg.MainButton.show = () => {};     // вырубаем show
       } catch (e) {
         console.warn("MainButton disable error:", e);
       }
     };
 
-    disableMainButton();
-    setTimeout(disableMainButton, 200);
-    setTimeout(disableMainButton, 500);
-    setTimeout(disableMainButton, 1000);
+    nukeMainButton();
 
-    // 🔥 Перехватываем все события и снова скрываем
-    tg.onEvent("mainButtonClicked", disableMainButton);
-    tg.onEvent("mainButtonTextChanged", disableMainButton);
-    tg.onEvent("mainButtonParamsChanged", disableMainButton);
-    tg.onEvent("web_app_ready", disableMainButton);
-    tg.onEvent("themeChanged", disableMainButton);
+    // Доп. защита от автопоказа
+    setTimeout(nukeMainButton, 100);
+    setTimeout(nukeMainButton, 300);
+    setTimeout(nukeMainButton, 1000);
+
+    // Перехватываем события Telegram, которые могут её вызвать
+    tg.onEvent("mainButtonClicked", nukeMainButton);
+    tg.onEvent("mainButtonTextChanged", nukeMainButton);
+    tg.onEvent("mainButtonParamsChanged", nukeMainButton);
+    tg.onEvent("themeChanged", nukeMainButton);
+    tg.onEvent("web_app_ready", nukeMainButton);
 
     // ✅ Отключаем свайпы
     if (tg.disableVerticalSwipes) {
@@ -86,11 +90,11 @@ function useTelegramInit() {
     document.addEventListener("click", vibrateOnClick);
 
     return () => {
-      tg.offEvent("mainButtonClicked", disableMainButton);
-      tg.offEvent("mainButtonTextChanged", disableMainButton);
-      tg.offEvent("mainButtonParamsChanged", disableMainButton);
-      tg.offEvent("web_app_ready", disableMainButton);
-      tg.offEvent("themeChanged", disableMainButton);
+      tg.offEvent("mainButtonClicked", nukeMainButton);
+      tg.offEvent("mainButtonTextChanged", nukeMainButton);
+      tg.offEvent("mainButtonParamsChanged", nukeMainButton);
+      tg.offEvent("themeChanged", nukeMainButton);
+      tg.offEvent("web_app_ready", nukeMainButton);
 
       document.removeEventListener("touchstart", preventPullToRefresh);
       document.removeEventListener("click", vibrateOnClick);
