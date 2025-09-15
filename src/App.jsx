@@ -17,11 +17,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { initGlobalHapticFeedback } from './utils/hapticFeedback';
 
-function AppContent() {
-  const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
-
+function useTelegramInit() {
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
@@ -29,66 +26,58 @@ function AppContent() {
     tg.ready();
     tg.expand();
 
-    // ✅ Отключаем вертикальные свайпы (чтобы нельзя было свернуть мини-апп)
+    // ✅ Отключаем свайпы (новый API)
     if (tg.disableVerticalSwipes) {
       tg.disableVerticalSwipes();
     }
+
+    // ✅ Повтор через 300мс (иногда первый вызов игнорится)
     setTimeout(() => {
       if (tg.disableVerticalSwipes) {
         tg.disableVerticalSwipes();
       }
     }, 300);
 
-    // UI-настройки
-    tg.MainButton.hide();
-    tg.BackButton.hide();
-    if (tg.BackButton.setText) {
-      tg.BackButton.setText('Назад');
-    }
+    // ✅ Фолбэк для iOS Safari
+    const preventPullToRefresh = (e) => {
+      if (window.scrollY === 0 && e.touches.length === 1) {
+        const startY = e.touches[0].clientY;
+        const onMove = (ev) => {
+          const deltaY = ev.touches[0].clientY - startY;
+          if (deltaY > 10) {
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+        };
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener(
+          'touchend',
+          () => document.removeEventListener('touchmove', onMove),
+          { once: true }
+        );
+      }
+    };
+    document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    tg.setHeaderColor?.('#6A4CFF');
-    tg.setBackgroundColor?.('#6A4CFF');
-
-    // ✅ Глобальный haptic feedback для всех кнопок
-    const cleanupHaptic = initGlobalHapticFeedback({
-      feedbackType: 'light',
-      excludeSelectors: [
-        '.no-haptic',
-        '[data-no-haptic]',
-        'input[type="text"]',
-        'input[type="email"]',
-        'input[type="password"]',
-        'textarea',
-        'select'
-      ],
-      includeSelectors: [
-        'button',
-        '[role="button"]',
-        '.clickable',
-        '[data-clickable]',
-        'a[href]',
-        '[onclick]'
-      ]
-    });
-
-    // ✅ Дополнительно: короткая вибрация при старте экрана
-    if (tg.HapticFeedback?.impactOccurred) {
-      tg.HapticFeedback.impactOccurred('light');
-    }
-
-    // ✅ Дополнительно: вешаем вибрацию на клики по кнопкам
-    const handleClick = (e) => {
+    // ✅ Вибрация при любом клике
+    const vibrateOnClick = () => {
       if (tg.HapticFeedback?.impactOccurred) {
         tg.HapticFeedback.impactOccurred('medium');
       }
     };
-    document.addEventListener('click', handleClick);
+    document.addEventListener('click', vibrateOnClick);
 
+    // Очистка
     return () => {
-      cleanupHaptic();
-      document.removeEventListener('click', handleClick);
+      document.removeEventListener('touchstart', preventPullToRefresh);
+      document.removeEventListener('click', vibrateOnClick);
     };
   }, []);
+}
+
+function AppContent() {
+  const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
+  useTelegramInit();
 
   return (
     <Router>
