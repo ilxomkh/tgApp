@@ -28,10 +28,9 @@ function useTelegramInit() {
 
     console.log("Telegram WebApp version:", tg.version);
 
-    // ⛔️ Скрываем MainButton сразу и навсегда по умолчанию
+    // ⛔️ Скрываем MainButton (без setParams!)
     if (tg.MainButton) {
       tg.MainButton.hide();
-      tg.MainButton.setParams({ text: "" }); // обнуляем текст, чтобы он не всплывал
     }
 
     // ✅ Отключаем свайпы
@@ -74,7 +73,6 @@ function useTelegramInit() {
     };
   }, []);
 }
-
 
 function AppContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
