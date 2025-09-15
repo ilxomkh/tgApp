@@ -359,90 +359,56 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   );
 
   const NumberInput = ({ questionId, placeholder, className }) => {
-    const numberInputRef = useRef(null);
-    
+    const [value, setValue] = useState(answersRef.current[questionId] || "");
+    const inputRef = useRef(null);
+  
     useEffect(() => {
-      const input = numberInputRef.current;
-      if (input) {
-        input.focus();
+      const existingValue = answersRef.current[questionId] || "";
+      setValue(existingValue);
+  
+      if (inputRef.current) {
+        inputRef.current.focus();
       }
     }, [questionId]);
-    
-    useLayoutEffect(() => {
-      const input = numberInputRef.current;
-      if (!input) return;
-      
-      
-      const handleNativeInput = (e) => {
-        const inputValue = e.target.value;
-        
-        answersRef.current = {
-          ...answersRef.current,
-          [questionId]: inputValue
-        };
-        
-        const isValid = inputValue !== null && inputValue !== undefined && inputValue !== '';
-        setNumberFieldValid(isValid);
+  
+    const handleChange = (e) => {
+      const inputValue = e.target.value;
+  
+      setValue(inputValue);
+  
+      answersRef.current = {
+        ...answersRef.current,
+        [questionId]: inputValue
       };
-      
-      const handleNativeFocus = (e) => {
-      };
-      
-      const handleNativeBlur = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        if (e.target && typeof e.target.focus === 'function') {
-          e.target.focus();
-        }
-        
-        setTimeout(() => {
-          if (e.target && typeof e.target.focus === 'function' && document.activeElement !== e.target) {
-            e.target.focus();
-          }
-        }, 0);
-      };
-      
-      input.addEventListener('input', handleNativeInput);
-      input.addEventListener('focus', handleNativeFocus);
-      input.addEventListener('blur', handleNativeBlur);
-      input.addEventListener('focusout', handleNativeBlur);
-      input.addEventListener('focusin', handleNativeFocus);
-      
-      return () => {
-        input.removeEventListener('input', handleNativeInput);
-        input.removeEventListener('focus', handleNativeFocus);
-        input.removeEventListener('blur', handleNativeBlur);
-        input.removeEventListener('focusout', handleNativeBlur);
-        input.removeEventListener('focusin', handleNativeFocus);
-      };
-    }, [questionId]);
-    
+  
+      setNumberFieldValid(inputValue !== "");
+    };
+  
     return (
       <div className="relative">
         <input
-          ref={numberInputRef}
+          ref={inputRef}
           type="number"
-          defaultValue=""
-          className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
+          value={value}
+          onChange={handleChange}
+          className={`w-full p-4 border-2 border-gray-200 rounded-xl 
+            focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] 
+            transition-all duration-200 text-center text-lg font-medium 
+            bg-white focus:scale-105 ${className}`}
           placeholder={placeholder}
           autoComplete="off"
           inputMode="numeric"
           enterKeyHint="done"
-          pattern="[0-9]*"
           step="1"
-          style={{
-            WebkitUserSelect: 'text',
-            userSelect: 'text',
-            WebkitAppearance: 'none',
-            appearance: 'none'
-          }}
         />
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r 
+          from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none 
+          opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
       </div>
     );
   };
+  
+  
 
   const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => {
     return (
@@ -655,11 +621,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           {question.required && !isCurrentQuestionAnswered && (
             <p className="text-xs sm:text-sm text-red-500 mt-1">
               {t.requiredField}
-            </p>
-          )}
-          {isKeyboardOpen && (question.type === 'number' || (question.type === 'text' && (!question.options || question.options.length === 0))) && (
-            <p className="text-xs text-blue-500 mt-2">
-              {t.keyboardHint}
             </p>
           )}
         </div>
