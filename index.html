@@ -30,6 +30,13 @@
           e.preventDefault();
         }
       });
+      
+      window.addEventListener('popstate', function (e) {
+        e.preventDefault();
+        history.pushState(null, null, location.href);
+      });
+      
+      history.pushState(null, null, location.href);
     </script>
   </head>
   <body>

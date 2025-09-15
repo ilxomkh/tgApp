@@ -19,10 +19,11 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
+import CloseConfirmationModal from './components/CloseConfirmationModal';
 
 const STARTAPP_PAYLOAD = 'home';
 
-function useTelegramInit(setIsRedirecting) {
+function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
   const location = useLocation();
   const navigate = useNavigate();
   const backHandlerRef = useRef(null);
@@ -103,6 +104,36 @@ function useTelegramInit(setIsRedirecting) {
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
+    const handleCloseRequest = () => {
+      setIsCloseModalOpen(true);
+      return false;
+    };
+
+    const handleBeforeUnload = (e) => {
+      const activeElement = document.activeElement;
+      const isFormActive = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' || 
+        activeElement.tagName === 'SELECT'
+      );
+      
+      const hasUnsavedData = sessionStorage.getItem('hasUnsavedData') === 'true';
+      
+      if (isFormActive || hasUnsavedData) {
+        const message = 'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
+        e.returnValue = message;
+        return message;
+      }
+      
+      return;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    if (tg.onEvent) {
+      tg.onEvent('web_app_close', handleCloseRequest);
+    }
+
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -142,13 +173,19 @@ function useTelegramInit(setIsRedirecting) {
       }
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
+      
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (tg.onEvent) {
+        tg.offEvent('web_app_close', handleCloseRequest);
+      }
     };
-  }, [location.pathname, navigate, setIsRedirecting]);
+  }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen]);
 }
 
 function AppContent() {
   const [isRedirecting, setIsRedirecting] = useState(false);
-  useTelegramInit(setIsRedirecting);
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  useTelegramInit(setIsRedirecting, setIsCloseModalOpen);
 
   if (isRedirecting) {
     return (
@@ -159,7 +196,22 @@ function AppContent() {
     );
   }
 
-  return <RouterContent />;
+  return (
+    <>
+      <RouterContent />
+      <CloseConfirmationModal
+        isOpen={isCloseModalOpen}
+        onConfirm={() => {
+          const tg = window.Telegram?.WebApp;
+          if (tg?.close) {
+            tg.close();
+          }
+          setIsCloseModalOpen(false);
+        }}
+        onCancel={() => setIsCloseModalOpen(false)}
+      />
+    </>
+  );
 }
 
 function AuthInitializer({ children }) {

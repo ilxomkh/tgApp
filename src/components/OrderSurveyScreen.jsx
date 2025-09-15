@@ -13,6 +13,7 @@ import { getMessage } from "../constants/messages";
 import Header from "./header";
 import BottomNav from "./Main/BottomNav";
 import { useKeyboard } from "../hooks/useKeyboard";
+import { ChevronRightIcon, ChevronsRightIcon, SendHorizonal, SendIcon } from "lucide-react";
 
 const OrderSurveyScreen = () => {
   const { language } = useLanguage();
@@ -66,6 +67,68 @@ const OrderSurveyScreen = () => {
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
   const [hasFormData, setHasFormData] = React.useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = React.useState(false);
+
+  const isFormValid = () => {
+    return (
+      formData.fullName.trim() &&
+      formData.organization.trim() &&
+      formData.position.trim() &&
+      formData.phone.trim() &&
+      formData.email.trim() &&
+      isValidFullName(formData.fullName) &&
+      isValidUzbekPhone(formData.phone) &&
+      isValidEmail(formData.email)
+    );
+  };
+
+  // Функция для получения стилей инпута в зависимости от заполненности
+  const getInputStyles = (fieldName, hasError = false) => {
+    const isFilled = formData[fieldName] && formData[fieldName].trim();
+    const baseStyles = "w-full px-4 py-3 text-white rounded-xl border-2 border-transparent focus:outline-none transition-colors";
+    
+    if (hasError) {
+      return `${baseStyles} border-red-300 bg-red-50`;
+    }
+    
+    if (isFilled) {
+      return `${baseStyles} bg-gradient-to-r from-[#5538F9] to-[#7C65FF]`;
+    }
+    
+    return `${baseStyles} bg-[#8888FC]`;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!isFormValid()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const orderData = {
+        full_name: formData.fullName.trim(),
+        organization_name: formData.organization.trim(),
+        position: formData.position.trim(),
+        phone_number: formatPhoneE164(formData.phone),
+        email: formData.email.trim()
+      };
+
+      const result = await createOrder(orderData);
+      
+      if (result.success) {
+        setSubmitSuccess(true);
+        setIsFormSubmitted(true);
+      } else {
+        console.error('Submit error:', result.error);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const translations = {
     ru: {
@@ -176,8 +239,8 @@ const OrderSurveyScreen = () => {
     try {
       const orderData = {
         full_name: formData.fullName.trim(),
-        company_name: formData.organization.trim(),
-        job_title: formData.position.trim(),
+        organization_name: formData.organization.trim(),
+        position: formData.position.trim(),
         phone_number: formatPhoneE164(formData.phone),
         email: formData.email.trim()
       };
@@ -252,9 +315,7 @@ const OrderSurveyScreen = () => {
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.fullName}
               required
-              className={`w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none  transition-colors ${
-                formErrors.fullName ? 'border-red-300 bg-red-50' : ''
-              }`}
+              className={getInputStyles('fullName', !!formErrors.fullName)}
             />
             {formErrors.fullName && (
               <p className="text-red-600 text-sm mt-1">{formErrors.fullName}</p>
@@ -268,7 +329,7 @@ const OrderSurveyScreen = () => {
               onChange={(e) => handleInputChange('organization', e.target.value)}
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.organization}
-              className="w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
+              className={getInputStyles('organization', !!formErrors.organization)}
             />
           </div>
 
@@ -279,7 +340,7 @@ const OrderSurveyScreen = () => {
               onChange={(e) => handleInputChange('position', e.target.value)}
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.position}
-              className="w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
+              className={getInputStyles('position', !!formErrors.position)}
             />
           </div>
 
@@ -291,9 +352,7 @@ const OrderSurveyScreen = () => {
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.phone}
               required
-              className={`w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
-                formErrors.phone ? 'border-red-300 bg-red-50' : ''
-              }`}
+              className={getInputStyles('phone', !!formErrors.phone)}
             />
             {formErrors.phone && (
               <p className="text-red-600 text-sm mt-1">{formErrors.phone}</p>
@@ -307,14 +366,33 @@ const OrderSurveyScreen = () => {
               onChange={(e) => handleInputChange('email', e.target.value)}
               onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.email}
-              className={`w-full px-4 py-3 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
-                formErrors.email ? 'border-red-300 bg-red-50' : ''
-              }`}
+              className={getInputStyles('email', !!formErrors.email)}
             />
             {formErrors.email && (
               <p className="text-red-600 text-sm mt-1">{formErrors.email}</p>
             )}
           </div>
+
+          <button
+            type="submit"
+            disabled={!isFormValid() || isSubmitting}
+            onClick={handleSubmit}
+            className={`w-full flex items-center justify-center gap-2 mt-4 py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${
+              isFormValid() && !isSubmitting
+                ? 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white cursor-not-allowed'
+                : 'bg-[#8888FC] text-white/80 active:scale-95 shadow-lg'
+            }`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {t.submitting || 'Отправка...'}
+              </div>
+            ) : (
+              t.submit || 'Отправить заявку' 
+            )}
+            <ChevronsRightIcon/>
+          </button>
 
         </form>
       </div>

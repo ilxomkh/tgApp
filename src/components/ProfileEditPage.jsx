@@ -419,6 +419,16 @@ const ProfileEditPage = () => {
     }
   }, [isKeyboardOpen]);
 
+  // Отслеживаем изменения в форме для предупреждения о несохраненных данных
+  useEffect(() => {
+    const hasData = Object.values(formData).some(value => value && value.trim());
+    if (hasData) {
+      sessionStorage.setItem('hasUnsavedData', 'true');
+    } else {
+      sessionStorage.removeItem('hasUnsavedData');
+    }
+  }, [formData]);
+
 
   const tabs = [
     { id: 'home', label: t.home },

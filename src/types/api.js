@@ -289,7 +289,7 @@ export const API_ENDPOINTS = {
   GET_CARDS: '/payments/cards',
   ADD_CARD: '/payments/cards',
   GET_INVITE_STATS: '/referrals/stats',
-  CREATE_ORDER: '/order',
+  CREATE_ORDER: '/survey-orders/',
   CREATE_PAYMENT: '/payments/take_off',
   TALLY_WEBHOOK: '/webhooks/tilda',
   GET_SURVEY_RESPONSES: '/surveys/responses',
