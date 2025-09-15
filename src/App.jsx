@@ -28,24 +28,27 @@ function useTelegramInit() {
 
     console.log("Telegram WebApp version:", tg.version);
 
-    // ✅ Полностью скрываем MainButton (без setParams!)
-    const hideMainButton = () => {
-      if (tg.MainButton) {
-        try {
-          tg.MainButton.hide();
-        } catch (e) {
-          console.warn("Ошибка hide MainButton:", e);
-        }
+    // 🔥 Глобально прячем кнопку
+    const disableMainButton = () => {
+      try {
+        tg.MainButton.hide();
+        tg.MainButton.setParams({ is_visible: false, text: " " });
+      } catch (e) {
+        console.warn("MainButton disable error:", e);
       }
     };
 
-    hideMainButton();
-    setTimeout(hideMainButton, 300);
-    setTimeout(hideMainButton, 1000);
+    disableMainButton();
+    setTimeout(disableMainButton, 200);
+    setTimeout(disableMainButton, 500);
+    setTimeout(disableMainButton, 1000);
 
-    // Подписываемся на событие, Telegram иногда снова показывает кнопку
-    tg.onEvent("mainButtonClicked", hideMainButton);
-    tg.onEvent("web_app_ready", hideMainButton);
+    // 🔥 Перехватываем все события и снова скрываем
+    tg.onEvent("mainButtonClicked", disableMainButton);
+    tg.onEvent("mainButtonTextChanged", disableMainButton);
+    tg.onEvent("mainButtonParamsChanged", disableMainButton);
+    tg.onEvent("web_app_ready", disableMainButton);
+    tg.onEvent("themeChanged", disableMainButton);
 
     // ✅ Отключаем свайпы
     if (tg.disableVerticalSwipes) {
@@ -83,8 +86,12 @@ function useTelegramInit() {
     document.addEventListener("click", vibrateOnClick);
 
     return () => {
-      tg.offEvent("mainButtonClicked", hideMainButton);
-      tg.offEvent("web_app_ready", hideMainButton);
+      tg.offEvent("mainButtonClicked", disableMainButton);
+      tg.offEvent("mainButtonTextChanged", disableMainButton);
+      tg.offEvent("mainButtonParamsChanged", disableMainButton);
+      tg.offEvent("web_app_ready", disableMainButton);
+      tg.offEvent("themeChanged", disableMainButton);
+
       document.removeEventListener("touchstart", preventPullToRefresh);
       document.removeEventListener("click", vibrateOnClick);
     };
