@@ -28,31 +28,24 @@ function useTelegramInit() {
 
     console.log("Telegram WebApp version:", tg.version);
 
-    // Функция для полного скрытия MainButton
-    const forceHideMainButton = () => {
+    // ✅ Полностью скрываем MainButton (без setParams!)
+    const hideMainButton = () => {
       if (tg.MainButton) {
         try {
-          tg.MainButton.setParams({
-            text: " ",         // пробел вместо пустой строки
-            color: "#000000",  // можно любой
-            is_visible: false,
-          });
           tg.MainButton.hide();
         } catch (e) {
-          console.warn("Ошибка скрытия MainButton:", e);
+          console.warn("Ошибка hide MainButton:", e);
         }
       }
     };
 
-    // Скрываем кнопку сразу
-    forceHideMainButton();
+    hideMainButton();
+    setTimeout(hideMainButton, 300);
+    setTimeout(hideMainButton, 1000);
 
-    // И повторно (фикс бага SDK)
-    setTimeout(forceHideMainButton, 300);
-    setTimeout(forceHideMainButton, 1000);
-
-    // Слушаем событие web_app_ready и тоже скрываем
-    tg.onEvent("web_app_ready", forceHideMainButton);
+    // Подписываемся на событие, Telegram иногда снова показывает кнопку
+    tg.onEvent("mainButtonClicked", hideMainButton);
+    tg.onEvent("web_app_ready", hideMainButton);
 
     // ✅ Отключаем свайпы
     if (tg.disableVerticalSwipes) {
@@ -90,7 +83,8 @@ function useTelegramInit() {
     document.addEventListener("click", vibrateOnClick);
 
     return () => {
-      tg.offEvent("web_app_ready", forceHideMainButton);
+      tg.offEvent("mainButtonClicked", hideMainButton);
+      tg.offEvent("web_app_ready", hideMainButton);
       document.removeEventListener("touchstart", preventPullToRefresh);
       document.removeEventListener("click", vibrateOnClick);
     };
