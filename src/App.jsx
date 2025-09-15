@@ -18,7 +18,6 @@ import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-const BOT_USERNAME = 'pro_surveybot';
 const STARTAPP_PAYLOAD = 'home';
 
 function useTelegramInit(setIsRedirecting) {
@@ -38,17 +37,24 @@ function useTelegramInit(setIsRedirecting) {
       const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
 
+      // Если зашли из чата (без start_param)
       if (!samePayload && !alreadyRedirected) {
         sessionStorage.setItem(redirectedKey, '1');
         setIsRedirecting(true);
+
+        // 👉 Подменяем start_param прямо в текущем окне
+        tg.initDataUnsafe.start_param = STARTAPP_PAYLOAD;
+
         setTimeout(() => {
-          tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
-        }, 300);
+          setIsRedirecting(false); // убираем спиннер
+          navigate('/main');       // отправляем в основное приложение
+        }, 500);
 
         return;
       }
     } catch {}
 
+    // --- Скрываем MainButton ---
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -71,6 +77,7 @@ function useTelegramInit(setIsRedirecting) {
       setTimeout(() => tg.disableVerticalSwipes(), 300);
     }
 
+    // --- pull-to-refresh блок ---
     const preventPullToRefresh = (e) => {
       if (window.scrollY === 0 && e.touches?.length === 1) {
         const startY = e.touches[0].clientY;
@@ -82,16 +89,20 @@ function useTelegramInit(setIsRedirecting) {
           }
         };
         document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener('touchend', () => {
-          document.removeEventListener('touchmove', onMove);
-        }, { once: true });
+        document.addEventListener(
+          'touchend',
+          () => document.removeEventListener('touchmove', onMove),
+          { once: true }
+        );
       }
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
+    // --- Вибрация при кликах ---
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
+    // --- BackButton логика ---
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -141,8 +152,8 @@ function AppContent() {
 
   if (isRedirecting) {
     return (
-      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gray-50">
+        <div className="text-center animate-fade">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7C65FF] mx-auto mb-4"></div>
           <p className="text-gray-600">Открываем приложение...</p>
         </div>
