@@ -40,12 +40,10 @@ function useTelegramInit(setIsRedirecting) {
       const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
 
-      // Если открыто из чата (нет start_param)
       if (!samePayload && !alreadyRedirected) {
         sessionStorage.setItem(redirectedKey, '1');
         setIsRedirecting(true);
 
-        // 👉 превращаем текущее окно в "startapp"
         Object.defineProperty(tg.initDataUnsafe, 'start_param', {
           value: STARTAPP_PAYLOAD,
           writable: false,
@@ -53,14 +51,13 @@ function useTelegramInit(setIsRedirecting) {
 
         setTimeout(() => {
           setIsRedirecting(false);
-          navigate('/main'); // сразу ведём в основное приложение
+          navigate('/main');
         }, 500);
 
         return;
       }
     } catch {}
 
-    // --- скрываем MainButton ---
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -83,7 +80,6 @@ function useTelegramInit(setIsRedirecting) {
       setTimeout(() => tg.disableVerticalSwipes(), 300);
     }
 
-    // --- блокируем pull-to-refresh ---
     const preventPullToRefresh = (e) => {
       if (window.scrollY === 0 && e.touches?.length === 1) {
         const startY = e.touches[0].clientY;
@@ -104,11 +100,9 @@ function useTelegramInit(setIsRedirecting) {
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    // --- вибрация ---
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
-    // --- backButton ---
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -160,8 +154,7 @@ function AppContent() {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-          <img src={ProSVG} className='absolute w-[250px] top-1/4 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
-          <p className="text-gray-600">Добро пожаловать в Pro Survey...</p>
+          <img src={ProSVG} className='absolute w-[250px] top-1/2 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
       </div>
     );
   }
