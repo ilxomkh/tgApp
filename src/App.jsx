@@ -17,6 +17,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ProSVG from './assets/Pro.svg';
+import WaveOverlay from './components/WaveOverlay';
 
 const STARTAPP_PAYLOAD = 'home';
 
@@ -156,11 +158,10 @@ function AppContent() {
 
   if (isRedirecting) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-gray-50">
-        <div className="text-center animate-fade">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7C65FF] mx-auto mb-4"></div>
-          <p className="text-gray-600">Открываем приложение...</p>
-        </div>
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
+        <WaveOverlay />
+          <img src={ProSVG} className='absolute w-[250px] top-1/4 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+          <p className="text-gray-600">Добро пожаловать в Pro Survey...</p>
       </div>
     );
   }
@@ -172,11 +173,10 @@ function AuthInitializer({ children }) {
   const { isInitializing } = useAuth();
   if (isInitializing) {
     return (
-      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7C65FF] mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка...</p>
-        </div>
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
+        <WaveOverlay />
+          <img src={ProSVG} className='absolute w-[250px] top-1/4 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+          <p className="text-gray-600">Добро пожаловать в Pro Survey...</p>
       </div>
     );
   }
