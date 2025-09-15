@@ -1,5 +1,6 @@
+// App.jsx
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import WelcomeScreen from './components/WelcomeScreen';
 import LanguageSelector from './components/LanguageSelector';
 import Onboarding from './components/Onboarding';
@@ -19,6 +20,9 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function useTelegramInit() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
@@ -32,27 +36,44 @@ function useTelegramInit() {
     const nukeMainButton = () => {
       try {
         tg.MainButton.hide();
-        tg.MainButton.isVisible = false; // форсим флаг
-        tg.MainButton.setParams = () => {}; // вырубаем setParams
-        tg.MainButton.show = () => {};     // вырубаем show
+        tg.MainButton.isVisible = false;
+        tg.MainButton.setParams = () => {};
+        tg.MainButton.show = () => {};
       } catch (e) {
         console.warn("MainButton disable error:", e);
       }
     };
 
     nukeMainButton();
-
-    // Доп. защита от автопоказа
     setTimeout(nukeMainButton, 100);
     setTimeout(nukeMainButton, 300);
     setTimeout(nukeMainButton, 1000);
 
-    // Перехватываем события Telegram, которые могут её вызвать
     tg.onEvent("mainButtonClicked", nukeMainButton);
     tg.onEvent("mainButtonTextChanged", nukeMainButton);
     tg.onEvent("mainButtonParamsChanged", nukeMainButton);
     tg.onEvent("themeChanged", nukeMainButton);
     tg.onEvent("web_app_ready", nukeMainButton);
+
+    // ✅ Страницы для кнопки "Назад"
+    const backPages = [
+      '/withdraw',
+      '/profile-edit',
+      '/project-info',
+      '/public-offer',
+      '/support',
+      '/order-survey',
+      '/test-tally',
+    ];
+
+    if (tg.BackButton) {
+      if (backPages.includes(location.pathname)) {
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => navigate(-1));
+      } else {
+        tg.BackButton.hide();
+      }
+    }
 
     // ✅ Отключаем свайпы
     if (tg.disableVerticalSwipes) {
@@ -96,10 +117,15 @@ function useTelegramInit() {
       tg.offEvent("themeChanged", nukeMainButton);
       tg.offEvent("web_app_ready", nukeMainButton);
 
+      if (tg.BackButton) {
+        tg.BackButton.hide();
+        tg.BackButton.offClick(() => navigate(-1));
+      }
+
       document.removeEventListener("touchstart", preventPullToRefresh);
       document.removeEventListener("click", vibrateOnClick);
     };
-  }, []);
+  }, [location, navigate]);
 }
 
 function AppContent() {
