@@ -31,11 +31,8 @@ export const useSurvey = () => {
         displayInfo: {
           lines: [
             form.language === 'ru' 
-              ? `Сумма приза: ${form.prizeInfo.basePrize} сум` 
-              : `Yutuq summasi: ${form.prizeInfo.basePrize} so'm`,
-            form.language === 'ru'
-              ? `Участие в розыгрыше на ${form.prizeInfo.lotteryAmount} сум`
-              : `${form.prizeInfo.lotteryAmount} so'm lotereyaga qo'shilish`
+              ? 'Сумма приза: 12 000 сум' 
+              : 'Yutuq summasi: 12 000 so\'m',
           ]
         }
       }));

@@ -25,6 +25,41 @@ const ProfileEditPage = () => {
   const { user, updateProfile, logout } = useAuth();
   const { isKeyboardOpen } = useKeyboard();
   
+  const scrollToActiveInput = (inputElement) => {
+    if (!inputElement) return;
+    
+    setTimeout(() => {
+      const rect = inputElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      let keyboardHeight = 0;
+      if (isKeyboardOpen) {
+        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
+      }
+      
+      const availableHeight = viewportHeight - keyboardHeight;
+      
+      if (rect.bottom > availableHeight) {
+        const scrollAmount = rect.bottom - availableHeight + 50;
+        window.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+      
+      setTimeout(() => {
+        const newRect = inputElement.getBoundingClientRect();
+        if (newRect.bottom > availableHeight) {
+          const additionalScroll = newRect.bottom - availableHeight + 30;
+          window.scrollBy({
+            top: additionalScroll,
+            behavior: 'smooth'
+          });
+        }
+      }, 200);
+    }, 400);
+  };
+  
   const [formData, setFormData] = useState({
     phone_number: '',
     full_name: '',
@@ -376,6 +411,17 @@ const ProfileEditPage = () => {
   };
 
   useTelegramBackButton(handleBack, true);
+  
+  // Обработка изменения состояния клавиатуры
+  useEffect(() => {
+    if (isKeyboardOpen) {
+      // Когда клавиатура открывается, прокручиваем к активному элементу
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === 'INPUT') {
+        scrollToActiveInput(activeElement);
+      }
+    }
+  }, [isKeyboardOpen]);
 
 
   const tabs = [
@@ -386,7 +432,7 @@ const ProfileEditPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F4FF]">
+    <div className="min-h-screen bg-[#F4F4FF] allow-scroll">
       <Header />
       
       <div className={`p-4 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
@@ -426,6 +472,7 @@ const ProfileEditPage = () => {
                     type="text"
                     value={formData.full_name}
                     onChange={(e) => handleInputChange('full_name', e.target.value)}
+                    onFocus={(e) => scrollToActiveInput(e.target)}
                     placeholder={t.namePlaceholder}
                     className={`w-full px-4 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all ${isKeyboardOpen ? 'py-2' : 'py-3'}`}
                   />
@@ -500,6 +547,7 @@ const ProfileEditPage = () => {
                     value={formData.birth_date}
                     onChange={(e) => handleInputChange('birth_date', e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onFocus={(e) => scrollToActiveInput(e.target)}
                     placeholder="03.12.2002"
                     inputMode="numeric"
                     pattern="[0-9]{2}\.[0-9]{2}\.[0-9]{4}"
@@ -540,6 +588,7 @@ const ProfileEditPage = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
+                    onFocus={(e) => scrollToActiveInput(e.target)}
                     placeholder={t.emailPlaceholder}
                     className={`w-full px-4 bg-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/30 transition-all ${isKeyboardOpen ? 'py-2' : 'py-3'}`}
                   />

@@ -197,10 +197,10 @@ const TallyFormsTest = () => {
               <div className="mt-2 p-2 bg-yellow-50 rounded">
                 <strong>Информация о призах:</strong>
                 <div className="text-sm">
-                  <div>Базовый приз: {form.prizeInfo.basePrize} сум</div>
-                  <div>Дополнительный приз: {form.prizeInfo.additionalPrize} сум</div>
-                  <div>Лотерея: {form.prizeInfo.lotteryAmount} сум</div>
-                  <div>Участие в лотерее: {form.prizeInfo.lotteryEligible ? 'Да' : 'Нет'}</div>
+                  <div>Базовый приз: 12 000 сум</div>
+                  <div>Дополнительный приз: 12 000 сум</div>
+                  <div>Лотерея: 3 000 000 сум</div>
+                  <div>Участие в лотерее: Да</div>
                 </div>
               </div>
             )}

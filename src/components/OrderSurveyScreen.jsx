@@ -12,12 +12,50 @@ import {
 import { getMessage } from "../constants/messages";
 import Header from "./header";
 import BottomNav from "./Main/BottomNav";
+import { useKeyboard } from "../hooks/useKeyboard";
 
 const OrderSurveyScreen = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { createOrder, loading, error } = useApi();
   const navigate = useNavigate();
+  const { isKeyboardOpen } = useKeyboard();
+  
+  // Функция для прокрутки к активному инпуту
+  const scrollToActiveInput = (inputElement) => {
+    if (!inputElement) return;
+    
+    setTimeout(() => {
+      const rect = inputElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      
+      let keyboardHeight = 0;
+      if (isKeyboardOpen) {
+        keyboardHeight = Math.min(viewportHeight * 0.4, 300);
+      }
+      
+      const availableHeight = viewportHeight - keyboardHeight;
+      
+      if (rect.bottom > availableHeight) {
+        const scrollAmount = rect.bottom - availableHeight + 50;
+        window.scrollBy({
+          top: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+      
+      setTimeout(() => {
+        const newRect = inputElement.getBoundingClientRect();
+        if (newRect.bottom > availableHeight) {
+          const additionalScroll = newRect.bottom - availableHeight + 30;
+          window.scrollBy({
+            top: additionalScroll,
+            behavior: 'smooth'
+          });
+        }
+      }, 200);
+    }, 400);
+  };
   const [formData, setFormData] = React.useState({
     fullName: user?.full_name || user?.name || '',
     organization: '',
@@ -175,9 +213,20 @@ const OrderSurveyScreen = () => {
     };
   }, [hasFormData, isFormSubmitted, isSubmitting, autoSubmitForm]);
 
+  // Обработка изменения состояния клавиатуры
+  React.useEffect(() => {
+    if (isKeyboardOpen) {
+      // Когда клавиатура открывается, прокручиваем к активному элементу
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === 'INPUT') {
+        scrollToActiveInput(activeElement);
+      }
+    }
+  }, [isKeyboardOpen]);
+
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white allow-scroll">
       <Header />
       
       <div className="px-6 pt-8 pb-24">
@@ -203,6 +252,7 @@ const OrderSurveyScreen = () => {
               type="text"
               value={formData.fullName}
               onChange={(e) => handleInputChange('fullName', e.target.value)}
+              onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.fullName}
               required
               className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none  transition-colors ${
@@ -219,6 +269,7 @@ const OrderSurveyScreen = () => {
               type="text"
               value={formData.organization}
               onChange={(e) => handleInputChange('organization', e.target.value)}
+              onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.organization}
               className="w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
             />
@@ -229,6 +280,7 @@ const OrderSurveyScreen = () => {
               type="text"
               value={formData.position}
               onChange={(e) => handleInputChange('position', e.target.value)}
+              onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.position}
               className="w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors"
             />
@@ -239,6 +291,7 @@ const OrderSurveyScreen = () => {
               type="tel"
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
+              onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.phone}
               required
               className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
@@ -255,6 +308,7 @@ const OrderSurveyScreen = () => {
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
+              onFocus={(e) => scrollToActiveInput(e.target)}
               placeholder={t.email}
               className={`w-full px-4 py-4 text-white bg-[#8888FC] rounded-xl border-2 border-transparent focus:outline-none transition-colors ${
                 formErrors.email ? 'border-red-300 bg-red-50' : ''

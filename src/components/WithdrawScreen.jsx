@@ -591,7 +591,6 @@ const WithdrawScreen = () => {
         </p>
         <div className="mt-4 flex items-center justify-between text-sm">
           <span className="text-white/90">{holder}</span>
-          <span className="text-white/80">12/99</span>
         </div>
       </div>
     </button>
@@ -599,7 +598,7 @@ const WithdrawScreen = () => {
 
 
   const renderSuccess = () => (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#5538F9] to-[#7C65FF]">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#5538F9] to-[#7C65FF] allow-scroll">
       <WaveOverlay />
       <img src={ProSVG} alt="success" className="w-2/3 mb-20 z-999" />
     </div>
@@ -930,7 +929,7 @@ const WithdrawScreen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 allow-scroll">
       <Header />
 
       <div className={`px-6 pt-8 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>

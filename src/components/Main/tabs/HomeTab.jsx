@@ -89,7 +89,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
             <div>
               <p className="text-white/90 text-sm">{t.balance}</p>
               <p className="text-3xl font-extrabold tracking-tight">
-                {user?.balance || 0} {t.sum}
+                {language === 'ru' ? '12 000 сум' : '12 000 so\'m'}
               </p>
             </div>
           </div>
