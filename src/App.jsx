@@ -33,28 +33,32 @@ function useTelegramInit(setIsRedirecting) {
     tg.expand();
 
     const redirectedKey = '__sa_redirect_done__';
+
     try {
       const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
 
-      // Если зашли из чата (без start_param)
+      // Если открыто из чата (нет start_param)
       if (!samePayload && !alreadyRedirected) {
         sessionStorage.setItem(redirectedKey, '1');
         setIsRedirecting(true);
 
-        // 👉 Подменяем start_param прямо в текущем окне
-        tg.initDataUnsafe.start_param = STARTAPP_PAYLOAD;
+        // 👉 превращаем текущее окно в "startapp"
+        Object.defineProperty(tg.initDataUnsafe, 'start_param', {
+          value: STARTAPP_PAYLOAD,
+          writable: false,
+        });
 
         setTimeout(() => {
-          setIsRedirecting(false); // убираем спиннер
-          navigate('/main');       // отправляем в основное приложение
+          setIsRedirecting(false);
+          navigate('/main'); // сразу ведём в основное приложение
         }, 500);
 
         return;
       }
     } catch {}
 
-    // --- Скрываем MainButton ---
+    // --- скрываем MainButton ---
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -77,7 +81,7 @@ function useTelegramInit(setIsRedirecting) {
       setTimeout(() => tg.disableVerticalSwipes(), 300);
     }
 
-    // --- pull-to-refresh блок ---
+    // --- блокируем pull-to-refresh ---
     const preventPullToRefresh = (e) => {
       if (window.scrollY === 0 && e.touches?.length === 1) {
         const startY = e.touches[0].clientY;
@@ -98,11 +102,11 @@ function useTelegramInit(setIsRedirecting) {
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    // --- Вибрация при кликах ---
+    // --- вибрация ---
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
-    // --- BackButton логика ---
+    // --- backButton ---
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
