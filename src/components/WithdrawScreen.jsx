@@ -539,29 +539,6 @@ const WithdrawScreen = () => {
 
   const BalanceCard = () => (
     <div className="w-full rounded-2xl p-5 text-white bg-gradient-to-r from-[#5E5AF6] to-[#8888FC] shadow-[0_20px_40px_rgba(94,90,246,0.35)] relative">
-      {showAddCardForm && (
-        <button
-          onClick={handleBack}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 transition-colors flex items-center justify-center"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            className="text-white"
-          >
-            <path
-              d="M19 12H5M12 19l-7-7 7-7"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      )}
-      
       <div className="flex items-center justify-start gap-4">
         <div className="flex items-center justify-between">
           <div className="w-18 h-18 rounded-full bg-white/15 flex items-center justify-center relative">
@@ -640,7 +617,7 @@ const WithdrawScreen = () => {
 
 
   const renderSuccess = () => (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#5538F9] to-[#7C65FF] allow-scroll">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-t from-[#5538F9] to-[#7C65FF] allow-scroll custom-scrollbar">
       <WaveOverlay />
       <img src={ProSVG} alt="success" className="w-2/3 mb-20 z-999" />
     </div>
@@ -653,7 +630,7 @@ const WithdrawScreen = () => {
     const shouldShowAddForm = userCards.length === 0 || showAddCardForm;
 
     return (
-      <div className={`space-y-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
+      <div className={`space-y-6 transition-all duration-300 custom-scrollbar ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <BalanceCard />
 
         <div>
@@ -832,7 +809,7 @@ const WithdrawScreen = () => {
     const amountNum = Number(amountDigits || 0);
 
     return (
-      <div className={`space-y-6 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
+      <div className={`space-y-6 transition-all duration-300 custom-scrollbar ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <BalanceCard />
 
         <h4 className="text-sm font-semibold text-gray-500">
@@ -848,7 +825,10 @@ const WithdrawScreen = () => {
         />
 
         <div className="flex justify-center">
-          <div className="w-12 h-12 rounded-full bg-[#5E5AF6] grid place-items-center">
+          <button 
+            onClick={() => setStep("cards-list")}
+            className="w-12 h-12 rounded-full bg-[#5E5AF6] grid place-items-center hover:bg-[#4A46E8] active:scale-95 transition-all duration-200"
+          >
             <svg
               width="32"
               height="32"
@@ -864,7 +844,7 @@ const WithdrawScreen = () => {
                 strokeLinejoin="round"
               />
             </svg>
-          </div>
+          </button>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgba(2,6,23,0.06)] p-4">
@@ -973,10 +953,9 @@ const WithdrawScreen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 allow-scroll">
+    <div className="min-h-screen bg-gray-50 allow-scroll custom-scrollbar">
       <Header />
-
-      <div className={`px-6 pt-8 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
+      <div className={`px-6 pt-8 transition-all duration-300 custom-scrollbar ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         {step === "cards-list" && renderCardsList()}
         {step === "enter-amount" && renderEnterAmount()}
       </div>

@@ -431,10 +431,10 @@ const ProfileEditPage = () => {
     <div className="min-h-screen bg-[#F4F4FF] allow-scroll">
       <Header />
       
-      <div className={`p-4 transition-all duration-300 ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
+        <div className={`p-4 transition-all duration-300 custom-scrollbar ${isKeyboardOpen ? 'pb-4' : 'pb-[90px]'}`}>
         <div className="max-w-md mx-auto">
           <div className={`bg-gradient-to-r from-[#5E5AF6] to-[#7C65FF] rounded-2xl text-white shadow-lg mb-2 transition-all duration-300 ${isKeyboardOpen ? 'mt-4 p-4' : 'mt-0 p-4'}`}>
-            <div className={`flex relative gap-2 items-center transition-all duration-300 ${isKeyboardOpen ? 'mb-4' : 'mb-6'}`}>
+            <div className={`flex relative gap-2 items-center transition-all duration-300 ${isKeyboardOpen ? 'mb-2' : 'mb-2'}`}>
               <div className="w-12 h-12 flex items-center justify-center">
                 <UserAvatar 
                   avatarUrl={user?.avatar_url} 

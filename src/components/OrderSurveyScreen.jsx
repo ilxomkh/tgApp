@@ -226,7 +226,7 @@ const OrderSurveyScreen = () => {
     <div className="min-h-screen bg-white allow-scroll">
       <Header />
       
-      <div className="px-4 pt-4 pb-2">
+       <div className="px-4 pt-4 pb-2 custom-scrollbar">
         <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-4">
           {t.title}
         </h2>
