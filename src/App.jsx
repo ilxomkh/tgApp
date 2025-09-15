@@ -19,6 +19,16 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function useTelegramInit() {
+
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+  
+    console.log("Telegram WebApp version:", tg.version);
+    alert(`Telegram WebApp version: ${tg.version}`);
+  }, []);
+
+  
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
