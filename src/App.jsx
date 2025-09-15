@@ -18,7 +18,7 @@ import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-const BOT_USERNAME = 'ProSurvey';
+const BOT_USERNAME = 'pro_surveybot';
 const STARTAPP_PAYLOAD = 'home';
 
 function useTelegramInit() {
@@ -33,10 +33,13 @@ function useTelegramInit() {
     tg.ready();
     tg.expand();
 
+    const redirectedKey = '__sa_redirect_done__';
     try {
       const fromChat = Boolean(tg.initDataUnsafe?.chat?.id);
       const alreadyStandalone = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
-      if (fromChat && !alreadyStandalone) {
+      const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
+      if (fromChat && !alreadyStandalone && !alreadyRedirected) {
+        sessionStorage.setItem(redirectedKey, '1');
         tg.openTelegramLink(`https://t.me/${BOT_USERNAME}?startapp=${STARTAPP_PAYLOAD}`);
         tg.close();
         return;
