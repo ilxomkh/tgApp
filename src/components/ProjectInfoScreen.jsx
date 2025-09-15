@@ -45,46 +45,51 @@ const ProjectInfoScreen = () => {
   const t = translations[language || "ru"];
 
   return (
-    <div className="min-h-screen bg-[#F4F4FF] flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-[#F4F4FF]">
+      {/* Фиксированный хедер */}
+      <div className="fixed top-0 left-0 right-0 z-30">
+        <Header />
+      </div>
 
-      {/* Основной контент с прокруткой */}
-      <div className="flex-1 overflow-y-auto px-6 py-8 pb-32 custom-scrollbar">
-        {/* Заголовок страницы */}
-        <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
-          {t.title}
-        </h2>
+      {/* Контейнер контента между хедером и кнопкой */}
+      <div className="fixed top-40 bottom-32 left-0 right-0 z-10">
+        <div className="h-full px-6 py-4 overflow-y-auto custom-scrollbar">
+          {/* Заголовок страницы */}
+          <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
+            {t.title}
+          </h2>
 
-        {/* Контент */}
-        <div className="space-y-6 text-gray-800">
-          {/* О проекте */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.aboutProject}
-            </h3>
-            <p className="text-base leading-relaxed">{t.description}</p>
-          </div>
-
-          {/* Возможности */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.features}
-            </h3>
-            <div className="space-y-2">
-              <p className="text-base leading-relaxed">{t.feature1}</p>
-              <p className="text-base leading-relaxed">{t.feature2}</p>
-              <p className="text-base leading-relaxed">{t.feature3}</p>
-              <p className="text-base leading-relaxed">{t.feature4}</p>
-              <p className="text-base leading-relaxed">{t.feature5}</p>
+          {/* Контент */}
+          <div className="space-y-6 text-gray-800">
+            {/* О проекте */}
+            <div>
+              <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
+                {t.aboutProject}
+              </h3>
+              <p className="text-base leading-relaxed">{t.description}</p>
             </div>
-          </div>
 
-          {/* Миссия */}
-          <div>
-            <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
-              {t.mission}
-            </h3>
-            <p className="text-base leading-relaxed">{t.missionText}</p>
+            {/* Возможности */}
+            <div>
+              <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
+                {t.features}
+              </h3>
+              <div className="space-y-2">
+                <p className="text-base leading-relaxed">{t.feature1}</p>
+                <p className="text-base leading-relaxed">{t.feature2}</p>
+                <p className="text-base leading-relaxed">{t.feature3}</p>
+                <p className="text-base leading-relaxed">{t.feature4}</p>
+                <p className="text-base leading-relaxed">{t.feature5}</p>
+              </div>
+            </div>
+
+            {/* Миссия */}
+            <div>
+              <h3 className="text-lg font-bold text-[#5E5AF6] mb-3">
+                {t.mission}
+              </h3>
+              <p className="text-base leading-relaxed">{t.missionText}</p>
+            </div>
           </div>
         </div>
       </div>

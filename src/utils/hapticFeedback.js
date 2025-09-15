@@ -164,3 +164,86 @@ export const withHapticFeedback = (ButtonComponent, feedbackType = 'light') => {
     });
   });
 };
+
+/**
+ * Глобальная функция для инициализации автоматического haptic feedback
+ * Добавляет обработчик клика ко всему документу для автоматической вибрации
+ * @param {Object} options - опции конфигурации
+ * @param {string} options.feedbackType - тип вибрации по умолчанию
+ * @param {Array} options.excludeSelectors - селекторы элементов для исключения
+ * @param {Array} options.includeSelectors - дополнительные селекторы для включения
+ */
+export const initGlobalHapticFeedback = (options = {}) => {
+  const {
+    feedbackType = 'light',
+    excludeSelectors = ['.no-haptic', '[data-no-haptic]'],
+    includeSelectors = ['button', '[role="button"]', '.clickable', '[data-clickable]']
+  } = options;
+
+  const handleGlobalClick = (event) => {
+    const target = event.target;
+    
+    // Проверяем исключения
+    const isExcluded = excludeSelectors.some(selector => {
+      try {
+        return target.matches(selector) || target.closest(selector);
+      } catch (e) {
+        return false;
+      }
+    });
+    
+    if (isExcluded) return;
+    
+    // Проверяем включения
+    const isIncluded = includeSelectors.some(selector => {
+      try {
+        return target.matches(selector) || target.closest(selector);
+      } catch (e) {
+        return false;
+      }
+    });
+    
+    if (!isIncluded) return;
+    
+    // Вызываем haptic feedback
+    if (isTelegramWebApp()) {
+      try {
+        switch (feedbackType) {
+          case 'light':
+            lightImpact();
+            break;
+          case 'medium':
+            mediumImpact();
+            break;
+          case 'heavy':
+            heavyImpact();
+            break;
+          case 'success':
+            notificationSuccess();
+            break;
+          case 'error':
+            notificationError();
+            break;
+          case 'warning':
+            notificationWarning();
+            break;
+          case 'selection':
+            selectionChanged();
+            break;
+          default:
+            lightImpact();
+        }
+      } catch (error) {
+        console.warn('Global haptic feedback error:', error);
+      }
+    }
+  };
+
+  // Добавляем обработчик
+  document.addEventListener('click', handleGlobalClick, true);
+  
+  // Возвращаем функцию для удаления обработчика
+  return () => {
+    document.removeEventListener('click', handleGlobalClick, true);
+  };
+};

@@ -16,7 +16,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="h-28 bg-gradient-to-b from-[#6A4CFF] to-[#5936F2] text-white pt-[env(safe-area-inset-top)]">
+    <div className="h-38 bg-gradient-to-b from-[#6A4CFF] to-[#5936F2] text-white pt-[env(safe-area-inset-top)]">
       <div className="h-full max-w-[480px] mx-auto flex items-end justify-center pb-3">
         <img src={PRO} alt="Pro Survey" className="h-9" />
       </div>

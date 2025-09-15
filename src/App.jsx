@@ -18,11 +18,11 @@ import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
+import { initGlobalHapticFeedback } from './utils/hapticFeedback';
 
 function AppContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
 
-  // === ВАЖНО: Инициализация Telegram WebApp и покраска шапки ===
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
@@ -30,20 +30,46 @@ function AppContent() {
     tg.ready();
     tg.expand();
     
-    // Фиксируем нижнюю панель, чтобы она не скрывалась при скролле
+    // Отключаем вертикальные свайпы для предотвращения сворачивания приложения
+    tg.disableVerticalSwipes?.();
+    
     tg.MainButton.show();
     
-    // Скрываем кнопку "Назад" по умолчанию (будет показываться только на нужных страницах)
     tg.BackButton.hide();
     
-    // Устанавливаем текст кнопки "Назад" (если поддерживается)
     if (tg.BackButton.setText) {
       tg.BackButton.setText('Назад');
     }
 
-    // Цвета шапки и фона WebView — под верхний цвет твоего градиента (#6A4CFF)
-    tg.setHeaderColor?.('#6A4CFF');       // На iOS может игнорироваться, но на Android ок
-    tg.setBackgroundColor?.('#6A4CFF');   // Фон под вебвью
+    tg.setHeaderColor?.('#6A4CFF');
+    tg.setBackgroundColor?.('#6A4CFF');
+
+    // Инициализируем глобальный haptic feedback для всех кнопок
+    const cleanupHaptic = initGlobalHapticFeedback({
+      feedbackType: 'light',
+      excludeSelectors: [
+        '.no-haptic', 
+        '[data-no-haptic]',
+        'input[type="text"]',
+        'input[type="email"]', 
+        'input[type="password"]',
+        'textarea',
+        'select'
+      ],
+      includeSelectors: [
+        'button', 
+        '[role="button"]', 
+        '.clickable', 
+        '[data-clickable]',
+        'a[href]',
+        '[onclick]'
+      ]
+    });
+
+    // Очистка при размонтировании
+    return () => {
+      cleanupHaptic();
+    };
   }, []);
 
   return (
@@ -56,7 +82,6 @@ function AppContent() {
 function AuthInitializer({ children }) {
   const { isInitializing } = useAuth();
 
-  // Показываем индикатор загрузки во время инициализации
   if (isInitializing) {
     return (
       <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
@@ -77,7 +102,6 @@ function RouterContent() {
 
   return (
     <>
-      {/* Корневой контейнер */}
       <div
         className="
           min-h-[100dvh]

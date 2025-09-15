@@ -479,7 +479,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
           </button>
 
           {/* Кнопка сброса для разработки */}
-          <button
+          {/* <button
             onClick={handleLogoutClick}
             className="w-full bg-[#F7F8FA] rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-[#D8D7FD]"
           >
@@ -505,7 +505,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
                 strokeLinejoin="round"
               />
             </svg>
-          </button>
+          </button> */}
         </div>
       </div>
 
