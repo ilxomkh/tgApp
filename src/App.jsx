@@ -1,5 +1,5 @@
 // App.jsx
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import WelcomeScreen from './components/WelcomeScreen';
 import LanguageSelector from './components/LanguageSelector';
@@ -20,43 +20,76 @@ import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 function useTelegramInit() {
-  const location = useLocation();
+  const location = useLocation();      // теперь внутри Router
   const navigate = useNavigate();
+  const backHandlerRef = useRef(null);
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
+    // ——— Base init
     tg.ready();
     tg.expand();
+    console.log('Telegram WebApp version:', tg.version);
 
-    console.log("Telegram WebApp version:", tg.version);
-
-    // 🔥 Полностью убиваем MainButton
+    // ——— Kill MainButton навсегда
     const nukeMainButton = () => {
       try {
-        tg.MainButton.hide();
-        tg.MainButton.isVisible = false;
-        tg.MainButton.setParams = () => {};
-        tg.MainButton.show = () => {};
+        tg.MainButton?.hide();
+        // делаем методы no-op, чтобы никто случайно не включил
+        if (tg.MainButton) {
+          tg.MainButton.show = () => {};
+          tg.MainButton.setParams = () => {};
+        }
       } catch (e) {
-        console.warn("MainButton disable error:", e);
+        console.warn('MainButton disable error:', e);
       }
     };
-
     nukeMainButton();
+    // страховочные повторы
     setTimeout(nukeMainButton, 100);
     setTimeout(nukeMainButton, 300);
     setTimeout(nukeMainButton, 1000);
 
-    tg.onEvent("mainButtonClicked", nukeMainButton);
-    tg.onEvent("mainButtonTextChanged", nukeMainButton);
-    tg.onEvent("mainButtonParamsChanged", nukeMainButton);
-    tg.onEvent("themeChanged", nukeMainButton);
-    tg.onEvent("web_app_ready", nukeMainButton);
+    tg.onEvent('web_app_ready', nukeMainButton);
+    tg.onEvent('mainButtonParamsChanged', nukeMainButton);
+    tg.onEvent('mainButtonTextChanged', nukeMainButton);
+    tg.onEvent('themeChanged', nukeMainButton);
 
-    // ✅ Страницы для кнопки "Назад"
-    const backPages = [
+    // ——— Disable vertical swipes
+    if (tg.disableVerticalSwipes) {
+      tg.disableVerticalSwipes();
+      setTimeout(() => tg.disableVerticalSwipes(), 300);
+    }
+
+    // ——— iOS pull-to-refresh fallback
+    const preventPullToRefresh = (e) => {
+      if (window.scrollY === 0 && e.touches?.length === 1) {
+        const startY = e.touches[0].clientY;
+        const onMove = (ev) => {
+          const dy = ev.touches[0].clientY - startY;
+          if (dy > 10) {
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+        };
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', () => {
+          document.removeEventListener('touchmove', onMove);
+        }, { once: true });
+      }
+    };
+    document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
+
+    // ——— Haptics
+    const vibrateOnClick = () => {
+      tg.HapticFeedback?.impactOccurred?.('medium');
+    };
+    document.addEventListener('click', vibrateOnClick);
+
+    // ——— BackButton logic per route
+    const backPages = new Set([
       '/withdraw',
       '/profile-edit',
       '/project-info',
@@ -64,84 +97,57 @@ function useTelegramInit() {
       '/support',
       '/order-survey',
       '/test-tally',
-    ];
+    ]);
 
-    if (tg.BackButton) {
-      if (backPages.includes(location.pathname)) {
+    const applyBackButtonForPath = (path) => {
+      if (!tg.BackButton) return;
+
+      // чистим старый обработчик, если был
+      if (backHandlerRef.current) {
+        tg.BackButton.offClick(backHandlerRef.current);
+        backHandlerRef.current = null;
+      }
+
+      if (backPages.has(path)) {
         tg.BackButton.show();
-        tg.BackButton.onClick(() => navigate(-1));
+        const handler = () => navigate(-1);
+        backHandlerRef.current = handler;
+        tg.BackButton.onClick(handler);
       } else {
         tg.BackButton.hide();
       }
-    }
-
-    // ✅ Отключаем свайпы
-    if (tg.disableVerticalSwipes) {
-      tg.disableVerticalSwipes();
-      setTimeout(() => tg.disableVerticalSwipes(), 300);
-    }
-
-    // ✅ Фолбэк для iOS Safari (pull-to-refresh)
-    const preventPullToRefresh = (e) => {
-      if (window.scrollY === 0 && e.touches.length === 1) {
-        const startY = e.touches[0].clientY;
-        const onMove = (ev) => {
-          const deltaY = ev.touches[0].clientY - startY;
-          if (deltaY > 10) {
-            ev.preventDefault();
-            ev.stopPropagation();
-          }
-        };
-        document.addEventListener("touchmove", onMove, { passive: false });
-        document.addEventListener(
-          "touchend",
-          () => document.removeEventListener("touchmove", onMove),
-          { once: true }
-        );
-      }
     };
-    document.addEventListener("touchstart", preventPullToRefresh, { passive: true });
 
-    // ✅ Вибрация
-    const vibrateOnClick = () => {
-      if (tg.HapticFeedback?.impactOccurred) {
-        tg.HapticFeedback.impactOccurred("medium");
-      }
-    };
-    document.addEventListener("click", vibrateOnClick);
+    // применяем при монтировании и при каждом смене маршрута
+    applyBackButtonForPath(location.pathname);
 
     return () => {
-      tg.offEvent("mainButtonClicked", nukeMainButton);
-      tg.offEvent("mainButtonTextChanged", nukeMainButton);
-      tg.offEvent("mainButtonParamsChanged", nukeMainButton);
-      tg.offEvent("themeChanged", nukeMainButton);
-      tg.offEvent("web_app_ready", nukeMainButton);
+      tg.offEvent('web_app_ready', nukeMainButton);
+      tg.offEvent('mainButtonParamsChanged', nukeMainButton);
+      tg.offEvent('mainButtonTextChanged', nukeMainButton);
+      tg.offEvent('themeChanged', nukeMainButton);
 
-      if (tg.BackButton) {
+      if (tg.BackButton && backHandlerRef.current) {
+        tg.BackButton.offClick(backHandlerRef.current);
         tg.BackButton.hide();
-        tg.BackButton.offClick(() => navigate(-1));
       }
 
-      document.removeEventListener("touchstart", preventPullToRefresh);
-      document.removeEventListener("click", vibrateOnClick);
+      document.removeEventListener('touchstart', preventPullToRefresh);
+      document.removeEventListener('click', vibrateOnClick);
     };
-  }, [location, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, navigate]); // реагируем только на изменение пути
 }
 
 function AppContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
   useTelegramInit();
 
-  return (
-    <Router>
-      <RouterContent />
-    </Router>
-  );
+  return <RouterContent />;
 }
 
 function AuthInitializer({ children }) {
   const { isInitializing } = useAuth();
-
   if (isInitializing) {
     return (
       <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
@@ -162,19 +168,16 @@ function RouterContent() {
   return (
     <div
       className="min-h-[100dvh] bg-gray-50"
-      style={{
-        backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)',
-      }}
+      style={{ backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)' }}
     >
       <Routes>
-        {/* Публичные маршруты */}
+        {/* public */}
         <Route path="/" element={<WelcomeScreen />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/auth" element={<AuthScreen />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/public-offer" element={<PublicOfferScreen />} />
-
-        {/* Защищённые маршруты */}
+        {/* protected */}
         <Route path="/main" element={<ProtectedRoute><MainScreen /></ProtectedRoute>} />
         <Route path="/withdraw" element={<ProtectedRoute><WithdrawScreen /></ProtectedRoute>} />
         <Route path="/order-survey" element={<ProtectedRoute><OrderSurveyScreen /></ProtectedRoute>} />
@@ -198,9 +201,12 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <AuthInitializer>
-          <AppContent />
-        </AuthInitializer>
+        {/* ВАЖНО: Router здесь, чтобы все хуки получали контекст */}
+        <Router>
+          <AuthInitializer>
+            <AppContent />
+          </AuthInitializer>
+        </Router>
       </AuthProvider>
     </LanguageProvider>
   );
