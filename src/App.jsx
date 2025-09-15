@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import WelcomeScreen from './components/WelcomeScreen';
 import LanguageSelector from './components/LanguageSelector';
 import Onboarding from './components/Onboarding';
@@ -17,7 +17,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import TallyFormsTest from './components/TallyFormsTest';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { useLocation } from 'react-router-dom';
 import { initGlobalHapticFeedback } from './utils/hapticFeedback';
 
 function AppContent() {
@@ -29,14 +28,20 @@ function AppContent() {
 
     tg.ready();
     tg.expand();
-    
-    // Отключаем вертикальные свайпы для предотвращения сворачивания приложения
-    tg.disableVerticalSwipes?.();
-    
-    tg.MainButton.show();
-    
+
+    // ✅ Отключаем вертикальные свайпы (чтобы нельзя было свернуть мини-апп)
+    if (tg.disableVerticalSwipes) {
+      tg.disableVerticalSwipes();
+    }
+    setTimeout(() => {
+      if (tg.disableVerticalSwipes) {
+        tg.disableVerticalSwipes();
+      }
+    }, 300);
+
+    // UI-настройки
+    tg.MainButton.hide();
     tg.BackButton.hide();
-    
     if (tg.BackButton.setText) {
       tg.BackButton.setText('Назад');
     }
@@ -44,31 +49,44 @@ function AppContent() {
     tg.setHeaderColor?.('#6A4CFF');
     tg.setBackgroundColor?.('#6A4CFF');
 
-    // Инициализируем глобальный haptic feedback для всех кнопок
+    // ✅ Глобальный haptic feedback для всех кнопок
     const cleanupHaptic = initGlobalHapticFeedback({
       feedbackType: 'light',
       excludeSelectors: [
-        '.no-haptic', 
+        '.no-haptic',
         '[data-no-haptic]',
         'input[type="text"]',
-        'input[type="email"]', 
+        'input[type="email"]',
         'input[type="password"]',
         'textarea',
         'select'
       ],
       includeSelectors: [
-        'button', 
-        '[role="button"]', 
-        '.clickable', 
+        'button',
+        '[role="button"]',
+        '.clickable',
         '[data-clickable]',
         'a[href]',
         '[onclick]'
       ]
     });
 
-    // Очистка при размонтировании
+    // ✅ Дополнительно: короткая вибрация при старте экрана
+    if (tg.HapticFeedback?.impactOccurred) {
+      tg.HapticFeedback.impactOccurred('light');
+    }
+
+    // ✅ Дополнительно: вешаем вибрацию на клики по кнопкам
+    const handleClick = (e) => {
+      if (tg.HapticFeedback?.impactOccurred) {
+        tg.HapticFeedback.impactOccurred('medium');
+      }
+    };
+    document.addEventListener('click', handleClick);
+
     return () => {
       cleanupHaptic();
+      document.removeEventListener('click', handleClick);
     };
   }, []);
 
@@ -101,76 +119,37 @@ function RouterContent() {
   const location = useLocation();
 
   return (
-    <>
-      <div
-        className="
-          min-h-[100dvh]
-          bg-gray-50
-        "
-        style={{
-          // на случай, если телеграм не применит цвет — делаем такой же фон у корня
-          backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)'
-        }}
-      >
-        <Routes>
-          {/* Публичные маршруты (не требуют авторизации) */}
-          <Route path="/" element={<WelcomeScreen />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/auth" element={<AuthScreen />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/public-offer" element={<PublicOfferScreen />} />
-          
-          {/* Защищенные маршруты (требуют авторизации) */}
-          <Route path="/main" element={
-            <ProtectedRoute>
-              <MainScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/withdraw" element={
-            <ProtectedRoute>
-              <WithdrawScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/order-survey" element={
-            <ProtectedRoute>
-              <OrderSurveyScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/referral-program" element={
-            <ProtectedRoute>
-              <ReferralProgramScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/project-info" element={
-            <ProtectedRoute>
-              <ProjectInfoScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/support" element={
-            <ProtectedRoute>
-              <SupportScreen />
-            </ProtectedRoute>
-          } />
-          <Route path="/profile-edit" element={
-            <ProtectedRoute>
-              <ProfileEditPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/test-tally" element={
-            <ProtectedRoute>
-              <TallyFormsTest />
-            </ProtectedRoute>
-          } />
-        </Routes>
+    <div
+      className="min-h-[100dvh] bg-gray-50"
+      style={{
+        backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)'
+      }}
+    >
+      <Routes>
+        {/* Публичные маршруты */}
+        <Route path="/" element={<WelcomeScreen />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/auth" element={<AuthScreen />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/public-offer" element={<PublicOfferScreen />} />
 
-        {/* Language Modal */}
-        <LanguageSelector
-          isOpen={isLanguageModalOpen}
-          onClose={closeLanguageModal}
-          shouldNavigateToOnboarding={location.pathname === '/'}
-        />
-      </div>
-    </>
+        {/* Защищённые маршруты */}
+        <Route path="/main" element={<ProtectedRoute><MainScreen /></ProtectedRoute>} />
+        <Route path="/withdraw" element={<ProtectedRoute><WithdrawScreen /></ProtectedRoute>} />
+        <Route path="/order-survey" element={<ProtectedRoute><OrderSurveyScreen /></ProtectedRoute>} />
+        <Route path="/referral-program" element={<ProtectedRoute><ReferralProgramScreen /></ProtectedRoute>} />
+        <Route path="/project-info" element={<ProtectedRoute><ProjectInfoScreen /></ProtectedRoute>} />
+        <Route path="/support" element={<ProtectedRoute><SupportScreen /></ProtectedRoute>} />
+        <Route path="/profile-edit" element={<ProtectedRoute><ProfileEditPage /></ProtectedRoute>} />
+        <Route path="/test-tally" element={<ProtectedRoute><TallyFormsTest /></ProtectedRoute>} />
+      </Routes>
+
+      <LanguageSelector
+        isOpen={isLanguageModalOpen}
+        onClose={closeLanguageModal}
+        shouldNavigateToOnboarding={location.pathname === '/'}
+      />
+    </div>
   );
 }
 
