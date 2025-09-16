@@ -39,12 +39,15 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
 
     try {
       // 1. Берём start_param из initDataUnsafe
-      let startParam = tg.initDataUnsafe?.start_param;
+      let startParam = tg?.initDataUnsafe?.start_param;
+      console.log("From initDataUnsafe:", startParam);
 
       // 2. Если пусто — берём из query параметра (Menu Button)
       if (!startParam) {
         const urlParams = new URLSearchParams(window.location.search);
-        startParam = urlParams.get("tgWebAppStartParam");
+        const urlStartParam = urlParams.get("tgWebAppStartParam");
+        console.log("From URL:", urlStartParam);
+        if (urlStartParam) startParam = urlStartParam;
       }
 
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
