@@ -23,6 +23,7 @@ import CloseConfirmationModal from './components/CloseConfirmationModal';
 
 const STARTAPP_PAYLOAD = 'home';
 
+// === Хук для инициализации Telegram WebApp API ===
 function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,11 +33,13 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
+    // Инициализация Mini App
     tg.ready();
     tg.expand();
+    if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
 
+    // --- обработка startapp payload ---
     const redirectedKey = '__sa_redirect_done__';
-
     try {
       const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
@@ -59,6 +62,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       }
     } catch {}
 
+    // --- убрать MainButton ---
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -76,65 +80,18 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     tg.onEvent('mainButtonTextChanged', nukeMainButton);
     tg.onEvent('themeChanged', nukeMainButton);
 
-    if (tg.disableVerticalSwipes) {
-      tg.disableVerticalSwipes();
-      setTimeout(() => tg.disableVerticalSwipes(), 300);
-    }
-
-    const preventPullToRefresh = (e) => {
-      if (window.scrollY === 0 && e.touches?.length === 1) {
-        const startY = e.touches[0].clientY;
-        const onMove = (ev) => {
-          const dy = ev.touches[0].clientY - startY;
-          if (dy > 10) {
-            ev.preventDefault();
-            ev.stopPropagation();
-          }
-        };
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener(
-          'touchend',
-          () => document.removeEventListener('touchmove', onMove),
-          { once: true }
-        );
-      }
-    };
-    document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
-
+    // --- Хаптик ---
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
-    const handleCloseRequest = () => {
-      setIsCloseModalOpen(true);
-    };
-
-    const handleBeforeUnload = (e) => {
-      const activeElement = document.activeElement;
-      const isFormActive =
-        activeElement &&
-        (activeElement.tagName === 'INPUT' ||
-          activeElement.tagName === 'TEXTAREA' ||
-          activeElement.tagName === 'SELECT');
-
-      const hasUnsavedData = sessionStorage.getItem('hasUnsavedData') === 'true';
-
-      if (isFormActive || hasUnsavedData) {
-        const message =
-          'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
-        e.returnValue = message;
-        return message;
-      }
-
-      return;
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
+    // --- Закрытие WebApp ---
+    const handleCloseRequest = () => setIsCloseModalOpen(true);
     if (tg.onEvent) {
       tg.offEvent('web_app_close', handleCloseRequest);
       tg.onEvent('web_app_close', handleCloseRequest);
     }
 
+    // --- Кнопка "Назад" ---
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -172,12 +129,8 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
         tg.BackButton.offClick(backHandlerRef.current);
         tg.BackButton.hide();
       }
-      document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      if (tg.onEvent) {
-        tg.offEvent('web_app_close', handleCloseRequest);
-      }
+      if (tg.onEvent) tg.offEvent('web_app_close', handleCloseRequest);
     };
   }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen]);
 }
@@ -206,9 +159,7 @@ function AppContent() {
         isOpen={isCloseModalOpen}
         onConfirm={() => {
           const tg = window.Telegram?.WebApp;
-          if (tg?.close) {
-            tg.close();
-          }
+          if (tg?.close) tg.close();
           setIsCloseModalOpen(false);
         }}
         onCancel={() => setIsCloseModalOpen(false)}
