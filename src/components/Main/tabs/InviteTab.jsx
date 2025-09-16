@@ -31,6 +31,7 @@ const InviteTab = ({ locale = "ru", user }) => {
       copy: "Копировать",
       copied: "Ссылка скопирована",
       copyFail: "Не удалось скопировать",
+      sent: "Отправлено",
       loading: "Загрузка...",
       error: "Ошибка загрузки статистики",
       currency: "сум",
@@ -49,6 +50,7 @@ const InviteTab = ({ locale = "ru", user }) => {
       copy: "Nusxalash",
       copied: "Havola nusхalandi",
       copyFail: "Nusхalab bo'lmadi",
+      sent: "Yuborildi",
       loading: "Yuklanmoqda...",
       error: "Statistikani yuklashda xatolik",
       currency: "so'm",
@@ -100,7 +102,7 @@ const InviteTab = ({ locale = "ru", user }) => {
     try {
       if (navigator.share) {
         await navigator.share(shareData);
-        showToast("Отправлено");
+        showToast(t.sent);
       } else {
         await navigator.clipboard.writeText(refLink);
         showToast(t.copied);
