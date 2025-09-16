@@ -20,6 +20,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
+import StartAppRedirectBanner from './components/StartAppRedirectBanner';
+
 
 const STARTAPP_PAYLOAD = 'home';
 
@@ -35,8 +37,8 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     tg.ready();
     tg.expand();
 
-    // --- редирект по start_param ---
     const redirectedKey = '__sa_redirect_done__';
+
     try {
       const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
@@ -59,7 +61,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       }
     } catch {}
 
-    // --- отключаем MainButton ---
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -82,7 +83,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       setTimeout(() => tg.disableVerticalSwipes(), 300);
     }
 
-    // --- запрет pull-to-refresh ---
     const preventPullToRefresh = (e) => {
       if (window.scrollY === 0 && e.touches?.length === 1) {
         const startY = e.touches[0].clientY;
@@ -103,19 +103,39 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     };
     document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
-    // --- haptic feedback ---
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
-    // === КАСТОМНАЯ кнопка закрытия ===
-    // вместо web_app_close
-    tg.MainButton.setText("Закрыть");
-    tg.MainButton.show();
-    tg.MainButton.onClick(() => {
+    const handleCloseRequest = () => {
       setIsCloseModalOpen(true);
-    });
+    };
 
-    // --- BackButton ---
+    const handleBeforeUnload = (e) => {
+      const activeElement = document.activeElement;
+      const isFormActive = activeElement && (
+        activeElement.tagName === 'INPUT' || 
+        activeElement.tagName === 'TEXTAREA' || 
+        activeElement.tagName === 'SELECT'
+      );
+      
+      const hasUnsavedData = sessionStorage.getItem('hasUnsavedData') === 'true';
+      
+      if (isFormActive || hasUnsavedData) {
+        const message = 'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
+        e.returnValue = message;
+        return message;
+      }
+      
+      return;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    if (tg.onEvent) {
+      tg.offEvent('web_app_close', handleCloseRequest);
+      tg.onEvent('web_app_close', handleCloseRequest);
+    }
+
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -149,15 +169,16 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       tg.offEvent('mainButtonParamsChanged', nukeMainButton);
       tg.offEvent('mainButtonTextChanged', nukeMainButton);
       tg.offEvent('themeChanged', nukeMainButton);
-
       if (tg.BackButton && backHandlerRef.current) {
         tg.BackButton.offClick(backHandlerRef.current);
         tg.BackButton.hide();
       }
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
-
-      // ❌ не подписываемся на web_app_close вообще
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (tg.onEvent) {
+        tg.offEvent('web_app_close', handleCloseRequest);
+      }
     };
   }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen]);
 }
@@ -171,7 +192,10 @@ function AppContent() {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-        <img src={ProSVG} className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50" />
+        <img
+          src={ProSVG}
+          className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
+        />
       </div>
     );
   }
@@ -190,6 +214,9 @@ function AppContent() {
         }}
         onCancel={() => setIsCloseModalOpen(false)}
       />
+
+      {/* 👇 сюда вставляем */}
+      <StartAppRedirectBanner />
     </>
   );
 }
@@ -200,7 +227,7 @@ function AuthInitializer({ children }) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-        <img src={ProSVG} className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50" />
+        <img src={ProSVG} className='absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50'/>
       </div>
     );
   }
