@@ -21,10 +21,11 @@ import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 
-
 const STARTAPP_PAYLOAD = 'home';
+const BOT_USERNAME = 'pro_surveybot'; // 👈 замени на имя своего бота
+const STARTAPP_LINK = `https://t.me/${BOT_USERNAME}/webapp?startapp=1`;
 
-function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
+function useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect) {
   const location = useLocation();
   const navigate = useNavigate();
   const backHandlerRef = useRef(null);
@@ -35,6 +36,12 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
 
     tg.ready();
     tg.expand();
+
+    // Проверка: есть ли start_param
+    const hasStartParam = Boolean(tg.initDataUnsafe?.start_param);
+    if (!hasStartParam) {
+      setNeedsRedirect(true);
+    }
 
     const redirectedKey = '__sa_redirect_done__';
 
@@ -111,25 +118,26 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
 
     const handleBeforeUnload = (e) => {
       const activeElement = document.activeElement;
-      const isFormActive = activeElement && (
-        activeElement.tagName === 'INPUT' || 
-        activeElement.tagName === 'TEXTAREA' || 
-        activeElement.tagName === 'SELECT'
-      );
-      
+      const isFormActive =
+        activeElement &&
+        (activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.tagName === 'SELECT');
+
       const hasUnsavedData = sessionStorage.getItem('hasUnsavedData') === 'true';
-      
+
       if (isFormActive || hasUnsavedData) {
-        const message = 'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
+        const message =
+          'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
         e.returnValue = message;
         return message;
       }
-      
+
       return;
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     if (tg.onEvent) {
       tg.offEvent('web_app_close', handleCloseRequest);
       tg.onEvent('web_app_close', handleCloseRequest);
@@ -179,19 +187,23 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
         tg.offEvent('web_app_close', handleCloseRequest);
       }
     };
-  }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen]);
+  }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect]);
 }
 
 function AppContent() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-  useTelegramInit(setIsRedirecting, setIsCloseModalOpen);
+  const [needsRedirect, setNeedsRedirect] = useState(false);
+  useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect);
 
   if (isRedirecting) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-        <img src={ProSVG} className='absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50'/>
+        <img
+          src={ProSVG}
+          className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
+        />
       </div>
     );
   }
@@ -210,6 +222,18 @@ function AppContent() {
         }}
         onCancel={() => setIsCloseModalOpen(false)}
       />
+
+      {/* Баннер для перехода в startapp */}
+      {needsRedirect && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white shadow-lg z-50">
+          <a
+            href={STARTAPP_LINK}
+            className="block w-full text-center bg-[#5538F9] text-white py-3 rounded-lg font-bold"
+          >
+            🔗 Открыть приложение правильно
+          </a>
+        </div>
+      )}
     </>
   );
 }
@@ -220,7 +244,10 @@ function AuthInitializer({ children }) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-        <img src={ProSVG} className='absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50'/>
+        <img
+          src={ProSVG}
+          className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
+        />
       </div>
     );
   }

@@ -466,7 +466,7 @@ const WithdrawScreen = () => {
         const newCard = {
           id: result.data.id,
           digits: result.data.card_number_masked || result.data.card_number,
-          holder: user?.full_name || user?.name || "User",
+          holder: result.data.holder_name || user?.full_name || user?.name || "User",
           brand: brand,
           color: getCardColor(brand),
           card_type: result.data.card_type,
@@ -759,14 +759,14 @@ const WithdrawScreen = () => {
                   <PrettyCard
                     key={card.id}
                     digits={card.card_number_masked || card.card_number}
-                    holder={user?.full_name || user?.name || "User"}
+                    holder={card.holder_name || user?.full_name || user?.name || "User"}
                     brand={cardBrand}
                     color={getCardColor(cardBrand)}
                     onClick={() =>
                       handleCardSelect({
                         id: card.id,
                         digits: card.card_number_masked || card.card_number,
-                        holder: user?.full_name || user?.name || "User",
+                        holder: card.holder_name || user?.full_name || user?.name || "User",
                         brand: cardBrand,
                         color: getCardColor(cardBrand),
                       })
