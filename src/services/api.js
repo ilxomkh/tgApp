@@ -35,6 +35,14 @@ export const getTelegramHeaders = () => {
 
 const API_BASE_URL = config.API_BASE_URL;
 
+const handleUnauthorized = () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('session_id');
+  
+  window.location.href = '/onboarding';
+};
+
 const getHeaders = (additionalHeaders = {}) => {
   const token = localStorage.getItem('auth_token');
   const sessionId = localStorage.getItem('session_id');
@@ -67,6 +75,7 @@ const handleResponse = async (response) => {
         break;
       case 401:
         errorMessage = errorMessage || ERROR_MESSAGES?.INVALID_OTP || 'Unauthorized';
+        handleUnauthorized();
         break;
       case 429:
         errorMessage = errorMessage || ERROR_MESSAGES?.TOO_MANY_ATTEMPTS || 'Too many requests';
