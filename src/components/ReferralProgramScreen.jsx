@@ -58,13 +58,13 @@ const ReferralProgramScreen = () => {
   const t = translations[language || "ru"];
 
   return (
-    <div className="min-h-screen bg-[#F4F4FF] allow-scroll">
+    <div className="min-h-screen bg-[#F4F4FF]">
       <div className="fixed top-0 left-0 right-0 z-30">
         <Header />
       </div>
 
-      <div className="pt-20 pb-24 px-6 allow-scroll">
-        <div className="max-w-md mx-auto">
+      <div className="fixed top-40 bottom-32 left-0 right-0 z-10">
+        <div className="h-full px-6 py-4 overflow-y-auto custom-scrollbar">
           <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
             {t.title}
           </h2>
