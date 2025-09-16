@@ -22,7 +22,7 @@ import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 
 const STARTAPP_PAYLOAD = 'home';
-const BOT_USERNAME = 'pro_surveybot'; // 👈 замени на имя своего бота
+const BOT_USERNAME = 'pro_surveybot'; // 👈 замени на своего
 const STARTAPP_LINK = `https://t.me/${BOT_USERNAME}/webapp?startapp=1`;
 
 function useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect) {
@@ -37,10 +37,13 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect
     tg.ready();
     tg.expand();
 
-    // Проверка: есть ли start_param
-    const hasStartParam = Boolean(tg.initDataUnsafe?.start_param);
-    if (!hasStartParam) {
-      setNeedsRedirect(true);
+    // проверяем режим запуска
+    const startParam = tg.initDataUnsafe?.start_param;
+    const isStartApp = Boolean(startParam);
+    if (!isStartApp) {
+      setNeedsRedirect(true); // внутри чата → показать баннер
+    } else {
+      setNeedsRedirect(false); // startapp → баннера нет
     }
 
     const redirectedKey = '__sa_redirect_done__';
@@ -223,12 +226,12 @@ function AppContent() {
         onCancel={() => setIsCloseModalOpen(false)}
       />
 
-      {/* Баннер для перехода в startapp */}
+      {/* Баннер появляется только если внутри чата */}
       {needsRedirect && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white shadow-lg z-50">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-r from-[#7C65FF] to-[#5538F9] shadow-lg z-50">
           <a
             href={STARTAPP_LINK}
-            className="block w-full text-center bg-[#5538F9] text-white py-3 rounded-lg font-bold"
+            className="block w-full text-center text-white py-3 rounded-lg font-bold"
           >
             🔗 Открыть приложение правильно
           </a>
