@@ -58,13 +58,13 @@ const ReferralProgramScreen = () => {
   const t = translations[language || "ru"];
 
   return (
-    <div className="min-h-screen bg-[#F4F4FF]">
+    <div className="min-h-screen bg-[#F4F4FF] allow-scroll">
       <div className="fixed top-0 left-0 right-0 z-30">
         <Header />
       </div>
 
-      <div className="fixed top-40 bottom-32 left-0 right-0 z-10">
-        <div className="h-full px-6 py-4 overflow-y-auto custom-scrollbar">
+      <div className="pt-20 pb-24 px-6 allow-scroll">
+        <div className="max-w-md mx-auto">
           <h2 className="text-2xl font-bold text-[#5E5AF6] text-center mb-8">
             {t.title}
           </h2>
@@ -116,7 +116,7 @@ const ReferralProgramScreen = () => {
         <div className="max-w-md mx-auto">
           <div className="rounded-2xl bg-[#EDEAFF] p-2">
             <button
-              onClick={() => navigate("/main?tab=profile")}
+              onClick={() => navigate("/main?tab=invite")}
               className="w-full h-[48px] rounded-xl bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-semibold active:scale-[0.99] transition"
             >
               {t.back}
