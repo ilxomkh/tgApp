@@ -88,7 +88,7 @@ const InviteTab = ({ locale = "ru", user }) => {
     if (!msg) return;
     setToast(msg);
     window.clearTimeout(showToast.__t);
-    showToast.__t = window.setTimeout(() => setToast(null), 1800);
+    showToast.__t = window.setTimeout(() => setToast(null), 2500);
   };
 
   const onInvite = async () => {
@@ -249,36 +249,46 @@ const InviteTab = ({ locale = "ru", user }) => {
 
           <span className="font-medium">{t.invite}</span>
         </button>
-        <button
-          onClick={onCopy}
-          className="w-16 h-16 bg-[#8888FC]  border-2 border-[#B1B2FC] text-white rounded-2xl flex items-center justify-center transition-colors"
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 53 60"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        <div className="relative">
+          <button
+            onClick={onCopy}
+            className="w-16 h-16 bg-[#8888FC] border-2 border-[#B1B2FC] text-white rounded-2xl flex items-center justify-center transition-colors"
           >
-            <path
-              d="M38.7804 0.862061H6.03225C3.03033 0.862061 0.574219 3.27583 0.574219 6.22599V43.7735H6.03225V6.22599H38.7804V0.862061ZM46.9675 11.5899H16.9483C13.9464 11.5899 11.4903 14.0037 11.4903 16.9538V54.5013C11.4903 57.4515 13.9464 59.8652 16.9483 59.8652H46.9675C49.9694 59.8652 52.4255 57.4515 52.4255 54.5013V16.9538C52.4255 14.0037 49.9694 11.5899 46.9675 11.5899ZM46.9675 54.5013H16.9483V16.9538H46.9675V54.5013Z"
-              fill="white"
-            />
-          </svg>
-        </button>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 53 60"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M38.7804 0.862061H6.03225C3.03033 0.862061 0.574219 3.27583 0.574219 6.22599V43.7735H6.03225V6.22599H38.7804V0.862061ZM46.9675 11.5899H16.9483C13.9464 11.5899 11.4903 14.0037 11.4903 16.9538V54.5013C11.4903 57.4515 13.9464 59.8652 16.9483 59.8652H46.9675C49.9694 59.8652 52.4255 57.4515 52.4255 54.5013V16.9538C52.4255 14.0037 49.9694 11.5899 46.9675 11.5899ZM46.9675 54.5013H16.9483V16.9538H46.9675V54.5013Z"
+                fill="white"
+              />
+            </svg>
+          </button>
+          
+          <div
+            className={`absolute right-0 bottom-full mb-2 transition-all duration-300 ease-out z-50 pointer-events-none ${
+              toast 
+                ? "opacity-100 translate-y-0 scale-100" 
+                : "opacity-0 translate-y-2 scale-95"
+            }`}
+          >
+            {toast && (
+              <div className="relative">
+                <div className="px-4 py-3 rounded-2xl bg-gradient-to-r from-gray-800 to-gray-900 text-white text-sm font-medium shadow-2xl backdrop-blur-sm border border-gray-600/50 flex items-center gap-2 animate-pulse">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></div>
+                  <span>{toast}</span>
+                </div>
+                
+                <div className="absolute right-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div
-        className={`pointer-events-none fixed left-1/2 -translate-x-1/2 bottom-20 transition-opacity duration-200 ${
-          toast ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        {toast && (
-          <div className="px-3 py-2 rounded-xl bg-black/80 text-white text-sm shadow-lg">
-            {toast}
-          </div>
-        )}
-      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -14,6 +14,77 @@ import Header from "./header";
 import BottomNav from "./Main/BottomNav";
 import { useKeyboard } from "../hooks/useKeyboard";
 import { ChevronRightIcon, ChevronsRightIcon, SendHorizonal, SendIcon } from "lucide-react";
+
+const SuccessModal = ({ isOpen, onClose, t }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
+  const closeSoft = () => {
+    setIsVisible(false);
+    setTimeout(() => {
+      onClose();
+    }, 250);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <div
+        className={`fixed inset-0 bg-black/20 transition-opacity duration-200 z-40 ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+        onClick={closeSoft}
+      />
+
+      <div
+        className={`fixed inset-0 z-50 flex items-end justify-center transition-opacity duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <div className="mx-auto w-full">
+          <div className="bg-white rounded-t-3xl p-8 text-center shadow-[0_8px_30px_rgba(2,6,23,0.06)]">
+            <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-green-100 border border-green-200 grid place-items-center">
+              <svg
+                width="36"
+                height="36"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="text-green-600"
+              >
+                <path
+                  d="M20 6L9 17l-5-5"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              {t.success}
+            </h2>
+            <p className="text-gray-600 mb-6">{t.orderCreated}</p>
+
+            <button
+              onClick={closeSoft}
+              className="w-full h-12 rounded-xl bg-[#5E5AF6] text-white font-medium hover:bg-[#4A46E8] active:scale-[0.99] transition"
+            >
+              {t.next}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 const OrderSurveyScreen = () => {
   const { language } = useLanguage();
@@ -67,6 +138,7 @@ const OrderSurveyScreen = () => {
   const [submitSuccess, setSubmitSuccess] = React.useState(false);
   const [hasFormData, setHasFormData] = React.useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = React.useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = React.useState(false);
 
   const isFormValid = () => {
     return (
@@ -119,6 +191,7 @@ const OrderSurveyScreen = () => {
       if (result.success) {
         setSubmitSuccess(true);
         setIsFormSubmitted(true);
+        setIsSuccessModalOpen(true);
       } else {
         console.error('Submit error:', result.error);
       }
@@ -147,6 +220,7 @@ const OrderSurveyScreen = () => {
       invalidEmail: "Неверный email адрес",
       networkError: "Ошибка сети. Проверьте соединение.",
       orderCreated: "Заказ успешно создан!",
+      next: "Далее",
     },
     uz: {
       title: "So'rov buyurtma qilish",
@@ -165,6 +239,7 @@ const OrderSurveyScreen = () => {
       invalidEmail: "Noto'g'ri email manzil",
       networkError: "Tarmoq xatosi. Ulanishni tekshiring.",
       orderCreated: "Buyurtma muvaffaqiyatli yaratildi!",
+      next: "Davom etish",
     },
   };
   const t = translations[language || "ru"];
@@ -248,6 +323,7 @@ const OrderSurveyScreen = () => {
       
       if (result.success) {
         setSubmitSuccess(true);
+        setIsSuccessModalOpen(true);
       } else {
         console.error('Auto submit error:', result.error);
       }
@@ -292,12 +368,6 @@ const OrderSurveyScreen = () => {
         </h2>
 
         <form className="space-y-2">
-          {submitSuccess && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-              <p className="text-green-600 text-sm font-medium">{t.orderCreated}</p>
-            </div>
-          )}
-
           {formErrors.submit && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
               <p className="text-red-600 text-sm">{formErrors.submit}</p>
@@ -397,6 +467,12 @@ const OrderSurveyScreen = () => {
       </div>
 
       <BottomNav tabs={tabs} activeTab="profile" onChange={handleTabChange} />
+      
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        t={t}
+      />
     </div>
   );
 };
