@@ -38,23 +38,17 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     const redirectedKey = '__sa_redirect_done__';
 
     try {
-      // 1. Берём start_param из initDataUnsafe
-      let startParam = tg?.initDataUnsafe?.start_param;
-      console.log("From initDataUnsafe:", startParam);
-
-      // 2. Если пусто — берём из query параметра (Menu Button)
-      if (!startParam) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlStartParam = urlParams.get("tgWebAppStartParam");
-        console.log("From URL:", urlStartParam);
-        if (urlStartParam) startParam = urlStartParam;
-      }
-
+      const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
       const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
 
-      if (startParam === STARTAPP_PAYLOAD && !alreadyRedirected) {
+      if (!samePayload && !alreadyRedirected) {
         sessionStorage.setItem(redirectedKey, '1');
         setIsRedirecting(true);
+
+        Object.defineProperty(tg.initDataUnsafe, 'start_param', {
+          value: STARTAPP_PAYLOAD,
+          writable: false,
+        });
 
         setTimeout(() => {
           setIsRedirecting(false);
@@ -63,11 +57,8 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
 
         return;
       }
-    } catch (err) {
-      console.error("Telegram init error:", err);
-    }
+    } catch {}
 
-    // --- Убираем MainButton ---
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide();
@@ -113,9 +104,11 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
-    const handleCloseRequest = () => setIsCloseModalOpen(true);
+    const handleCloseRequest = () => {
+      setIsCloseModalOpen(true);
+    };
 
-    window.addEventListener('beforeunload', (e) => {
+    const handleBeforeUnload = (e) => {
       const activeElement = document.activeElement;
       const isFormActive =
         activeElement &&
@@ -126,11 +119,16 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       const hasUnsavedData = sessionStorage.getItem('hasUnsavedData') === 'true';
 
       if (isFormActive || hasUnsavedData) {
-        const message = 'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
+        const message =
+          'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
         e.returnValue = message;
         return message;
       }
-    });
+
+      return;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     if (tg.onEvent) {
       tg.offEvent('web_app_close', handleCloseRequest);
@@ -176,6 +174,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       }
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       if (tg.onEvent) {
         tg.offEvent('web_app_close', handleCloseRequest);
       }
@@ -207,7 +206,9 @@ function AppContent() {
         isOpen={isCloseModalOpen}
         onConfirm={() => {
           const tg = window.Telegram?.WebApp;
-          if (tg?.close) tg.close();
+          if (tg?.close) {
+            tg.close();
+          }
           setIsCloseModalOpen(false);
         }}
         onCancel={() => setIsCloseModalOpen(false)}

@@ -81,7 +81,6 @@ const OrderSurveyScreen = () => {
     );
   };
 
-  // Функция для получения стилей инпута в зависимости от заполненности
   const getInputStyles = (fieldName, hasError = false) => {
     const isFilled = formData[fieldName] && formData[fieldName].trim();
     const baseStyles = "w-full px-4 py-3 text-white rounded-xl border-2 border-transparent focus:outline-none transition-colors";
@@ -273,10 +272,8 @@ const OrderSurveyScreen = () => {
     };
   }, [hasFormData, isFormSubmitted, isSubmitting, autoSubmitForm]);
 
-  // Обработка изменения состояния клавиатуры
   React.useEffect(() => {
     if (isKeyboardOpen) {
-      // Когда клавиатура открывается, прокручиваем к активному элементу
       const activeElement = document.activeElement;
       if (activeElement && activeElement.tagName === 'INPUT') {
         scrollToActiveInput(activeElement);
@@ -373,26 +370,28 @@ const OrderSurveyScreen = () => {
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={!isFormValid() || isSubmitting}
-            onClick={handleSubmit}
-            className={`w-full flex items-center justify-center gap-2 mt-4 py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${
-              isFormValid() && !isSubmitting
-                ? 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white cursor-not-allowed'
-                : 'bg-[#8888FC] text-white/80 active:scale-95 shadow-lg'
-            }`}
-          >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                {t.submitting || 'Отправка...'}
-              </div>
-            ) : (
-              t.submit || 'Отправить заявку' 
-            )}
-            <ChevronsRightIcon/>
-          </button>
+          {isFormValid() && (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              onClick={handleSubmit}
+              className={`w-full flex items-center justify-center gap-2 mt-4 py-3 rounded-xl font-semibold text-lg transition-all duration-300 animate-in slide-in-from-bottom-4 ${
+                !isSubmitting
+                  ? 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white/80 hover:from-[#4A46E8] hover:to-[#6B5FFF] active:scale-95 shadow-lg'
+                  : 'bg-[#8888FC] text-white/80 cursor-not-allowed'
+              }`}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  {t.submitting || 'Отправка...'}
+                </div>
+              ) : (
+                t.submit || 'Отправить заявку' 
+              )}
+              <ChevronsRightIcon/>
+            </button>
+          )}
 
         </form>
       </div>
