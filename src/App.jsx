@@ -22,10 +22,8 @@ import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 
 const STARTAPP_PAYLOAD = 'home';
-const BOT_USERNAME = 'pro_surveybot'; // 👈 замени на своего
-const STARTAPP_LINK = `https://t.me/${BOT_USERNAME}/webapp?startapp=1`;
 
-function useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect) {
+function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
   const location = useLocation();
   const navigate = useNavigate();
   const backHandlerRef = useRef(null);
@@ -36,15 +34,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect
 
     tg.ready();
     tg.expand();
-
-    // проверяем режим запуска
-    const startParam = tg.initDataUnsafe?.start_param;
-    const isStartApp = Boolean(startParam);
-    if (!isStartApp) {
-      setNeedsRedirect(true); // внутри чата → показать баннер
-    } else {
-      setNeedsRedirect(false); // startapp → баннера нет
-    }
 
     const redirectedKey = '__sa_redirect_done__';
 
@@ -190,14 +179,13 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect
         tg.offEvent('web_app_close', handleCloseRequest);
       }
     };
-  }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect]);
+  }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen]);
 }
 
 function AppContent() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-  const [needsRedirect, setNeedsRedirect] = useState(false);
-  useTelegramInit(setIsRedirecting, setIsCloseModalOpen, setNeedsRedirect);
+  useTelegramInit(setIsRedirecting, setIsCloseModalOpen);
 
   if (isRedirecting) {
     return (
@@ -225,18 +213,6 @@ function AppContent() {
         }}
         onCancel={() => setIsCloseModalOpen(false)}
       />
-
-      {/* Баннер появляется только если внутри чата */}
-      {needsRedirect && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-r from-[#7C65FF] to-[#5538F9] shadow-lg z-50">
-          <a
-            href={STARTAPP_LINK}
-            className="block w-full text-center text-white py-3 rounded-lg font-bold"
-          >
-            🔗 Открыть приложение правильно
-          </a>
-        </div>
-      )}
     </>
   );
 }
