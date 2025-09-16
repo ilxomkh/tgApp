@@ -20,7 +20,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
-import StartAppRedirectBanner from './components/StartAppRedirectBanner';
 
 
 const STARTAPP_PAYLOAD = 'home';
@@ -192,10 +191,7 @@ function AppContent() {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
         <WaveOverlay />
-        <img
-          src={ProSVG}
-          className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
-        />
+        <img src={ProSVG} className='absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50'/>
       </div>
     );
   }
@@ -214,9 +210,6 @@ function AppContent() {
         }}
         onCancel={() => setIsCloseModalOpen(false)}
       />
-
-      {/* 👇 сюда вставляем */}
-      <StartAppRedirectBanner />
     </>
   );
 }
