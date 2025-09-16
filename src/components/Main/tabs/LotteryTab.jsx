@@ -37,9 +37,11 @@ const LotteryTab = ({ t }) => {
   return (
     <div className="">
       <div className="px-2 py-2 overflow-y-auto custom-scrollbar">
-        <h2 className="text-md font-semibold text-gray-500 mb-6 text-left">
-          {t.lottery}
-        </h2>
+        {raffles.length > 0 || loading ? (
+          <h2 className="text-md font-semibold text-gray-500 mb-6 text-left">
+            {t.lottery}
+          </h2>
+        ) : null}
 
         {loading && (
           <div className="space-y-6">
@@ -74,63 +76,68 @@ const LotteryTab = ({ t }) => {
           </div>
         )}
 
-        <div className="space-y-6">
-          {raffles.length === 0 && !loading && !error && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">{t.noLotteriesFound}</p>
+        {raffles.length === 0 && !loading && !error && (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <p className="text-gray-500 text-lg">{t.noLotteriesFound}</p>
             </div>
-          )}
-          
-          {raffles.map((raffle) => (
-            <div 
-              key={raffle.id} 
-              className={`bg-gradient-to-b from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-6 text-white shadow-lg ${
-                !raffle.is_active ? 'opacity-60' : ''
-              }`}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-lg">{raffle.title}</h3>
-                {!raffle.is_active && (
-                  <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                    {t.completed}
-                  </span>
-                )}
-              </div>
-              
-              <p className="text-white/90 text-sm mb-2">
-                {raffle.description}
-              </p>
-              
-              <p className="text-white/90 text-sm mb-2">
-                {t.lotDate}: {formatEndDate(raffle.end_date)}
-              </p>
-              
-              <p className="text-white/90 text-sm mb-4">
-                {t.lotSum}: {formatPrizeAmount(raffle.prize_amount)} {t.sum}
-              </p>
+          </div>
+        )}
 
-              <div className="bg-white rounded-xl p-8 text-center text-gray-400 font-medium shadow-inner">
-                {raffle.video_url ? (
-                  <div className="relative">
-                    <video 
-                      className="w-full rounded-lg"
-                      controls
-                      poster="/video-placeholder.jpg"
-                    >
-                      <source src={raffle.video_url} type="video/mp4" />
-                      {t.browserNotSupportVideo}
-                    </video>
-                  </div>
-                ) : (
-                  <>
-                    <Play className="mx-auto mb-2 text-gray-300 w-12 h-12" />
-                    <p className="text-sm">{t.videoPlaceholder}</p>
-                  </>
-                )}
+        {/* Show raffles */}
+        {raffles.length > 0 && (
+          <div className="space-y-6">
+            {raffles.map((raffle) => (
+              <div 
+                key={raffle.id} 
+                className={`bg-gradient-to-b from-[#5E5AF6] to-[#7C65FF] rounded-2xl p-6 text-white shadow-lg ${
+                  !raffle.is_active ? 'opacity-60' : ''
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-lg">{raffle.title}</h3>
+                  {!raffle.is_active && (
+                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                      {t.completed}
+                    </span>
+                  )}
+                </div>
+                
+                <p className="text-white/90 text-sm mb-2">
+                  {raffle.description}
+                </p>
+                
+                <p className="text-white/90 text-sm mb-2">
+                  {t.lotDate}: {formatEndDate(raffle.end_date)}
+                </p>
+                
+                <p className="text-white/90 text-sm mb-4">
+                  {t.lotSum}: {formatPrizeAmount(raffle.prize_amount)} {t.sum}
+                </p>
+
+                <div className="bg-white rounded-xl p-8 text-center text-gray-400 font-medium shadow-inner">
+                  {raffle.video_url ? (
+                    <div className="relative">
+                      <video 
+                        className="w-full rounded-lg"
+                        controls
+                        poster="/video-placeholder.jpg"
+                      >
+                        <source src={raffle.video_url} type="video/mp4" />
+                        {t.browserNotSupportVideo}
+                      </video>
+                    </div>
+                  ) : (
+                    <>
+                      <Play className="mx-auto mb-2 text-gray-300 w-12 h-12" />
+                      <p className="text-sm">{t.videoPlaceholder}</p>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
