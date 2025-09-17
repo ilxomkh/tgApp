@@ -107,22 +107,42 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     const handleCloseRequest = (e) => {
       console.log('Close request received', e);
       e?.preventDefault?.();
-      setIsCloseModalOpen(true);
+      const confirmed = window.confirm('Changes that you made may not be saved.');
+      if (!confirmed) {
+        return;
+      }
+      const tg = window.Telegram?.WebApp;
+      if (tg?.close) {
+        tg.close();
+      }
     };
 
-    // Обработка события web_app_close
     if (tg.onEvent) {
       tg.offEvent('web_app_close', handleCloseRequest);
       tg.onEvent('web_app_close', handleCloseRequest);
     }
 
-    // Обработка через beforeunload для дополнительной надежности
+    const preventClose = (e) => {
+      e.preventDefault();
+      e.returnValue = 'Changes that you made may not be saved.';
+      return 'Changes that you made may not be saved.';
+    };
+
+    window.addEventListener('pagehide', preventClose);
+    document.addEventListener('visibilitychange', (e) => {
+      if (document.hidden) {
+        const confirmed = window.confirm('Changes that you made may not be saved.');
+        if (!confirmed) {
+          e.preventDefault();
+        }
+      }
+    });
+
     const handleBeforeUnload = (e) => {
       console.log('Before unload triggered');
       e.preventDefault();
-      e.returnValue = 'Вы действительно хотите покинуть страницу?';
-      setIsCloseModalOpen(true);
-      return 'Вы действительно хотите покинуть страницу?';
+      e.returnValue = 'Changes that you made may not be saved.';
+      return 'Changes that you made may not be saved.';
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -184,6 +204,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pagehide', preventClose);
       window.onbeforeunload = null;
       if (tg.onEvent) {
         tg.offEvent('web_app_close', handleCloseRequest);
@@ -217,9 +238,7 @@ function AppContent() {
         onConfirm={() => {
           console.log('User confirmed close');
           setIsCloseModalOpen(false);
-          // Принудительно закрываем приложение
           window.close();
-          // Дополнительная попытка через Telegram API
           const tg = window.Telegram?.WebApp;
           if (tg?.close) {
             tg.close();
