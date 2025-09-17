@@ -49,14 +49,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     loadSurveys();
   }, [getAvailableSurveys, language]);
 
-  useEffect(() => {
-    if (window.setSurveyModalState) {
-      window.setSurveyModalState({
-        isSurveyModalOpen,
-        closeSurveyModal
-      });
-    }
-  }, [isSurveyModalOpen, closeSurveyModal]);
 
   const handleSurveyStart = async (surveyId) => {
     try {

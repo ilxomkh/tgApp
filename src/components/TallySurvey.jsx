@@ -297,6 +297,31 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     setShowExitConfirmation(false);
   };
 
+  // Обработка кнопки "Назад" Telegram
+  useEffect(() => {
+    const handleTelegramBack = () => {
+      setShowExitConfirmation(true);
+    };
+
+    // Регистрируем обработчик для кнопки "Назад" Telegram
+    if (window.setSurveyModalState) {
+      window.setSurveyModalState({
+        isSurveyModalOpen: true,
+        closeSurveyModal: handleTelegramBack
+      });
+    }
+
+    return () => {
+      // Очищаем состояние при размонтировании
+      if (window.setSurveyModalState) {
+        window.setSurveyModalState({
+          isSurveyModalOpen: false,
+          closeSurveyModal: null
+        });
+      }
+    };
+  }, []);
+
   const CustomRadio = React.memo(({ checked, onChange, value, label }) => (
     <label className="flex items-center space-x-4 cursor-pointer p-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
@@ -758,15 +783,15 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     <>
       <div className="fixed inset-0 flex flex-col">
         {/* Заголовок опросника - фиксированный */}
-        <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] py-6 px-4 sm:py-8 sm:px-6 relative overflow-hidden flex-shrink-0 z-10">
+        <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] py-8 px-4 sm:py-12 sm:px-6 relative overflow-hidden flex-shrink-0 z-10 flex items-end">
           <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
           <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
           
-          <div className="w-full">
-            <h2 className="text-white text-lg sm:text-xl font-bold text-center relative z-10">
+          <div className="w-full pb-2">
+            <h2 className="text-white text-xl sm:text-2xl font-bold text-center relative z-10">
               {survey.title}
             </h2>
-            <div className="text-white/90 text-xs sm:text-sm text-center mt-1 sm:mt-2 relative z-10">
+            <div className="text-white/90 text-sm sm:text-base text-center mt-2 sm:mt-3 relative z-10">
               {t.questionCounter} {currentQuestionIndex + 1} {t.of} {formDetails.questions.length}
             </div>
           </div>
@@ -798,7 +823,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         {/* Область с вариантами ответов - прокручиваемая */}
         <div className={`flex-1 p-4 sm:p-6 pb-32 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 transition-all duration-300 ease-out ${
           shouldLiftSurvey ? 'transform -translate-y-24' : ''
-        }`} style={{ height: `calc(100vh - 400px)` }}>
+        }`} style={{ height: `calc(100vh - 450px)` }}>
           <div className="max-w-md mx-auto px-2">
             <QuestionComponent question={currentQuestion} />
           </div>
