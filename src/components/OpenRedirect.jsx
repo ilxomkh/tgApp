@@ -5,7 +5,7 @@ import { useEffect } from "react";
  * Сразу перебрасывает в Mini App (startapp deeplink).
  * Без зацикливания, с фолбэком на ссылку.
  */
-const BOT_USERNAME = "ProSurveyBot";     // <-- ваш username бота
+const BOT_USERNAME = "pro_surveybot";     // <-- ваш username бота
 const DEFAULT_PAYLOAD = "home";          // <-- ваш payload (при необходимости)
 
 export default function OpenRedirect() {
