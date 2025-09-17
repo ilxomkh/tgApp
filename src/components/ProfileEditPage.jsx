@@ -15,7 +15,6 @@ import BottomNav from './Main/BottomNav';
 import { SettingsIcon, UserIcon } from './Main/icons';
 import UserAvatar from './UserAvatar';
 import { useKeyboard } from '../hooks/useKeyboard';
-import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { BackpackIcon, ChevronLeft, ChevronLeftCircle, Navigation, StepBackIcon } from 'lucide-react';
 
 const ProfileEditPage = () => {
@@ -97,7 +96,7 @@ const ProfileEditPage = () => {
       cancel: 'Отмена',
       loading: 'Сохранение...',
       phonePlaceholder: '+998 90 123 45 67',
-      namePlaceholder: 'Иван Иванов',
+      namePlaceholder: 'Имя Фамилия',
       emailPlaceholder: 'user@example.com',
       datePlaceholder: '1990-01-01',
       home: 'Главная',
@@ -130,7 +129,7 @@ const ProfileEditPage = () => {
       cancel: 'Bekor qilish',
       loading: 'Saqlanmoqda...',
       phonePlaceholder: '+998 90 123 45 67',
-      namePlaceholder: 'Ivan Ivanov',
+      namePlaceholder: 'Ism Familiya',
       emailPlaceholder: 'user@example.com',
       datePlaceholder: '1990-01-01',
       home: 'Asosiy',
@@ -408,7 +407,6 @@ const ProfileEditPage = () => {
     }
   };
 
-  useTelegramBackButton(handleBack, true);
   
   useEffect(() => {
     if (isKeyboardOpen) {
@@ -454,7 +452,7 @@ const ProfileEditPage = () => {
                 />
               </div>
               
-              <h1 className="text-md font-extralight text-white">
+              <h1 className="text-md font-semibold text-white">
                 {t.title}
               </h1>
               

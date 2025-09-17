@@ -81,25 +81,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       setTimeout(() => tg.disableVerticalSwipes(), 300);
     }
 
-    const preventPullToRefresh = (e) => {
-      if (window.scrollY === 0 && e.touches?.length === 1) {
-        const startY = e.touches[0].clientY;
-        const onMove = (ev) => {
-          const dy = ev.touches[0].clientY - startY;
-          if (dy > 10) {
-            ev.preventDefault();
-            ev.stopPropagation();
-          }
-        };
-        document.addEventListener('touchmove', onMove, { passive: false });
-        document.addEventListener(
-          'touchend',
-          () => document.removeEventListener('touchmove', onMove),
-          { once: true }
-        );
-      }
-    };
-    document.addEventListener('touchstart', preventPullToRefresh, { passive: true });
 
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
@@ -173,7 +154,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
         tg.BackButton.offClick(backHandlerRef.current);
         tg.BackButton.hide();
       }
-      document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
       if (tg.onEvent) {
         tg.offEvent('web_app_close', handleCloseRequest);

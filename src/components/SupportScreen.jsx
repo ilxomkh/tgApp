@@ -3,7 +3,6 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Header from "./header";
 import BottomNav from "./Main/BottomNav";
-import { useTelegramBackButton } from "../hooks/useTelegramBackButton";
 
 const SupportScreen = () => {
   const { language } = useLanguage();
@@ -75,8 +74,6 @@ const SupportScreen = () => {
   const handleBack = () => {
     navigate(-1);
   };
-
-  useTelegramBackButton(handleBack, true);
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-purple-50">
