@@ -1,23 +1,24 @@
 import { useEffect } from "react";
 
-const BOT_USERNAME = "pro_surveybot";   // замени на твой username бота
-const DEFAULT_PAYLOAD = "home";        // можешь поменять payload если нужно
+const BOT_USERNAME = "pro_surveybot";   // твой username бота
+const DEFAULT_PAYLOAD = "home";         // payload если нужен
 
 export default function OpenRedirect() {
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
 
-    try {
-      // Попробовать закрыть текущий web_app, чтобы не оставался "чёрный фон"
-      tg?.close?.();
-    } catch (err) {
-      console.warn("Ошибка при закрытии WebApp:", err);
-    }
+    const url = `https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(DEFAULT_PAYLOAD)}`;
 
-    // Небольшая задержка перед редиректом, чтобы Telegram успел закрыть контейнер
+    // Сначала редиректим в Mini App
+    window.location.href = url;
+
+    // Через 2 секунды пытаемся закрыть контейнер WebApp
     const timer = setTimeout(() => {
-      const url = `https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(DEFAULT_PAYLOAD)}`;
-      window.location.replace(url);
+      try {
+        tg?.close?.();
+      } catch (err) {
+        console.warn("Ошибка при закрытии WebApp:", err);
+      }
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -30,9 +31,10 @@ export default function OpenRedirect() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif",
+        fontFamily:
+          "system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif",
         background: "linear-gradient(180deg,#7C65FF,#5538F9)",
-        color: "white"
+        color: "white",
       }}
     >
       <div style={{ textAlign: "center" }}>
@@ -40,7 +42,9 @@ export default function OpenRedirect() {
           Открываю Mini App…
         </div>
         <a
-          href={`https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(DEFAULT_PAYLOAD)}`}
+          href={`https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(
+            DEFAULT_PAYLOAD
+          )}`}
           style={{ fontSize: 14, textDecoration: "underline", color: "#fff" }}
         >
           Если не открылось — нажмите здесь
