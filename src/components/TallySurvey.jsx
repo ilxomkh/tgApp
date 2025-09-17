@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
 import tallyApiService from '../services/tallyApi.js';
 import { useSurvey } from '../hooks/useSurvey.js';
 import { useHapticClick } from '../utils/hapticFeedback';
 import { SuccessModal } from './Main/ui.jsx';
+import CloseConfirmationModal from './CloseConfirmationModal.jsx';
 
 const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const { language } = useLanguage();
@@ -21,6 +22,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const [shouldMaintainFocus, setShouldMaintainFocus] = useState(false);
   const answersRef = useRef({});
   const [numberFieldValid, setNumberFieldValid] = useState(false);
+  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -67,15 +69,26 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   }, [surveyId]);
 
   useEffect(() => {
-    const initialViewportHeight = window.innerHeight;
+    let timeoutId;
     
     const handleResize = () => {
-      const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
-      
-      const keyboardThreshold = 150;
-      const isKeyboardVisible = initialViewportHeight - currentViewportHeight > keyboardThreshold;
-      
-      setIsKeyboardOpen(isKeyboardVisible);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const currentHeight = window.visualViewport?.height || window.innerHeight;
+        const isKeyboardVisible = currentHeight < window.innerHeight * 0.8;
+        setIsKeyboardOpen(isKeyboardVisible);
+      }, 100);
+    };
+
+    const handleFocusIn = (e) => {
+      if (e.target.tagName === 'INPUT' && e.target.type !== 'number') {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          const currentHeight = window.visualViewport?.height || window.innerHeight;
+          const isKeyboardVisible = currentHeight < window.innerHeight * 0.8;
+          setIsKeyboardOpen(isKeyboardVisible);
+        }, 150);
+      }
     };
 
     if (window.visualViewport) {
@@ -83,42 +96,17 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     } else {
       window.addEventListener('resize', handleResize);
     }
-
-    const handleFocusIn = (e) => {
-      if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
-        return;
-      }
-      
-      if (e.target.tagName === 'INPUT' && e.target.type !== 'number') {
-        
-        setTimeout(() => {
-          const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
-          const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
-          
-          setIsKeyboardOpen(isKeyboardVisible);
-        }, 100);
-      }
-    };
-
-    const handleOrientationChange = () => {
-      setTimeout(() => {
-        const currentViewportHeight = window.visualViewport?.height || window.innerHeight;
-        const isKeyboardVisible = currentViewportHeight < window.innerHeight * 0.75;
-        setIsKeyboardOpen(isKeyboardVisible);
-      }, 500);
-    };
-
+    
     document.addEventListener('focusin', handleFocusIn);
-    window.addEventListener('orientationchange', handleOrientationChange);
 
     return () => {
+      clearTimeout(timeoutId);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleResize);
       } else {
         window.removeEventListener('resize', handleResize);
       }
       document.removeEventListener('focusin', handleFocusIn);
-      window.removeEventListener('orientationchange', handleOrientationChange);
     };
   }, []);
 
@@ -184,7 +172,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   }, [currentQuestionIndex, formDetails]);
 
-  const handleAnswerChange = (questionId, value) => {
+  const handleAnswerChange = useCallback((questionId, value) => {
     const currentQuestion = formDetails?.questions?.find(q => q.id === questionId);
     const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
@@ -203,7 +191,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       ...prev,
       [questionId]: value
     }));
-  };
+  }, [formDetails, hapticClick]);
 
   const isCurrentQuestionValid = () => {
     if (!formDetails || !formDetails.questions) return false;
@@ -238,25 +226,21 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     if (currentQuestionIndex < formDetails.questions.length - 1) {
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
-      
       setNumberFieldValid(false);
-      
       setCurrentQuestionIndex(prev => prev + 1);
     }
-  };
+  }, [currentQuestionIndex, formDetails]);
 
-  const handlePreviousQuestion = () => {
+  const handlePreviousQuestion = useCallback(() => {
     if (currentQuestionIndex > 0) {
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
-      
       setNumberFieldValid(false);
-      
       setCurrentQuestionIndex(prev => prev - 1);
     }
-  };
+  }, [currentQuestionIndex]);
 
   const handleFormSubmit = async () => {
     try {
@@ -300,7 +284,20 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   };
 
-  const CustomRadio = ({ checked, onChange, value, label }) => (
+  const handleCloseClick = () => {
+    setShowExitConfirmation(true);
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitConfirmation(false);
+    onClose();
+  };
+
+  const handleCancelExit = () => {
+    setShowExitConfirmation(false);
+  };
+
+  const CustomRadio = React.memo(({ checked, onChange, value, label }) => (
     <label className="flex items-center space-x-4 cursor-pointer p-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
         <input
@@ -316,7 +313,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             : 'border-gray-300 group-hover:border-[#7C65FF]'
         }`}>
           {checked && (
-            <div className="w-3 h-3 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+            <div className="w-3 h-3 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           )}
         </div>
       </div>
@@ -326,9 +323,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         {label}
       </span>
     </label>
-  );
+  ));
 
-  const CustomCheckbox = ({ checked, onChange, value, label }) => (
+  const CustomCheckbox = React.memo(({ checked, onChange, value, label }) => (
     <label className="flex items-center space-x-4 cursor-pointer p-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
         <input
@@ -344,7 +341,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             : 'border-gray-300 group-hover:border-[#7C65FF]'
         }`}>
           {checked && (
-            <svg className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           )}
@@ -356,9 +353,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         {label}
       </span>
     </label>
-  );
+  ));
 
-  const NumberInput = ({ questionId, placeholder, className }) => {
+  const NumberInput = React.memo(({ questionId, placeholder, className }) => {
     const [value, setValue] = useState(answersRef.current[questionId] || "");
     const inputRef = useRef(null);
   
@@ -371,7 +368,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       }
     }, [questionId]);
   
-    const handleChange = (e) => {
+    const handleChange = useCallback((e) => {
       const inputValue = e.target.value;
   
       setValue(inputValue);
@@ -382,7 +379,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       };
   
       setNumberFieldValid(inputValue !== "");
-    };
+    }, [questionId]);
   
     return (
       <div className="relative">
@@ -406,11 +403,11 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
       </div>
     );
-  };
+  });
   
   
 
-  const CustomInput = ({ type, value, onChange, placeholder, className = "", onKeyPress }) => {
+  const CustomInput = React.memo(({ type, value, onChange, placeholder, className = "", onKeyPress }) => {
     return (
       <div className="relative">
         <input
@@ -428,7 +425,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
       </div>
     );
-  };
+  });
 
   const texts = {
     ru: {
@@ -447,7 +444,11 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       surveyError: 'Ошибка при отправке опроса',
       congratulations: 'Поздравляем!',
       surveyCompleted: 'Опрос успешно завершен!',
-      close: 'Закрыть'
+      close: 'Закрыть',
+      exitTitle: 'Выйти из опроса?',
+      exitMessage: 'Вы действительно хотите выйти из опроса? Ваши ответы не будут сохранены.',
+      exitConfirm: 'Да, выйти',
+      exitCancel: 'Отмена'
     },
     uz: {
       questionCounter: 'Savol',
@@ -465,7 +466,11 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       surveyError: 'So\'rovni yuborishda xatolik',
       congratulations: 'Tabriklaymiz!',
       surveyCompleted: 'So\'rovnoma muvaffaqiyatli yakunlandi!',
-      close: 'Yopish'
+      close: 'Yopish',
+      exitTitle: 'So\'rovnomani tark etish?',
+      exitMessage: 'Haqiqatan ham so\'rovnomani tark etmoqchimisiz? Javoblaringiz saqlanmaydi.',
+      exitConfirm: 'Ha, chiqish',
+      exitCancel: 'Bekor qilish'
     }
   };
 
@@ -518,14 +523,14 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     return type || 'text';
   };
 
-  const QuestionComponent = ({ question }) => {
+  const QuestionComponent = React.memo(({ question }) => {
     const questionType = getQuestionType(question);
     
     const currentAnswer = questionType === 'number' 
       ? answersRef.current[question.id] 
       : answers[question.id];
 
-    const renderQuestionInput = () => {
+    const renderQuestionInput = useCallback(() => {
       switch (questionType) {
         case 'choice':
           return (
@@ -609,27 +614,14 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             />
           );
       }
-    };
+    }, [questionType, question, currentAnswer, handleAnswerChange, handleKeyPress, t]);
 
     return (
       <div className="space-y-4 sm:space-y-6">
-        <div className="text-center">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 leading-relaxed px-2">
-            {question.text}
-            {question.required && <span className="text-red-500 ml-1">*</span>}
-          </h3>
-          {question.required && !isCurrentQuestionAnswered && (
-            <p className="text-xs sm:text-sm text-red-500 mt-1">
-              {t.requiredField}
-            </p>
-          )}
-        </div>
-        <div className="max-w-md mx-auto px-2">
-          {renderQuestionInput()}
-        </div>
+        {renderQuestionInput()}
       </div>
     );
-  };
+  });
 
   const SkeletonLoader = () => {
     return (
@@ -733,24 +725,24 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     const currentQuestion = formDetails.questions[currentQuestionIndex];
     const questionType = getQuestionType(currentQuestion);
     
-    let baseHeight = 272;
+    let baseHeight = 400;
     
-    baseHeight += 60;
+    baseHeight += 80;
     
     if (questionType === 'choice' || questionType === 'multichoice') {
       const optionsCount = currentQuestion.options?.length || 0;
       if (optionsCount > 0) {
-        const optionsHeight = optionsCount * 56 + (optionsCount - 1) * 12;
+        const optionsHeight = optionsCount * 64 + (optionsCount - 1) * 16;
         baseHeight += optionsHeight;
       }
     } else {
-      baseHeight += 80;
+      baseHeight += 100;
     }
 
-    baseHeight += 48;
+    baseHeight += 60;
     
-    const maxHeight = window.innerHeight * 0.75;
-    const minHeight = 360;
+    const maxHeight = window.innerHeight * 0.85;
+    const minHeight = 500;
     
     return Math.max(minHeight, Math.min(baseHeight, maxHeight));
   };
@@ -763,89 +755,123 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const shouldLiftSurvey = isKeyboardOpen && questionTypeForLift !== 'number';
 
   return (
-    <div className={`bg-white border-b border-px border-gray-200 rounded-t-3xl overflow-hidden flex flex-col relative z-10 transition-all duration-500 ease-in-out ${
-      shouldLiftSurvey ? 'transform -translate-y-32' : ''
-    }`} style={{ height: `${modalHeight}px` }}>
-      <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] p-4 sm:p-6 relative overflow-hidden flex-shrink-0">
-        <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
-        <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
-        
-        <div className="w-full">
-          <h2 className="text-white text-lg sm:text-xl font-bold text-center relative z-10">
-            {survey.title}
-          </h2>
-          <div className="text-white/90 text-xs sm:text-sm text-center mt-1 sm:mt-2 relative z-10">
-            {t.questionCounter} {currentQuestionIndex + 1} {t.of} {formDetails.questions.length}
+    <>
+      <div className="fixed inset-0 flex flex-col">
+        {/* Заголовок опросника - фиксированный */}
+        <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] py-8 px-4 sm:px-6 relative overflow-hidden flex-shrink-0 z-10">
+          <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
+          <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
+          
+          <div className="w-full">
+            <h2 className="text-white text-lg sm:text-xl font-bold text-center relative z-10">
+              {survey.title}
+            </h2>
+            <div className="text-white/90 text-xs sm:text-sm text-center mt-1 sm:mt-2 relative z-10">
+              {t.questionCounter} {currentQuestionIndex + 1} {t.of} {formDetails.questions.length}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="bg-gray-100 h-1">
-        <div 
-          className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-1 transition-all duration-500 ease-out"
-          style={{ width: `${((currentQuestionIndex + 1) / formDetails.questions.length) * 100}%` }}
-        />
-      </div>
+        {/* Прогресс бар - фиксированный */}
+        <div className="bg-gray-100 h-1 z-10">
+          <div 
+            className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-1 transition-all duration-300 ease-out"
+            style={{ width: `${((currentQuestionIndex + 1) / formDetails.questions.length) * 100}%` }}
+          />
+        </div>
 
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-gray-50 custom-scrollbar">
-        <QuestionComponent question={currentQuestion} />
-      </div>
-
-      <div className="p-4 sm:p-6 bg-white border-t border-gray-100 flex-shrink-0 pb-25">
-        <div className="flex justify-between items-center mb-2 sm:mb-4">
-          <button
-            onClick={isFirstQuestion ? onClose : handlePreviousQuestion}
-            className={`p-3 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base flex items-center justify-center ${
-              isFirstQuestion 
-                ? 'bg-red-100 hover:bg-red-200 text-red-600 active:scale-95' 
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-700 active:scale-95'
-            }`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <div className="text-xs sm:text-sm text-gray-500 font-medium">
-            {currentQuestionIndex + 1} / {formDetails.questions.length}
+        {/* Заголовок вопроса - фиксированный */}
+        <div className="bg-gray-50 p-4 sm:p-6 flex-shrink-0 z-10">
+          <div className="text-center">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 leading-relaxed px-2">
+              {currentQuestion.text}
+              {currentQuestion.required && <span className="text-red-500 ml-1">*</span>}
+            </h3>
+            {currentQuestion.required && !isCurrentQuestionAnswered && (
+              <p className="text-xs sm:text-sm text-red-500 mt-1">
+                {t.requiredField}
+              </p>
+            )}
           </div>
+        </div>
 
-          {isLastQuestion ? (
+        {/* Область с вариантами ответов - прокручиваемая */}
+        <div className={`flex-1 p-4 sm:p-6 overflow-y-auto bg-gray-50 custom-scrollbar z-10 transition-all duration-300 ease-out ${
+          shouldLiftSurvey ? 'transform -translate-y-24' : ''
+        }`} style={{ height: `calc(100vh - 400px)` }}>
+          <div className="max-w-md mx-auto px-2">
+            <QuestionComponent question={currentQuestion} />
+          </div>
+        </div>
+
+        {/* Зафиксированные кнопки навигации внизу */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 sm:p-6 z-20">
+          <div className="flex justify-between items-center mb-2 sm:mb-4">
             <button
-              onClick={handleFormSubmit}
-              disabled={submitLoading || !isCurrentQuestionAnswered}
-              className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
-                submitLoading || !isCurrentQuestionAnswered
-                ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
-                : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
-              }`}
-            >
-              {submitLoading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={handleNextQuestion}
-              disabled={!isCurrentQuestionAnswered}
-              className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
-                !isCurrentQuestionAnswered
-                  ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
+              onClick={isFirstQuestion ? handleCloseClick : handlePreviousQuestion}
+              className={`p-3 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base flex items-center justify-center ${
+                isFirstQuestion 
+                  ? 'bg-red-100 hover:bg-red-200 text-red-600 active:scale-95' 
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700 active:scale-95'
               }`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-          )}
+
+            <div className="text-xs sm:text-sm text-gray-500 font-medium">
+              {currentQuestionIndex + 1} / {formDetails.questions.length}
+            </div>
+
+            {isLastQuestion ? (
+              <button
+                onClick={handleFormSubmit}
+                disabled={submitLoading || !isCurrentQuestionAnswered}
+                className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
+                  submitLoading || !isCurrentQuestionAnswered
+                  ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
+                }`}
+              >
+                {submitLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleNextQuestion}
+                disabled={!isCurrentQuestionAnswered}
+                className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
+                  !isCurrentQuestionAnswered
+                    ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Модальное окно подтверждения выхода */}
+      <CloseConfirmationModal
+        isOpen={showExitConfirmation}
+        onConfirm={handleConfirmExit}
+        onCancel={handleCancelExit}
+        title={t.exitTitle}
+        message={t.exitMessage}
+        confirmText={t.exitConfirm}
+        cancelText={t.exitCancel}
+      />
+    </>
   );
 };
 

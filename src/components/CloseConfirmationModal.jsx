@@ -1,10 +1,10 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
+const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel, title, message, confirmText, cancelText }) => {
   const { language } = useLanguage();
   
-  const t = {
+  const defaultTexts = {
     ru: {
       title: "Закрыть приложение?",
       message: "Вы действительно хотите закрыть приложение?",
@@ -17,6 +17,13 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
       confirm: "Ha, yopish",
       cancel: "Bekor qilish"
     }
+  };
+
+  const t = {
+    title: title || defaultTexts[language]?.title || defaultTexts.ru.title,
+    message: message || defaultTexts[language]?.message || defaultTexts.ru.message,
+    confirm: confirmText || defaultTexts[language]?.confirm || defaultTexts.ru.confirm,
+    cancel: cancelText || defaultTexts[language]?.cancel || defaultTexts.ru.cancel
   };
 
   if (!isOpen) return null;
@@ -44,11 +51,11 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
           </div>
           
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {t[language]?.title || t.ru.title}
+            {t.title}
           </h3>
           
           <p className="text-sm text-gray-600 mb-6">
-            {t[language]?.message || t.ru.message}
+            {t.message}
           </p>
           
           <div className="flex gap-3">
@@ -56,14 +63,14 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel }) => {
               onClick={onCancel}
               className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 active:scale-95 transition-all duration-200"
             >
-              {t[language]?.cancel || t.ru.cancel}
+              {t.cancel}
             </button>
             
             <button
               onClick={onConfirm}
               className="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 active:scale-95 transition-all duration-200"
             >
-              {t[language]?.confirm || t.ru.confirm}
+              {t.confirm}
             </button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import ProSVG from '../../assets/Pro.svg';
 import TallySurvey from '../TallySurvey';
 import BottomNav from './BottomNav';
 import { useLanguage } from '../../contexts/LanguageContext.jsx';
+import CloseConfirmationModal from '../CloseConfirmationModal.jsx';
 
 const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const { language } = useLanguage();
@@ -12,6 +13,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const [answers, setAnswers] = useState({});
   const [isCompleted, setIsCompleted] = useState(false);
   const [surveyResult, setSurveyResult] = useState(null);
+  const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 
   const texts = {
     ru: {
@@ -24,7 +26,11 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
       home: 'Главная',
       invite: 'Пригласить',
       lottery: 'Итоги',
-      profile: 'Профиль'
+      profile: 'Профиль',
+      exitTitle: 'Выйти из опроса?',
+      exitMessage: 'Вы действительно хотите выйти из опроса? Ваши ответы не будут сохранены.',
+      exitConfirm: 'Да, выйти',
+      exitCancel: 'Отмена'
     },
     uz: {
       questionCounter: 'Savol',
@@ -36,7 +42,11 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
       home: 'Asosiy',
       invite: 'Taklif qilish',
       lottery: 'Natijalar',
-      profile: 'Profil'
+      profile: 'Profil',
+      exitTitle: 'So\'rovnomani tark etish?',
+      exitMessage: 'Haqiqatan ham so\'rovnomani tark etmoqchimisiz? Javoblaringiz saqlanmaydi.',
+      exitConfirm: 'Ha, chiqish',
+      exitCancel: 'Bekor qilish'
     }
   };
 
@@ -83,6 +93,19 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
     onClose();
   };
 
+  const handleCloseClick = () => {
+    setShowExitConfirmation(true);
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitConfirmation(false);
+    closeModal();
+  };
+
+  const handleCancelExit = () => {
+    setShowExitConfirmation(false);
+  };
+
   const question = survey.questions[currentQuestion];
   const isLastQuestion = currentQuestion === survey.questions.length - 1;
   const canProceed = answers[question?.id];
@@ -94,7 +117,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
           <WaveOverlay />
         </div>
         
-        <div className="flex justify-center pt-30 pb-4 relative z-10">
+        <div className="flex justify-center pt-20 pb-4 relative z-10">
           <img src={ProSVG} alt="Pro" className="w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px]"/>
         </div>
         
@@ -111,7 +134,8 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
           </div>
         </div>
         
-        <div className="relative z-10 flex-shrink-0">
+        {/* Временно закомментировано - кнопки опросника остаются за BottomNav */}
+        {/* <div className="relative z-10 flex-shrink-0">
           <BottomNav 
             tabs={[
               { id: 'home', label: localizedTexts.home },
@@ -124,7 +148,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
               onClose();
             }}
           />
-        </div>
+        </div> */}
       </div>
     );
   }
@@ -142,7 +166,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
 
   return (
     <>
-    <img src={ProSVG} className='absolute w-[250px] top-1/4 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
+    <img src={ProSVG} className='absolute w-[250px] top-1/5 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
     <div className="fixed inset-0 z-50 flex items-end justify-end">
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]" />
       <WaveOverlay />
@@ -203,15 +227,14 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
 
           <div className="flex justify-between">
             <button
-              onClick={handlePrevious}
-              disabled={currentQuestion === 0}
+              onClick={currentQuestion === 0 ? handleCloseClick : handlePrevious}
               className={`px-6 py-3 rounded-xl font-medium transition-all ${
                 currentQuestion === 0
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {localizedTexts.back}
+              {currentQuestion === 0 ? localizedTexts.exitConfirm : localizedTexts.back}
             </button>
             
             <button
@@ -227,8 +250,19 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             </button>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+
+      {/* Модальное окно подтверждения выхода */}
+      <CloseConfirmationModal
+        isOpen={showExitConfirmation}
+        onConfirm={handleConfirmExit}
+        onCancel={handleCancelExit}
+        title={localizedTexts.exitTitle}
+        message={localizedTexts.exitMessage}
+        confirmText={localizedTexts.exitConfirm}
+        cancelText={localizedTexts.exitCancel}
+      />
     </>
   );
 };
