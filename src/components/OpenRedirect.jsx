@@ -18,7 +18,7 @@ export default function OpenRedirect() {
     const timer = setTimeout(() => {
       const url = `https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(DEFAULT_PAYLOAD)}`;
       window.location.replace(url);
-    }, 100);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
