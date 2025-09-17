@@ -758,7 +758,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     <>
       <div className="fixed inset-0 flex flex-col">
         {/* Заголовок опросника - фиксированный */}
-        <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] py-8 px-4 sm:px-6 relative overflow-hidden flex-shrink-0 z-10">
+        <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] py-6 px-4 sm:py-8 sm:px-6 relative overflow-hidden flex-shrink-0 z-10">
           <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
           <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
           
@@ -781,7 +781,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         </div>
 
         {/* Заголовок вопроса - фиксированный */}
-        <div className="bg-gray-50 p-4 sm:p-6 flex-shrink-0 z-10">
+        <div className="bg-gray-50 py-4 px-4 sm:py-6 sm:px-6 flex-shrink-0 z-10">
           <div className="text-center">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 leading-relaxed px-2">
               {currentQuestion.text}
@@ -796,7 +796,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         </div>
 
         {/* Область с вариантами ответов - прокручиваемая */}
-        <div className={`flex-1 p-4 sm:p-6 overflow-y-auto bg-gray-50 custom-scrollbar z-10 transition-all duration-300 ease-out ${
+        <div className={`flex-1 p-4 sm:p-6 pb-24 overflow-y-auto bg-gray-50 custom-scrollbar z-10 transition-all duration-300 ease-out ${
           shouldLiftSurvey ? 'transform -translate-y-24' : ''
         }`} style={{ height: `calc(100vh - 400px)` }}>
           <div className="max-w-md mx-auto px-2">
@@ -805,11 +805,11 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         </div>
 
         {/* Зафиксированные кнопки навигации внизу */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 sm:p-6 z-20">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-6 px-4 sm:py-8 sm:px-6 z-20">
           <div className="flex justify-between items-center mb-2 sm:mb-4">
             <button
               onClick={isFirstQuestion ? handleCloseClick : handlePreviousQuestion}
-              className={`p-3 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base flex items-center justify-center ${
+              className={`p-4 rounded-full font-semibold transition-all duration-200 text-base flex items-center justify-center ${
                 isFirstQuestion 
                   ? 'bg-red-100 hover:bg-red-200 text-red-600 active:scale-95' 
                   : 'bg-gray-200 hover:bg-gray-300 text-gray-700 active:scale-95'
@@ -820,7 +820,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
               </svg>
             </button>
 
-            <div className="text-xs sm:text-sm text-gray-500 font-medium">
+            <div className="text-sm sm:text-base text-gray-500 font-medium">
               {currentQuestionIndex + 1} / {formDetails.questions.length}
             </div>
 
@@ -828,7 +828,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
               <button
                 onClick={handleFormSubmit}
                 disabled={submitLoading || !isCurrentQuestionAnswered}
-                className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
+                className={`p-4 font-semibold rounded-full transition-all duration-200 active:scale-95 text-base flex items-center justify-center ${
                   submitLoading || !isCurrentQuestionAnswered
                   ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
                   : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
@@ -846,7 +846,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
               <button
                 onClick={handleNextQuestion}
                 disabled={!isCurrentQuestionAnswered}
-                className={`p-3 font-semibold rounded-full transition-all duration-200 active:scale-95 text-sm sm:text-base flex items-center justify-center ${
+                className={`p-4 font-semibold rounded-full transition-all duration-200 active:scale-95 text-base flex items-center justify-center ${
                   !isCurrentQuestionAnswered
                     ? 'bg-[#8888FC] text-white/80 cursor-not-allowed'
                     : 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] hover:from-[#4A2FE8] hover:to-[#6B4FFF] text-white'
