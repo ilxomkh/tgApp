@@ -156,7 +156,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       '/support',
       '/order-survey',
       '/test-tally',
-      '/main',
     ]);
 
     let surveyModalState = null;
@@ -183,15 +182,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
         tg.BackButton.onClick(handler);
       } else if (backPages.has(path)) {
         tg.BackButton.show();
-        const handler = () => {
-          if (path === '/main') {
-            // Для главной страницы показываем модалку подтверждения закрытия
-            setIsCloseModalOpen(true);
-          } else {
-            // Для остальных страниц обычная навигация назад
-            navigate(-1);
-          }
-        };
+        const handler = () => navigate(-1);
         backHandlerRef.current = handler;
         tg.BackButton.onClick(handler);
       } else {

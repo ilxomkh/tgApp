@@ -708,32 +708,14 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   if (isFormSubmitted) {
     return (
-
-        <div className="relative z-10 w-full">
-        <div className="bg-white pb-20 rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-green-600">
-              <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-
-           <h2 className="text-2xl font-bold text-[#5E5AF6] mb-4">
-             {t.congratulations}
-           </h2>
-
-           <p className="text-gray-600 text-base leading-relaxed mb-8">
-             {t.surveyCompleted}
-           </p>
-
-           <button
-             onClick={onClose}
-             className="w-full h-12 rounded-xl bg-gradient-to-r from-[#6A4CFF] to-[#7A5CFF] text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl"
-           >
-             {t.close}
-           </button>
-        </div>
-      </div>
-
+      <SuccessModal
+        isOpen={true}
+        onClose={onClose}
+        surveyResult={{
+          message: t.surveyCompleted
+        }}
+        t={t}
+      />
     );
   }
 
