@@ -107,10 +107,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     const handleCloseRequest = (e) => {
       console.log('Close request received', e);
       e?.preventDefault?.();
-      const confirmed = window.confirm('Changes that you made may not be saved.');
-      if (!confirmed) {
-        return;
-      }
       const tg = window.Telegram?.WebApp;
       if (tg?.close) {
         tg.close();
@@ -122,31 +118,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       tg.onEvent('web_app_close', handleCloseRequest);
     }
 
-    const preventClose = (e) => {
-      e.preventDefault();
-      e.returnValue = 'Changes that you made may not be saved.';
-      return 'Changes that you made may not be saved.';
-    };
 
-    window.addEventListener('pagehide', preventClose);
-    document.addEventListener('visibilitychange', (e) => {
-      if (document.hidden) {
-        const confirmed = window.confirm('Changes that you made may not be saved.');
-        if (!confirmed) {
-          e.preventDefault();
-        }
-      }
-    });
-
-    const handleBeforeUnload = (e) => {
-      console.log('Before unload triggered');
-      e.preventDefault();
-      e.returnValue = 'Changes that you made may not be saved.';
-      return 'Changes that you made may not be saved.';
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.onbeforeunload = handleBeforeUnload;
 
     const backPages = new Set([
       '/withdraw',
@@ -203,9 +175,6 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       }
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('pagehide', preventClose);
-      window.onbeforeunload = null;
       if (tg.onEvent) {
         tg.offEvent('web_app_close', handleCloseRequest);
       }

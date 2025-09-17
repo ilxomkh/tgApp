@@ -293,7 +293,7 @@ const AuthScreen = () => {
             <div className={`transition-all duration-300 flex flex-col items-center justify-start pb-4 ${isKeyboardOpen ? 'pt-4' : 'pt-8 flex-1'}`}>
               <div className="w-full max-w-[300px]">
                 <div className="text-center">
-                  <p className="leading-5 text-gray-500 text-lg mb-1">
+                  <p className="leading-5 text-gray-500 text-md mb-1">
                     {T.otpHint}
                   </p>
                   <p className="text-[14px] leading-5 text-[#5E5AF6] font-semibold">
@@ -323,12 +323,12 @@ const AuthScreen = () => {
               </div>
 
               <div className="mt-4 text-center">
-                <span className="text-gray-500 text-lg">{T.resendQ} </span>
+                <span className="text-gray-500 text-md">{T.resendQ} </span>
                 <button
                   type="button"
                   onClick={onResendOtp}
                   disabled={isLoading || resendTimer > 0}
-                  className={`text-sm underline underline-offset-4 disabled:opacity-50 transition ${
+                  className={`text-md underline underline-offset-4 disabled:opacity-50 transition ${
                     resendTimer > 0 
                       ? 'text-[#8B8B99] cursor-not-allowed' 
                       : 'text-[#6A4CFF] hover:text-[#5A3CE8] hover:opacity-80'
@@ -339,11 +339,11 @@ const AuthScreen = () => {
               </div>
 
               <div className="mt-3 text-center">
-                <span className="text-[#8B8B99] text-sm">{T.wrongNumberHint} </span>
+                <span className="text-gray-500 text-md">{T.wrongNumberHint} </span>
                 <button
                   type="button"
                   onClick={handleBackToPhone}
-                  className="text-sm text-[#6A4CFF] hover:text-[#5A3CE8] hover:opacity-80 underline underline-offset-4 transition"
+                  className="text-md text-[#6A4CFF] hover:text-[#5A3CE8] hover:opacity-80 underline underline-offset-4 transition"
                 >
                   {T.backToPhone}
                 </button>
