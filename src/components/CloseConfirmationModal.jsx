@@ -38,7 +38,7 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel, title, message, c
         <WaveOverlay />
         <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-0" />
         <div className="relative z-10 w-full">
-          <div className="bg-white rounded-t-3xl p-10 text-center shadow-2xl transform transition-all duration-500 scale-100 flex flex-col justify-center" style={{ height: '33vh' }}>
+          <div className="bg-white rounded-t-3xl p-10 text-center shadow-2xl transform transition-all duration-500 scale-100 flex flex-col justify-center" style={{ height: '45vh' }}>
             <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-red-100 flex items-center justify-center">
               <svg
                 width="48"

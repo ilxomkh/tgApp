@@ -59,7 +59,7 @@ export const SuccessModal = ({ isOpen, onClose, surveyResult, t }) => {
       <WaveOverlay />
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-0" />
       <div className="relative z-10 w-full">
-        <div className="bg-white rounded-t-3xl p-6 text-center shadow-2xl transform transition-all duration-500 scale-100 flex flex-col justify-center" style={{ height: '33vh' }}>
+        <div className="bg-white rounded-t-3xl p-6 text-center shadow-2xl transform transition-all duration-500 scale-100 flex flex-col justify-center" style={{ height: '45vh' }}>
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-green-600">
               <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
