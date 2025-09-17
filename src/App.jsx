@@ -104,40 +104,29 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
-    const handleCloseRequest = () => {
+    const handleCloseRequest = (e) => {
+      console.log('Close request received', e);
+      e?.preventDefault?.();
       setIsCloseModalOpen(true);
     };
 
-    const handleBeforeUnload = (e) => {
-      // Всегда показываем модальное окно подтверждения при попытке закрытия
-      e.preventDefault();
-      e.returnValue = '';
-      
-      // Показываем модальное окно подтверждения
-      setIsCloseModalOpen(true);
-      
-      return '';
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
+    // Обработка события web_app_close
     if (tg.onEvent) {
       tg.offEvent('web_app_close', handleCloseRequest);
       tg.onEvent('web_app_close', handleCloseRequest);
     }
 
-    // Дополнительная обработка для надежности
-    const handleAppClose = () => {
+    // Обработка через beforeunload для дополнительной надежности
+    const handleBeforeUnload = (e) => {
+      console.log('Before unload triggered');
+      e.preventDefault();
+      e.returnValue = 'Вы действительно хотите покинуть страницу?';
       setIsCloseModalOpen(true);
+      return 'Вы действительно хотите покинуть страницу?';
     };
 
-    // Перехватываем попытки закрытия через различные события
-    window.addEventListener('beforeunload', handleAppClose);
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        handleAppClose();
-      }
-    });
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.onbeforeunload = handleBeforeUnload;
 
     const backPages = new Set([
       '/withdraw',
@@ -195,8 +184,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('beforeunload', handleAppClose);
-      document.removeEventListener('visibilitychange', handleAppClose);
+      window.onbeforeunload = null;
       if (tg.onEvent) {
         tg.offEvent('web_app_close', handleCloseRequest);
       }
@@ -227,11 +215,15 @@ function AppContent() {
       <CloseConfirmationModal
         isOpen={isCloseModalOpen}
         onConfirm={() => {
+          console.log('User confirmed close');
+          setIsCloseModalOpen(false);
+          // Принудительно закрываем приложение
+          window.close();
+          // Дополнительная попытка через Telegram API
           const tg = window.Telegram?.WebApp;
           if (tg?.close) {
             tg.close();
           }
-          setIsCloseModalOpen(false);
         }}
         onCancel={() => setIsCloseModalOpen(false)}
       />
