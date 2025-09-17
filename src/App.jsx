@@ -21,8 +21,9 @@ import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 
+
 // НОВОЕ: страница-редирект под меню
-import OpenRedirect from './pages/OpenRedirect';
+import OpenRedirect from './components/OpenRedirect';
 
 // Если нужно использовать payload внутри Mini App — держите константу:
 const STARTAPP_PAYLOAD = 'home';
