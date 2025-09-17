@@ -84,7 +84,6 @@ const LotteryTab = ({ t }) => {
           </div>
         )}
 
-        {/* Show raffles */}
         {raffles.length > 0 && (
           <div className="space-y-6">
             {raffles.map((raffle) => (
