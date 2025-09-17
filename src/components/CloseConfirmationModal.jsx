@@ -38,12 +38,11 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel, title, message, c
         <WaveOverlay />
         <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-0" />
         <div className="relative z-10 w-full">
-          <div className="bg-white rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
-            {/* Иконка предупреждения */}
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="bg-white rounded-t-3xl p-10 text-center shadow-2xl transform transition-all duration-500 scale-100">
+            <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-red-100 flex items-center justify-center">
               <svg
-                width="40"
-                height="40"
+                width="48"
+                height="48"
                 viewBox="0 0 24 24"
                 fill="none"
                 className="text-red-600"
@@ -58,25 +57,25 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel, title, message, c
               </svg>
             </div>
             
-            <h2 className="text-2xl font-bold text-[#5E5AF6] mb-4">
+            <h2 className="text-3xl font-bold text-[#5E5AF6] mb-6">
               {t.title}
             </h2>
             
-            <p className="text-gray-600 text-base leading-relaxed mb-8">
+            <p className="text-gray-600 text-lg leading-relaxed mb-10">
               {t.message}
             </p>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={onCancel}
-                className="flex-1 h-12 px-4 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 active:scale-[0.99] transition-all duration-200"
+                className="flex-1 h-14 px-6 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 active:scale-[0.99] transition-all duration-200 text-base"
               >
                 {t.cancel}
               </button>
               
               <button
                 onClick={onConfirm}
-                className="flex-1 h-12 rounded-xl bg-red-500 text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl"
+                className="flex-1 h-14 rounded-xl bg-red-500 text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl text-base"
               >
                 {t.confirm}
               </button>
