@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import ProSVG from "../assets/Pro.svg";
+import WaveOverlay from "./WaveOverlay";
 
 const BOT_USERNAME = "pro_surveybot";   // твой username бота
 const DEFAULT_PAYLOAD = "home";         // payload если нужен
@@ -39,16 +41,9 @@ export default function OpenRedirect() {
     >
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 16, opacity: 0.9, marginBottom: 12 }}>
-          Открываю Mini App…
+          <WaveOverlay />
+          <img src={ProSVG} alt="Pro" className="w-[200px] sm:w-[240px] md:w-[260px] lg:w-[280px]"/>
         </div>
-        <a
-          href={`https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(
-            DEFAULT_PAYLOAD
-          )}`}
-          style={{ fontSize: 14, textDecoration: "underline", color: "#fff" }}
-        >
-          Если не открылось — нажмите здесь
-        </a>
       </div>
     </div>
   );
