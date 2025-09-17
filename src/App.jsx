@@ -109,23 +109,14 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     };
 
     const handleBeforeUnload = (e) => {
-      const activeElement = document.activeElement;
-      const isFormActive =
-        activeElement &&
-        (activeElement.tagName === 'INPUT' ||
-          activeElement.tagName === 'TEXTAREA' ||
-          activeElement.tagName === 'SELECT');
-
-      const hasUnsavedData = sessionStorage.getItem('hasUnsavedData') === 'true';
-
-      if (isFormActive || hasUnsavedData) {
-        const message =
-          'Вы действительно хотите покинуть страницу? Несохраненные данные будут потеряны.';
-        e.returnValue = message;
-        return message;
-      }
-
-      return;
+      // Всегда показываем модальное окно подтверждения при попытке закрытия
+      e.preventDefault();
+      e.returnValue = '';
+      
+      // Показываем модальное окно подтверждения
+      setIsCloseModalOpen(true);
+      
+      return '';
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -134,6 +125,19 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       tg.offEvent('web_app_close', handleCloseRequest);
       tg.onEvent('web_app_close', handleCloseRequest);
     }
+
+    // Дополнительная обработка для надежности
+    const handleAppClose = () => {
+      setIsCloseModalOpen(true);
+    };
+
+    // Перехватываем попытки закрытия через различные события
+    window.addEventListener('beforeunload', handleAppClose);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        handleAppClose();
+      }
+    });
 
     const backPages = new Set([
       '/withdraw',
@@ -191,6 +195,8 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       document.removeEventListener('touchstart', preventPullToRefresh);
       document.removeEventListener('click', vibrateOnClick);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleAppClose);
+      document.removeEventListener('visibilitychange', handleAppClose);
       if (tg.onEvent) {
         tg.offEvent('web_app_close', handleCloseRequest);
       }
