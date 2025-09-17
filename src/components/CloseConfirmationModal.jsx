@@ -9,13 +9,13 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel, title, message, c
   const defaultTexts = {
     ru: {
       title: "Закрыть приложение?",
-      message: "Вы действительно хотите закрыть приложение?",
+      message: "Вы действительно хотите закрыть приложение? Все несохраненные данные будут потеряны.",
       confirm: "Да, закрыть",
       cancel: "Отмена"
     },
     uz: {
       title: "Ilovani yopish?",
-      message: "Haqiqatan ham ilovani yopmoqchimisiz?",
+      message: "Haqiqatan ham ilovani yopmoqchimisiz? Barcha saqlanmagan ma'lumotlar yo'qoladi.",
       confirm: "Ha, yopish",
       cancel: "Bekor qilish"
     }
