@@ -710,7 +710,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     return (
 
         <div className="relative z-10 w-full">
-        <div className="bg-white pb-32 rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
+        <div className="bg-white pb-20 rounded-t-3xl p-8 text-center shadow-2xl transform transition-all duration-500 scale-100">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="text-green-600">
               <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -803,7 +803,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           />
         </div>
 
-        {/* Заголовок вопроса - фиксированный */}
         <div className="bg-gray-50 py-4 px-4 sm:py-6 sm:px-6 flex-shrink-0 z-10">
           <div className="text-center">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 leading-relaxed px-2">
@@ -818,7 +817,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           </div>
         </div>
 
-        {/* Область с вариантами ответов - прокручиваемая */}
         <div className={`flex-1 p-4 sm:p-6 pb-32 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 transition-all duration-300 ease-out ${
           shouldLiftSurvey ? 'transform -translate-y-24' : ''
         }`} style={{ height: `calc(100vh - 450px)` }}>
@@ -827,7 +825,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           </div>
         </div>
 
-        {/* Зафиксированные кнопки навигации внизу */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-6 px-4 sm:py-8 sm:px-6 z-20">
           <div className="flex justify-between items-center mb-2 sm:mb-4">
             <button
@@ -884,7 +881,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         </div>
       </div>
 
-      {/* Модальное окно подтверждения выхода */}
       <CloseConfirmationModal
         isOpen={showExitConfirmation}
         onConfirm={handleConfirmExit}

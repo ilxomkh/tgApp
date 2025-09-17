@@ -61,21 +61,21 @@ const CloseConfirmationModal = ({ isOpen, onConfirm, onCancel, title, message, c
               {t.title}
             </h2>
             
-            <p className="text-gray-600 text-lg leading-relaxed mb-10">
+            <p className="text-gray-600 text-lg leading-relaxed mb-6">
               {t.message}
             </p>
             
-            <div className="flex gap-4">
+            <div className="flex w-full gap-4 mb-6">
               <button
                 onClick={onCancel}
-                className="flex-1 h-14 px-6 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 active:scale-[0.99] transition-all duration-200 text-base"
+                className="flex-1 w-full h-12 px-6 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 active:scale-[0.99] transition-all duration-200 text-base"
               >
                 {t.cancel}
               </button>
               
               <button
                 onClick={onConfirm}
-                className="flex-1 h-14 rounded-xl bg-red-500 text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl text-base"
+                className="flex-1 w-full h-12 px-6 rounded-xl bg-red-500 text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl text-base"
               >
                 {t.confirm}
               </button>
