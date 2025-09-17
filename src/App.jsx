@@ -21,9 +21,13 @@ import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 
+// НОВОЕ: страница-редирект под меню
+import OpenRedirect from './pages/OpenRedirect';
+
+// Если нужно использовать payload внутри Mini App — держите константу:
 const STARTAPP_PAYLOAD = 'home';
 
-function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
+function useTelegramInit(setIsCloseModalOpen) {
   const location = useLocation();
   const navigate = useNavigate();
   const backHandlerRef = useRef(null);
@@ -32,36 +36,18 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
-    tg.ready();
-    tg.expand();
-
-    const redirectedKey = '__sa_redirect_done__';
-
+    // базовая инициализация
     try {
-      const samePayload = tg.initDataUnsafe?.start_param === STARTAPP_PAYLOAD;
-      const alreadyRedirected = sessionStorage.getItem(redirectedKey) === '1';
-
-      if (!samePayload && !alreadyRedirected) {
-        sessionStorage.setItem(redirectedKey, '1');
-        setIsRedirecting(true);
-
-        Object.defineProperty(tg.initDataUnsafe, 'start_param', {
-          value: STARTAPP_PAYLOAD,
-          writable: false,
-        });
-
-        setTimeout(() => {
-          setIsRedirecting(false);
-          navigate('/main');
-        }, 500);
-
-        return;
-      }
+      tg.ready();
+      tg.expand?.();
+      // сгладить дерганья на iOS/Android
+      setTimeout(() => tg.expand?.(), 250);
     } catch {}
 
+    // скрываем MainButton и гасим любые последующие попытки его показать
     const nukeMainButton = () => {
       try {
-        tg.MainButton?.hide();
+        tg.MainButton?.hide?.();
         if (tg.MainButton) {
           tg.MainButton.show = () => {};
           tg.MainButton.setParams = () => {};
@@ -69,38 +55,35 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       } catch {}
     };
     nukeMainButton();
-    [100, 300, 1000].forEach((delay) => setTimeout(nukeMainButton, delay));
+    [80, 160, 320, 640].forEach((d) => setTimeout(nukeMainButton, d));
 
-    tg.onEvent('web_app_ready', nukeMainButton);
-    tg.onEvent('mainButtonParamsChanged', nukeMainButton);
-    tg.onEvent('mainButtonTextChanged', nukeMainButton);
-    tg.onEvent('themeChanged', nukeMainButton);
+    tg.onEvent?.('web_app_ready', nukeMainButton);
+    tg.onEvent?.('mainButtonParamsChanged', nukeMainButton);
+    tg.onEvent?.('mainButtonTextChanged', nukeMainButton);
+    tg.onEvent?.('themeChanged', nukeMainButton);
 
-    if (tg.disableVerticalSwipes) {
-      tg.disableVerticalSwipes();
-      setTimeout(() => tg.disableVerticalSwipes(), 300);
-    }
+    // блочим вертикальные свайпы (если доступно)
+    try {
+      tg.disableVerticalSwipes?.();
+      setTimeout(() => tg.disableVerticalSwipes?.(), 300);
+    } catch {}
 
-
+    // лёгкая haptic-вибра при клике
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
+    // корректная обработка запроса закрытия (если кто-то вызовет)
     const handleCloseRequest = (e) => {
-      console.log('Close request received', e);
       e?.preventDefault?.();
-      const tg = window.Telegram?.WebApp;
-      if (tg?.close) {
-        tg.close();
-      }
+      const webapp = window.Telegram?.WebApp;
+      // если у вас нужна модалка подтверждения — откройте её вместо прямого закрытия:
+      // setIsCloseModalOpen(true);
+      webapp?.close?.();
     };
+    tg.offEvent?.('web_app_close', handleCloseRequest);
+    tg.onEvent?.('web_app_close', handleCloseRequest);
 
-    if (tg.onEvent) {
-      tg.offEvent('web_app_close', handleCloseRequest);
-      tg.onEvent('web_app_close', handleCloseRequest);
-    }
-
-
-
+    // маршруты, на которых показываем BackButton
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -111,6 +94,7 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       '/test-tally',
     ]);
 
+    // состояние модалки опроса (чтобы BackButton закрывал модалку, а не уходил назад)
     let surveyModalState = null;
     window.setSurveyModalState = (state) => {
       surveyModalState = state;
@@ -119,11 +103,14 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
 
     const applyBackButtonForPath = (path) => {
       if (!tg.BackButton) return;
+
       if (backHandlerRef.current) {
-        tg.BackButton.offClick(backHandlerRef.current);
+        try {
+          tg.BackButton.offClick(backHandlerRef.current);
+        } catch {}
         backHandlerRef.current = null;
       }
-      
+
       if (surveyModalState && surveyModalState.isSurveyModalOpen) {
         tg.BackButton.show();
         const handler = () => {
@@ -146,38 +133,25 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
     applyBackButtonForPath(location.pathname);
 
     return () => {
-      tg.offEvent('web_app_ready', nukeMainButton);
-      tg.offEvent('mainButtonParamsChanged', nukeMainButton);
-      tg.offEvent('mainButtonTextChanged', nukeMainButton);
-      tg.offEvent('themeChanged', nukeMainButton);
+      tg.offEvent?.('web_app_ready', nukeMainButton);
+      tg.offEvent?.('mainButtonParamsChanged', nukeMainButton);
+      tg.offEvent?.('mainButtonTextChanged', nukeMainButton);
+      tg.offEvent?.('themeChanged', nukeMainButton);
       if (tg.BackButton && backHandlerRef.current) {
-        tg.BackButton.offClick(backHandlerRef.current);
+        try {
+          tg.BackButton.offClick(backHandlerRef.current);
+        } catch {}
         tg.BackButton.hide();
       }
       document.removeEventListener('click', vibrateOnClick);
-      if (tg.onEvent) {
-        tg.offEvent('web_app_close', handleCloseRequest);
-      }
+      tg.offEvent?.('web_app_close', handleCloseRequest);
     };
-  }, [location.pathname, navigate, setIsRedirecting, setIsCloseModalOpen]);
+  }, [location.pathname, navigate, setIsCloseModalOpen]);
 }
 
 function AppContent() {
-  const [isRedirecting, setIsRedirecting] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-  useTelegramInit(setIsRedirecting, setIsCloseModalOpen);
-
-  if (isRedirecting) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
-        <WaveOverlay />
-        <img
-          src={ProSVG}
-          className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
-        />
-      </div>
-    );
-  }
+  useTelegramInit(setIsCloseModalOpen);
 
   return (
     <>
@@ -185,13 +159,10 @@ function AppContent() {
       <CloseConfirmationModal
         isOpen={isCloseModalOpen}
         onConfirm={() => {
-          console.log('User confirmed close');
           setIsCloseModalOpen(false);
-          window.close();
           const tg = window.Telegram?.WebApp;
-          if (tg?.close) {
-            tg.close();
-          }
+          tg?.close?.();
+          window.close();
         }}
         onCancel={() => setIsCloseModalOpen(false)}
       />
@@ -207,6 +178,7 @@ function AuthInitializer({ children }) {
         <WaveOverlay />
         <img
           src={ProSVG}
+          alt="Loading"
           className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
         />
       </div>
@@ -225,19 +197,82 @@ function RouterContent() {
       style={{ backgroundColor: 'var(--tg-theme-bg-color, #F9FAFB)' }}
     >
       <Routes>
+        {/* ВАЖНО: оставить корневую страницу / для стартаппа */}
         <Route path="/" element={<WelcomeScreen />} />
+
+        {/* НОВОЕ: маршрут, на который указывает URL меню в BotFather */}
+        <Route path="/open" element={<OpenRedirect />} />
+
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/auth" element={<AuthScreen />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/public-offer" element={<PublicOfferScreen />} />
-        <Route path="/main" element={<ProtectedRoute><MainScreen /></ProtectedRoute>} />
-        <Route path="/withdraw" element={<ProtectedRoute><WithdrawScreen /></ProtectedRoute>} />
-        <Route path="/order-survey" element={<ProtectedRoute><OrderSurveyScreen /></ProtectedRoute>} />
-        <Route path="/referral-program" element={<ProtectedRoute><ReferralProgramScreen /></ProtectedRoute>} />
-        <Route path="/project-info" element={<ProtectedRoute><ProjectInfoScreen /></ProtectedRoute>} />
-        <Route path="/support" element={<ProtectedRoute><SupportScreen /></ProtectedRoute>} />
-        <Route path="/profile-edit" element={<ProtectedRoute><ProfileEditPage /></ProtectedRoute>} />
-        <Route path="/test-tally" element={<ProtectedRoute><TallyFormsTest /></ProtectedRoute>} />
+
+        <Route
+          path="/main"
+          element={
+            <ProtectedRoute>
+              <MainScreen />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/withdraw"
+          element={
+            <ProtectedRoute>
+              <WithdrawScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/order-survey"
+          element={
+            <ProtectedRoute>
+              <OrderSurveyScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/referral-program"
+          element={
+            <ProtectedRoute>
+              <ReferralProgramScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project-info"
+          element={
+            <ProtectedRoute>
+              <ProjectInfoScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/support"
+          element={
+            <ProtectedRoute>
+              <SupportScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile-edit"
+          element={
+            <ProtectedRoute>
+              <ProfileEditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/test-tally"
+          element={
+            <ProtectedRoute>
+              <TallyFormsTest />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
       <LanguageSelector
