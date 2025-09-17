@@ -72,7 +72,7 @@ const SupportScreen = () => {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    navigate("/main?tab=profile");
   };
 
   return (

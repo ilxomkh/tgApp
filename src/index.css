@@ -127,6 +127,12 @@
     background: rgba(124, 101, 255, 0.6);
   }
 
+  .survey-answers-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+  }
+
   .allow-scroll {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;

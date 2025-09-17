@@ -400,11 +400,7 @@ const ProfileEditPage = () => {
   const activeTab = getActiveTab();
 
   const handleBack = async () => {
-    if (activeTab === 'profile') {
-      navigate('/main?tab=profile');
-    } else {
-      navigate('/main?tab=home');
-    }
+    navigate('/main?tab=profile');
   };
 
   
@@ -658,13 +654,15 @@ const ProfileEditPage = () => {
       <BottomNav 
         tabs={tabs} 
         activeTab={activeTab} 
-        onChange={async (tabId) => {
-          if (tabId === activeTab) return;
-          
-          if (activeTab === 'profile') {
-            navigate('/main?tab=profile');
-          } else {
-            navigate('/main?tab=home');
+        onChange={(tabId) => {
+          if (tabId === "home") {
+            navigate("/main");
+          } else if (tabId === "invite") {
+            navigate("/main?tab=invite");
+          } else if (tabId === "lottery") {
+            navigate("/main?tab=lottery");
+          } else if (tabId === "profile") {
+            navigate("/main?tab=profile");
           }
         }} 
       />
