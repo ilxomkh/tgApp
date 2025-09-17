@@ -7,17 +7,22 @@ import { SettingsIcon, WalletIcon } from '../icons';
 import SurveyCard from '../SurveyCard';
 import SurveyModal from '../SurveyModal';
 import { useSurvey } from '../../../hooks/useSurvey';
+import { useSurveyModal } from '../../../hooks/useSurveyModal';
 import UserAvatar from '../../UserAvatar';
 
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const [selectedSurvey, setSelectedSurvey] = useState(null);
-  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
   const [surveys, setSurveys] = useState([]);
   const [surveysLoading, setSurveysLoading] = useState(true);
   const { getSurvey, submitSurvey, getAvailableSurveys, loading } = useSurvey();
+  const { 
+    isSurveyModalOpen, 
+    selectedSurvey, 
+    openSurveyModal, 
+    closeSurveyModal 
+  } = useSurveyModal();
 
   useEffect(() => {
     const loadSurveys = async () => {
@@ -44,11 +49,19 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     loadSurveys();
   }, [getAvailableSurveys, language]);
 
+  useEffect(() => {
+    if (window.setSurveyModalState) {
+      window.setSurveyModalState({
+        isSurveyModalOpen,
+        closeSurveyModal
+      });
+    }
+  }, [isSurveyModalOpen, closeSurveyModal]);
+
   const handleSurveyStart = async (surveyId) => {
     try {
       const survey = await getSurvey(surveyId);
-      setSelectedSurvey(survey);
-      setIsSurveyModalOpen(true);
+      openSurveyModal(survey);
     } catch (error) {
       console.error('Error loading survey:', error);
     }
@@ -64,10 +77,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     }
   };
 
-  const closeSurveyModal = () => {
-    setIsSurveyModalOpen(false);
-    setSelectedSurvey(null);
-  };
 
   const openProfile = () => {
     navigate('/profile-edit');

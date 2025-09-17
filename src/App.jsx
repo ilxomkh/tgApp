@@ -145,13 +145,29 @@ function useTelegramInit(setIsRedirecting, setIsCloseModalOpen) {
       '/test-tally',
     ]);
 
+    let surveyModalState = null;
+    window.setSurveyModalState = (state) => {
+      surveyModalState = state;
+      applyBackButtonForPath(location.pathname);
+    };
+
     const applyBackButtonForPath = (path) => {
       if (!tg.BackButton) return;
       if (backHandlerRef.current) {
         tg.BackButton.offClick(backHandlerRef.current);
         backHandlerRef.current = null;
       }
-      if (backPages.has(path)) {
+      
+      if (surveyModalState && surveyModalState.isSurveyModalOpen) {
+        tg.BackButton.show();
+        const handler = () => {
+          if (surveyModalState.closeSurveyModal) {
+            surveyModalState.closeSurveyModal();
+          }
+        };
+        backHandlerRef.current = handler;
+        tg.BackButton.onClick(handler);
+      } else if (backPages.has(path)) {
         tg.BackButton.show();
         const handler = () => navigate(-1);
         backHandlerRef.current = handler;
