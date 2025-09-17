@@ -769,7 +769,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
           
           <div className="w-full pb-2">
-            <h2 className="text-white text-xl sm:text-2xl font-bold text-center relative z-10">
+            <h2 className="text-white text-xl sm:text-2xl font-semibold text-center relative z-10">
               {survey.title}
             </h2>
             <div className="text-white/90 text-sm sm:text-base text-center mt-2 sm:mt-3 relative z-10">
@@ -789,13 +789,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           <div className="text-center">
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 leading-relaxed px-2">
               {currentQuestion.text}
-              {currentQuestion.required && <span className="text-red-500 ml-1">*</span>}
             </h3>
-            {currentQuestion.required && !isCurrentQuestionAnswered && (
-              <p className="text-xs sm:text-sm text-red-500 mt-1">
-                {t.requiredField}
-              </p>
-            )}
           </div>
         </div>
 

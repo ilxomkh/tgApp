@@ -60,24 +60,21 @@ export const SuccessModal = ({ isOpen, onClose, surveyResult, t }) => {
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0] opacity-0" />
       <div className="relative z-10 w-full">
         <div className="bg-white rounded-t-3xl p-6 text-center shadow-2xl transform transition-all duration-500 scale-100 flex flex-col justify-center" style={{ height: '33vh' }}>
-          {/* Иконка успеха */}
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-green-600">
               <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
 
-          {/* Заголовок */}
-          <h2 className="text-xl font-bold text-[#5E5AF6] mb-3">
+          <h2 className="text-xl font-semibold text-[#5E5AF6] mb-3">
             {t?.congratulations || "Поздравляем!"}
           </h2>
 
           {/* Сообщение */}
-          <p className="text-gray-600 text-sm leading-relaxed mb-6">
+          <p className="text-gray-500 text-lg leading-relaxed mb-6">
             {surveyResult?.message || "Опрос успешно завершен!"}
           </p>
 
-          {/* Кнопка закрытия */}
           <button
             onClick={onClose}
             className="w-full h-10 rounded-xl bg-gradient-to-r from-[#6A4CFF] to-[#7A5CFF] text-white font-semibold shadow-lg active:scale-[0.99] transition-all duration-200 hover:shadow-xl"

@@ -253,10 +253,10 @@ const AuthScreen = () => {
             <div className={`transition-all duration-300 ${isKeyboardOpen ? 'pt-8' : 'pt-40'}`}>
               <div className="w-full max-w-[320px] mx-auto">
                 <div className="text-center mb-2">
-                  <p className="text-[14px] leading-5 text-[#8B8B99] mb-1">
+                  <p className="leading-5 text-gray-500 text-lg mb-1">
                     {T.phoneHint}
                   </p>
-                  <p className="text-[14px] leading-5 text-[#8B8B99]">
+                  <p className="leading-5 text-gray-500 text-lg">
                     {T.phoneHintSubtext}
                   </p>
                 </div>
@@ -293,7 +293,7 @@ const AuthScreen = () => {
             <div className={`transition-all duration-300 flex flex-col items-center justify-start pb-4 ${isKeyboardOpen ? 'pt-4' : 'pt-8 flex-1'}`}>
               <div className="w-full max-w-[300px]">
                 <div className="text-center">
-                  <p className="text-[14px] leading-5 text-[#8B8B99] mb-1">
+                  <p className="leading-5 text-gray-500 text-lg mb-1">
                     {T.otpHint}
                   </p>
                   <p className="text-[14px] leading-5 text-[#5E5AF6] font-semibold">
@@ -323,7 +323,7 @@ const AuthScreen = () => {
               </div>
 
               <div className="mt-4 text-center">
-                <span className="text-[#8B8B99] text-sm">{T.resendQ} </span>
+                <span className="text-gray-500 text-lg">{T.resendQ} </span>
                 <button
                   type="button"
                   onClick={onResendOtp}
