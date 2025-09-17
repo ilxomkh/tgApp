@@ -126,7 +126,7 @@ const InviteTab = ({ locale = "ru", user }) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-[#5E5AF6] mb-2">
+        <h1 className="text-2xl font-semibold text-[#5E5AF6] mb-2">
           {t.inviteTitle}
         </h1>
       </div>
