@@ -782,8 +782,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   return (
     <>
       <div className="fixed inset-0 flex flex-col">
-        {/* Заголовок опросника - фиксированный */}
-        <div className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] py-8 px-4 sm:py-12 sm:px-6 relative overflow-hidden flex-shrink-0 z-10 flex items-end">
+        <div className="bg-gradient-to-r from-[#5538F9] pt-28 to-[#7C65FF]  relative overflow-hidden flex-shrink-0 z-10 flex items-end justify-end">
           <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10" />
           <div className="absolute -right-16 top-6 w-40 h-40 rounded-full bg-white/10" />
           
@@ -797,10 +796,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           </div>
         </div>
 
-        {/* Прогресс бар - фиксированный */}
         <div className="bg-gray-100 h-1 z-10">
           <div 
-            className="bg-gradient-to-r from-[#5538F9] to-[#7C65FF] h-1 transition-all duration-300 ease-out"
+            className="bg-gradient-to-r from-[#2196F3] to-[#2196F3] h-1 transition-all duration-300 ease-out"
             style={{ width: `${((currentQuestionIndex + 1) / formDetails.questions.length) * 100}%` }}
           />
         </div>
