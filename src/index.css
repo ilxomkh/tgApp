@@ -106,6 +106,31 @@
     scrollbar-color: #B1B2FC #f8f9fa;
   }
 
+  /* Улучшенный скролл для области ответов */
+  .survey-answers-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+  }
+  
+  .survey-answers-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .survey-answers-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+  
+  .survey-answers-scroll::-webkit-scrollbar-thumb {
+    background: rgba(124, 101, 255, 0.4);
+    border-radius: 4px;
+  }
+  
+  .survey-answers-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 101, 255, 0.6);
+  }
+
   .allow-scroll {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;

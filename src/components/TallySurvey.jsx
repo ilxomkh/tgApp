@@ -796,7 +796,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         </div>
 
         {/* Область с вариантами ответов - прокручиваемая */}
-        <div className={`flex-1 p-4 sm:p-6 pb-24 overflow-y-auto bg-gray-50 custom-scrollbar z-10 transition-all duration-300 ease-out ${
+        <div className={`flex-1 p-4 sm:p-6 pb-32 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 transition-all duration-300 ease-out ${
           shouldLiftSurvey ? 'transform -translate-y-24' : ''
         }`} style={{ height: `calc(100vh - 400px)` }}>
           <div className="max-w-md mx-auto px-2">
