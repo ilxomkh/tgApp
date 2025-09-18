@@ -76,10 +76,7 @@ function useTelegramInit(setIsCloseModalOpen) {
     // корректная обработка запроса закрытия (если кто-то вызовет)
     const handleCloseRequest = (e) => {
       e?.preventDefault?.();
-      const webapp = window.Telegram?.WebApp;
-      // если у вас нужна модалка подтверждения — откройте её вместо прямого закрытия:
-      // setIsCloseModalOpen(true);
-      webapp?.close?.();
+      setIsCloseModalOpen(true)
     };
     tg.offEvent?.('web_app_close', handleCloseRequest);
     tg.onEvent?.('web_app_close', handleCloseRequest);
