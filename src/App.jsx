@@ -41,8 +41,10 @@ function useTelegramInit(setIsCloseModalOpen) {
     try {
       tg.ready();
       tg.expand?.();
-      // сгладить дерганья на iOS/Android
       setTimeout(() => tg.expand?.(), 250);
+
+      // ✅ включаем системное подтверждение закрытия
+      tg.isClosingConfirmationEnabled = true;
     } catch {}
 
     // скрываем MainButton и гасим любые последующие попытки его показать
@@ -72,14 +74,6 @@ function useTelegramInit(setIsCloseModalOpen) {
     // лёгкая haptic-вибра при клике
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
-
-    // корректная обработка запроса закрытия (если кто-то вызовет)
-    const handleCloseRequest = (e) => {
-      e?.preventDefault?.();
-      setIsCloseModalOpen(true)
-    };
-    tg.offEvent?.('web_app_close', handleCloseRequest);
-    tg.onEvent?.('web_app_close', handleCloseRequest);
 
     // маршруты, на которых показываем BackButton
     const backPages = new Set([
@@ -142,10 +136,10 @@ function useTelegramInit(setIsCloseModalOpen) {
         tg.BackButton.hide();
       }
       document.removeEventListener('click', vibrateOnClick);
-      tg.offEvent?.('web_app_close', handleCloseRequest);
     };
   }, [location.pathname, navigate, setIsCloseModalOpen]);
 }
+
 
 function AppContent() {
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
