@@ -260,6 +260,11 @@
     line-height: 1.2;
   }
   
+  .card-number .mask-dot {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 300;
+  }
+  
   .font-inter {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';

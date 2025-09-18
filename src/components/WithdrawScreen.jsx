@@ -92,6 +92,30 @@ const maskCard = (digits) => {
   
   return group4(`${start}${mid}${end}`);
 };
+
+const formatMaskedCardNumber = (maskedNumber) => {
+  if (!maskedNumber) return "";
+  
+  const formatted = maskedNumber.replace(/\*/g, "●");
+  
+  return group4(formatted.replace(/\s/g, ""));
+};
+
+const renderCardNumber = (digits, showMask) => {
+  if (!digits) return "";
+  
+  if (showMask) {
+    const formatted = formatMaskedCardNumber(digits);
+    return formatted.split('').map((char, index) => {
+      if (char === '●') {
+        return <span key={index} className="mask-dot">{char}</span>;
+      }
+      return char;
+    });
+  }
+  
+  return group4(digits);
+};
 const group4 = (v) => {
   if (!v) return "";
   const clean = v.replace(/\s/g, "");
@@ -618,7 +642,7 @@ const WithdrawScreen = () => {
           <BrandBadge brand={brand} />
         </div>
         <p className="card-number text-xl mt-6">
-          {showMask ? maskCard(digits) : group4(digits)}
+          {renderCardNumber(digits, showMask)}
         </p>
         <div className="mt-4 flex items-center justify-between text-sm">
           <span className="text-white/90">{holder}</span>
@@ -783,7 +807,7 @@ const WithdrawScreen = () => {
                         color: getCardColor(cardBrand),
                       })
                     }
-                    showMask={false}
+                    showMask={true}
                   />
                 );
               })}
@@ -796,7 +820,7 @@ const WithdrawScreen = () => {
                     brand={selectedCard.brand}
                     color={selectedCard.color}
                     onClick={() => handleCardSelect(selectedCard)}
-                    showMask={false}
+                    showMask={true}
                   />
                 )}
 
