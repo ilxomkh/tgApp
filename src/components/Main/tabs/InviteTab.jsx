@@ -78,13 +78,13 @@ const InviteTab = ({ locale = "ru", user }) => {
   }, [getInviteStats]);
 
   const refLink = React.useMemo(() => {
-    const code = user?.referral_code || "demo123";
+    const code = inviteStats.referral_code || user?.referral_code || "demo123";
     const origin =
       typeof window !== "undefined"
         ? window.location.origin
         : "https://example.com";
-    return `${origin}/invite/${code}`;
-  }, [user?.referral_code]);
+    return `${origin}/?referral_code=${code}`;
+  }, [inviteStats.referral_code, user?.referral_code]);
 
   const showToast = (msg) => {
     if (!msg) return;

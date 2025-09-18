@@ -60,9 +60,9 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const sendOtp = async (phoneNumber) => {
+  const sendOtp = async (phoneNumber, referralCode = null) => {
     try {
-      const response = await api.requestOtp(phoneNumber);
+      const response = await api.requestOtp(phoneNumber, referralCode);
       return true;
     } catch (error) {
       console.error('Error sending OTP:', error);

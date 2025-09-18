@@ -11,7 +11,7 @@ const LanguageSelector = ({ isOpen, onClose, shouldNavigateToOnboarding = false 
 
   const confirm = () => {
     setLanguage(selected);
-    onClose();
+    closeSoft();
     
     if (shouldNavigateToOnboarding) {
       navigate('/onboarding');

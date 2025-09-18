@@ -8,6 +8,7 @@
 /**
  * @typedef {Object} RequestOtpRequest
  * @property {string} phone_number
+ * @property {string} [referral_code]
  */
 
 /**

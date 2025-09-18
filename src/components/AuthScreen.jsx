@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useReferralCode } from "../hooks/useReferralCode";
 import { isValidUzbekPhone, isValidOtp, cleanOtp } from "../utils/validation";
 import { getMessage, getApiErrorMessage } from "../constants/messages";
 import { useHapticClick } from "../utils/hapticFeedback";
@@ -29,6 +30,7 @@ const AuthScreen = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { sendOtp, login } = useAuth();
+  const { referralCode } = useReferralCode();
   const { isKeyboardOpen, keyboardHeight } = useKeyboard();
 
   const [phoneDigits, setPhoneDigits] = useState("");
@@ -155,7 +157,7 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await sendOtp(phoneE164);
+      const ok = await sendOtp(phoneE164, referralCode);
       if (ok) {
         setStep("otp");
         setOtp(Array(OTP_LENGTH).fill(""));
@@ -215,7 +217,7 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await sendOtp(phoneE164);
+      const ok = await sendOtp(phoneE164, referralCode);
       if (ok) {
         startResendTimer();
       } else {
