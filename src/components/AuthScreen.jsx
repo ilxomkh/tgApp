@@ -144,6 +144,19 @@ const AuthScreen = () => {
     }
   };
 
+  const handleOtpAutofill = (e) => {
+    // Обработка автозаполнения OTP кода
+    const value = e.target.value.replace(/\D/g, "");
+    if (value.length === OTP_LENGTH) {
+      const next = Array(OTP_LENGTH).fill("");
+      for (let i = 0; i < value.length; i++) {
+        next[i] = value[i];
+      }
+      setOtp(next);
+      setTimeout(closeKeyboard, 100);
+    }
+  };
+
   const startResendTimer = () => {
     setResendTimer(60);
   };
@@ -304,6 +317,16 @@ const AuthScreen = () => {
                 </div>
               </div>
 
+              {/* Скрытое поле для автозаполнения OTP */}
+              <input
+                type="text"
+                name="otp"
+                autoComplete="one-time-code"
+                style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+                tabIndex={-1}
+                aria-hidden="true"
+              />
+              
               <div className="mt-6 flex justify-center">
                 <div className="flex gap-3" onPaste={handleOtpPaste}>
                   {otp.map((val, i) => (
@@ -317,8 +340,11 @@ const AuthScreen = () => {
                       value={val}
                       onChange={(e) => handleOtpChange(i, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                      onInput={i === 0 ? handleOtpAutofill : undefined}
                       className="w-[48px] h-[48px] rounded-xl border bg-white text-center text-[22px] font-bold text-[#2B2B33] border-[#E1E1F3] focus:border-[#6A4CFF] focus:outline-none"
-                      autoComplete="one-time-code"
+                      autoComplete={i === 0 ? "one-time-code" : "off"}
+                      name={i === 0 ? "otp" : undefined}
+                      data-testid={`otp-input-${i}`}
                     />
                   ))}
                 </div>
