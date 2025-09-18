@@ -78,13 +78,25 @@ const getCardIcon = (brand) => {
 
 const maskCard = (digits) => {
   if (!digits) return "";
-  const d = digits.slice(0, 16);
+  const clean = digits.replace(/\s/g, "");
+  const d = clean.slice(0, 16);
+  
+  if (d.length <= 8) {
+    return group4(d);
+  }
+  
   const start = d.slice(0, 4);
   const end = d.slice(-4);
-  const mid = d.length > 8 ? "•".repeat(d.length - 8) : "";
+  const midLength = d.length - 8;
+  const mid = "•".repeat(midLength);
+  
   return group4(`${start}${mid}${end}`);
 };
-const group4 = (v) => (v || "").replace(/(.{4})/g, "$1 ").trim();
+const group4 = (v) => {
+  if (!v) return "";
+  const clean = v.replace(/\s/g, "");
+  return clean.replace(/(.{4})/g, "$1 ").trim();
+};
 
 const countDigitsBefore = (str, caret) =>
   (str.slice(0, caret).match(/\d/g) || []).length;
@@ -605,7 +617,7 @@ const WithdrawScreen = () => {
         <div className="flex items-center justify-between">
           <BrandBadge brand={brand} />
         </div>
-        <p className="font-mono text-xl tracking-widest mt-6">
+        <p className="card-number text-xl mt-6">
           {showMask ? maskCard(digits) : group4(digits)}
         </p>
         <div className="mt-4 flex items-center justify-between text-sm">
