@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import ProSVG from "../assets/Pro.svg";
 import WaveOverlay from "./WaveOverlay";
 
-const BOT_USERNAME = "pro_surveybot";   // твой username бота
-const DEFAULT_PAYLOAD = "home";         // payload если нужен
+const BOT_USERNAME = "pro_surveybot";
+const DEFAULT_PAYLOAD = "home";
 
 export default function OpenRedirect() {
   useEffect(() => {
@@ -11,10 +11,8 @@ export default function OpenRedirect() {
 
     const url = `https://t.me/${BOT_USERNAME}?startapp=${encodeURIComponent(DEFAULT_PAYLOAD)}`;
 
-    // Сначала редиректим в Mini App
     window.location.href = url;
 
-    // Через 2 секунды пытаемся закрыть контейнер WebApp
     const timer = setTimeout(() => {
       try {
         tg?.close?.();

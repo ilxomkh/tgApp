@@ -16,7 +16,10 @@ const WelcomeScreen = () => {
     if (isAuthenticated) {
       navigate("/main");
     } else {
-      openLanguageModal();
+      const timer = setTimeout(() => {
+        openLanguageModal();
+      }, 1500);
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, navigate, openLanguageModal]);
 
@@ -28,6 +31,13 @@ const WelcomeScreen = () => {
         <div className="text-center text-white max-w-sm">
           <img src={PRO} alt="Pro" className="w-[254px] h-[85px] mx-auto mb-6" />
         </div>
+        
+        <button
+          onClick={openLanguageModal}
+          className="mt-8 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-2xl text-white font-medium hover:bg-white/30 transition-colors"
+        >
+          Выберите язык / Tilni tanlang
+        </button>
       </div>
     </div>
   );
