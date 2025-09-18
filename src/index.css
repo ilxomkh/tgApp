@@ -263,6 +263,8 @@
   .card-number .mask-dot {
     color: rgba(255, 255, 255, 0.7);
     font-weight: 300;
+    font-size: 0.8em;
+    transform: scale(0.8);
   }
   
   .font-inter {

@@ -96,7 +96,8 @@ const maskCard = (digits) => {
 const formatMaskedCardNumber = (maskedNumber) => {
   if (!maskedNumber) return "";
   
-  const formatted = maskedNumber.replace(/\*/g, "●");
+  // Используем меньший кружочек
+  const formatted = maskedNumber.replace(/\*/g, "•");
   
   return group4(formatted.replace(/\s/g, ""));
 };
@@ -107,7 +108,7 @@ const renderCardNumber = (digits, showMask) => {
   if (showMask) {
     const formatted = formatMaskedCardNumber(digits);
     return formatted.split('').map((char, index) => {
-      if (char === '●') {
+      if (char === '•') {
         return <span key={index} className="mask-dot">{char}</span>;
       }
       return char;
@@ -853,11 +854,12 @@ const WithdrawScreen = () => {
         </h4>
 
         <PrettyCard
-          digits={cardDigits}
+          digits={selectedCard?.digits || cardDigits}
           holder={selectedCard?.holder || user?.full_name || "User"}
           brand={brand}
           color={color}
           onClick={() => {}}
+          showMask={true}
         />
 
         <div className="flex justify-center">
