@@ -16,9 +16,9 @@ const WelcomeScreen = () => {
     if (isAuthenticated) {
       navigate("/main");
     } else {
-      navigate("/onboarding");
+      openLanguageModal();
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, openLanguageModal]);
 
 
   return (

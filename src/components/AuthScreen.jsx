@@ -147,6 +147,30 @@ const AuthScreen = () => {
   const handleOtpAutofill = (e) => {
     // Обработка автозаполнения OTP кода
     const value = e.target.value.replace(/\D/g, "");
+    console.log('OTP Autofill detected:', value);
+    
+    if (value.length === OTP_LENGTH) {
+      const next = Array(OTP_LENGTH).fill("");
+      for (let i = 0; i < value.length; i++) {
+        next[i] = value[i];
+      }
+      setOtp(next);
+      setTimeout(closeKeyboard, 100);
+    } else if (value.length > 0 && value.length < OTP_LENGTH) {
+      // Частичное заполнение
+      const next = [...otp];
+      for (let i = 0; i < value.length; i++) {
+        next[i] = value[i];
+      }
+      setOtp(next);
+    }
+  };
+
+  const handleHiddenOtpChange = (e) => {
+    // Обработка автозаполнения через скрытое поле
+    const value = e.target.value.replace(/\D/g, "");
+    console.log('Hidden OTP field changed:', value);
+    
     if (value.length === OTP_LENGTH) {
       const next = Array(OTP_LENGTH).fill("");
       for (let i = 0; i < value.length; i++) {
@@ -317,14 +341,32 @@ const AuthScreen = () => {
                 </div>
               </div>
 
-              {/* Скрытое поле для автозаполнения OTP */}
+              <input
+                type="text"
+                name="otp-code"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={OTP_LENGTH}
+                placeholder="Введите код"
+                style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+                tabIndex={-1}
+                aria-hidden="true"
+                onChange={handleHiddenOtpChange}
+              />
+              
               <input
                 type="text"
                 name="otp"
                 autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={OTP_LENGTH}
+                data-testid="otp-autofill"
                 style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
                 tabIndex={-1}
                 aria-hidden="true"
+                onChange={handleHiddenOtpChange}
               />
               
               <div className="mt-6 flex justify-center">
@@ -340,7 +382,7 @@ const AuthScreen = () => {
                       value={val}
                       onChange={(e) => handleOtpChange(i, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                      onInput={i === 0 ? handleOtpAutofill : undefined}
+                      onInput={handleOtpAutofill}
                       className="w-[48px] h-[48px] rounded-xl border bg-white text-center text-[22px] font-bold text-[#2B2B33] border-[#E1E1F3] focus:border-[#6A4CFF] focus:outline-none"
                       autoComplete={i === 0 ? "one-time-code" : "off"}
                       name={i === 0 ? "otp" : undefined}
