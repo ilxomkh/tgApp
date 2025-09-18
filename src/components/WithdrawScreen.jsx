@@ -551,7 +551,7 @@ const WithdrawScreen = () => {
           </div>
         </div>
         <div className="grid grid-cols-1 gap-0">
-          <p className="text-white/90 text-xl">{t.balance}:</p>
+          <p className="text-white/90 text-md font-semibold">{t.balance}:</p>
           <p className="text-2xl font-bold">
             {bonus} {t.currency}
           </p>

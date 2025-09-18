@@ -1,5 +1,6 @@
 import api from './api.js';
 import config from '../config.js';
+import { detectFormLanguage, filterFormsByLanguage } from '../utils/languageDetection.js';
 
 class TallyApiService {
   constructor() {
@@ -209,20 +210,16 @@ class TallyApiService {
       const serverForms = await this.getForms();
       
       if (serverForms && serverForms.length > 0) {
-        const filteredForms = serverForms.filter(form => {
-          if (form.language) {
-            return form.language === language;
-          }
-          return true;
-        });
+        const filteredForms = filterFormsByLanguage(serverForms, language);
 
         return filteredForms.map(form => {
-          const detectedLanguage = form.name && form.name.toLowerCase().includes('uz') ? 'uz' : 'ru';
+          const detectedLanguage = detectFormLanguage(form.name);
+          const titlePrefix = detectedLanguage === 'ru' ? 'Тема: ' : 'Mavzu: ';
           
           return {
             id: form.id,
             formId: form.id,
-            title: form.name || 'Опрос',
+            title: `${titlePrefix}${form.name || 'Опрос'}`,
             description: `Статус: ${form.status}, Ответов: ${form.numberOfSubmissions}`,
             type: 'registration',
             url: `https://tally.so/forms/${form.id}`,

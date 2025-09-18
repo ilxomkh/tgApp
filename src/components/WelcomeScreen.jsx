@@ -18,7 +18,7 @@ const WelcomeScreen = () => {
     } else {
       const timer = setTimeout(() => {
         openLanguageModal();
-      }, 1500);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, navigate, openLanguageModal]);

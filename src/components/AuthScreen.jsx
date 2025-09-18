@@ -58,6 +58,34 @@ const AuthScreen = () => {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
+  useEffect(() => {
+    if (step !== "otp") return;
+
+    if ("OTPCredential" in window) {
+      const ac = new AbortController();
+
+      navigator.credentials
+        .get({
+          otp: { transport: ["sms"] },
+          signal: ac.signal,
+        })
+        .then((otp) => {
+          if (otp && otp.code) {
+            console.log("WebOTP code:", otp.code);
+
+            const code = otp.code.replace(/\D/g, "").slice(0, OTP_LENGTH);
+            if (code.length === OTP_LENGTH) {
+              setOtp(code.split(""));
+              setTimeout(closeKeyboard, 100);
+            }
+          }
+        })
+        .catch((err) => console.log("WebOTP error:", err));
+
+      return () => ac.abort();
+    }
+  }, [step]);
+
   const T =
     {
       ru: {
@@ -145,7 +173,6 @@ const AuthScreen = () => {
   };
 
   const handleOtpAutofill = (e) => {
-    // Обработка автозаполнения OTP кода
     const value = e.target.value.replace(/\D/g, "");
     console.log('OTP Autofill detected:', value);
     
@@ -157,7 +184,6 @@ const AuthScreen = () => {
       setOtp(next);
       setTimeout(closeKeyboard, 100);
     } else if (value.length > 0 && value.length < OTP_LENGTH) {
-      // Частичное заполнение
       const next = [...otp];
       for (let i = 0; i < value.length; i++) {
         next[i] = value[i];
@@ -167,7 +193,6 @@ const AuthScreen = () => {
   };
 
   const handleHiddenOtpChange = (e) => {
-    // Обработка автозаполнения через скрытое поле
     const value = e.target.value.replace(/\D/g, "");
     console.log('Hidden OTP field changed:', value);
     
@@ -290,7 +315,7 @@ const AuthScreen = () => {
         {step === "phone" && (
           <>
             <div className={`transition-all duration-300 ${isKeyboardOpen ? 'pt-8' : 'pt-40'}`}>
-              <div className="w-full max-w-[320px] mx-auto">
+              <div className="w-full max-w-[330px] mx-auto">
                 <div className="text-center mb-2">
                   <p className="leading-5 text-gray-500 text-lg mb-1">
                     {T.phoneHint}

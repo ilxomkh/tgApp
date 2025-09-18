@@ -88,7 +88,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
               />
             </div>
             <div>
-              <p className="text-white/90 text-sm">{t.balance}</p>
+              <p className="text-white/90 text-md font-semibold">{t.balance}</p>
               <p className="text-3xl font-extrabold tracking-tight">
                 {user?.balance || 0} {t.sum}
               </p>

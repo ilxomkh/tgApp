@@ -124,7 +124,7 @@ const InviteTab = ({ locale = "ru", user }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-[#5E5AF6] mb-2">
           {t.inviteTitle}
@@ -166,7 +166,7 @@ const InviteTab = ({ locale = "ru", user }) => {
         </svg>
       </button>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2">
         {loading && (
           <>
             {[1, 2, 3, 4].map((i) => (
