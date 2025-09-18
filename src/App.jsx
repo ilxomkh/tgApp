@@ -21,8 +21,11 @@ import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 
+
+// НОВОЕ: страница-редирект под меню
 import OpenRedirect from './components/OpenRedirect';
 
+// Если нужно использовать payload внутри Mini App — держите константу:
 const STARTAPP_PAYLOAD = 'home';
 
 function useTelegramInit(setIsCloseModalOpen) {
@@ -34,12 +37,15 @@ function useTelegramInit(setIsCloseModalOpen) {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
+    // базовая инициализация
     try {
       tg.ready();
       tg.expand?.();
+      // сгладить дерганья на iOS/Android
       setTimeout(() => tg.expand?.(), 250);
     } catch {}
 
+    // скрываем MainButton и гасим любые последующие попытки его показать
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide?.();
@@ -57,24 +63,28 @@ function useTelegramInit(setIsCloseModalOpen) {
     tg.onEvent?.('mainButtonTextChanged', nukeMainButton);
     tg.onEvent?.('themeChanged', nukeMainButton);
 
+    // блочим вертикальные свайпы (если доступно)
     try {
       tg.disableVerticalSwipes?.();
       setTimeout(() => tg.disableVerticalSwipes?.(), 300);
     } catch {}
 
+    // лёгкая haptic-вибра при клике
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
+    // корректная обработка запроса закрытия (если кто-то вызовет)
     const handleCloseRequest = (e) => {
       e?.preventDefault?.();
       const webapp = window.Telegram?.WebApp;
-      // тут можно было бы открывать модалку
+      // если у вас нужна модалка подтверждения — откройте её вместо прямого закрытия:
       // setIsCloseModalOpen(true);
       webapp?.close?.();
     };
     tg.offEvent?.('web_app_close', handleCloseRequest);
     tg.onEvent?.('web_app_close', handleCloseRequest);
 
+    // маршруты, на которых показываем BackButton
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -85,6 +95,7 @@ function useTelegramInit(setIsCloseModalOpen) {
       '/test-tally',
     ]);
 
+    // состояние модалки опроса (чтобы BackButton закрывал модалку, а не уходил назад)
     let surveyModalState = null;
     window.setSurveyModalState = (state) => {
       surveyModalState = state;
@@ -161,20 +172,7 @@ function AppContent() {
 }
 
 function AuthInitializer({ children }) {
-  const { isInitializing, user } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    if (!isInitializing) {
-      if (!user) {
-        if (location.pathname !== "/") {
-          navigate("/", { replace: true });
-        }
-      }
-    }
-  }, [user, isInitializing, location, navigate]);
-
+  const { isInitializing } = useAuth();
   if (isInitializing) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
