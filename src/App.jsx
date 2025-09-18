@@ -22,10 +22,8 @@ import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 
 
-// НОВОЕ: страница-редирект под меню
 import OpenRedirect from './components/OpenRedirect';
 
-// Если нужно использовать payload внутри Mini App — держите константу:
 const STARTAPP_PAYLOAD = 'home';
 
 function useTelegramInit(setIsCloseModalOpen) {
@@ -37,17 +35,14 @@ function useTelegramInit(setIsCloseModalOpen) {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
-    // базовая инициализация
     try {
       tg.ready();
       tg.expand?.();
       setTimeout(() => tg.expand?.(), 250);
 
-      // ✅ включаем системное подтверждение закрытия
       tg.isClosingConfirmationEnabled = true;
     } catch {}
 
-    // скрываем MainButton и гасим любые последующие попытки его показать
     const nukeMainButton = () => {
       try {
         tg.MainButton?.hide?.();
@@ -65,17 +60,14 @@ function useTelegramInit(setIsCloseModalOpen) {
     tg.onEvent?.('mainButtonTextChanged', nukeMainButton);
     tg.onEvent?.('themeChanged', nukeMainButton);
 
-    // блочим вертикальные свайпы (если доступно)
     try {
       tg.disableVerticalSwipes?.();
       setTimeout(() => tg.disableVerticalSwipes?.(), 300);
     } catch {}
 
-    // лёгкая haptic-вибра при клике
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
-    // маршруты, на которых показываем BackButton
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -86,7 +78,6 @@ function useTelegramInit(setIsCloseModalOpen) {
       '/test-tally',
     ]);
 
-    // состояние модалки опроса (чтобы BackButton закрывал модалку, а не уходил назад)
     let surveyModalState = null;
     window.setSurveyModalState = (state) => {
       surveyModalState = state;
