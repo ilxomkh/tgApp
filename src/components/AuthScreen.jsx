@@ -315,7 +315,7 @@ const AuthScreen = () => {
         {step === "phone" && (
           <>
             <div className={`transition-all duration-300 ${isKeyboardOpen ? 'pt-8' : 'pt-40'}`}>
-              <div className="w-full max-w-[330px] mx-auto">
+              <div className="w-full max-w-[345px] mx-auto">
                 <div className="text-center mb-2">
                   <p className="leading-5 text-gray-500 text-lg mb-1">
                     {T.phoneHint}
