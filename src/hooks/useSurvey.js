@@ -116,7 +116,6 @@ export const useSurvey = () => {
       
       const result = await api.submitTallyForm(formId, submitData, userId);
 
-      
       return result;
     } catch (err) {
       console.error('❌ Ошибка при отправке опроса:', err);

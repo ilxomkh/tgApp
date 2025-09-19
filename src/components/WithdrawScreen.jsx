@@ -9,6 +9,7 @@ import {
   maskCardNumber,
   formatCardNumber,
 } from "../utils/validation";
+import { formatNumber } from "../utils/numberFormat";
 import Header from "./header";
 import BottomNav from "./Main/BottomNav";
 
@@ -584,13 +585,14 @@ const WithdrawScreen = () => {
               size="w-full h-full"
               className="bg-white/15"
               showBorder={false}
+              iconSize="w-10 h-10"
             />
           </div>
         </div>
         <div className="grid grid-cols-1 gap-0">
           <p className="text-white/90 text-md font-semibold">{t.balance}:</p>
           <p className="text-2xl font-bold">
-            {bonus} {t.currency}
+            {formatNumber(bonus)} {t.currency}
           </p>
         </div>
       </div>

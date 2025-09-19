@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext.jsx';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import tallyApiService from '../services/tallyApi.js';
 import { useSurvey } from '../hooks/useSurvey.js';
 import { useHapticClick } from '../utils/hapticFeedback';
@@ -8,6 +9,7 @@ import CloseConfirmationModal from './CloseConfirmationModal.jsx';
 
 const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const { language } = useLanguage();
+  const { refreshUserProfile } = useAuth();
   const { submitSurvey, loading: submitLoading, error: submitError } = useSurvey();
   const [survey, setSurvey] = useState(null);
   const [formDetails, setFormDetails] = useState(null);
@@ -268,6 +270,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
       const result = await submitSurvey(formId, finalAnswers);
       setIsFormSubmitted(true);
+      
+      // Обновляем профиль пользователя после успешного завершения опроса
+      await refreshUserProfile();
       
       if (onComplete) {
         onComplete(result);

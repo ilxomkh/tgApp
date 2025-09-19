@@ -9,11 +9,13 @@ import SurveyModal from '../SurveyModal';
 import { useSurvey } from '../../../hooks/useSurvey';
 import { useSurveyModal } from '../../../hooks/useSurveyModal';
 import UserAvatar from '../../UserAvatar';
+import { formatNumber } from '../../../utils/numberFormat';
 
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { refreshUserProfile } = useAuth();
   const [surveys, setSurveys] = useState([]);
   const [surveysLoading, setSurveysLoading] = useState(true);
   const { getSurvey, submitSurvey, getAvailableSurveys, loading } = useSurvey();
@@ -24,28 +26,29 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     closeSurveyModal 
   } = useSurveyModal();
 
-  useEffect(() => {
-    const loadSurveys = async () => {
-      try {
-        setSurveysLoading(true);
-        const availableSurveys = await getAvailableSurveys();
+  const loadSurveys = async () => {
+    try {
+      setSurveysLoading(true);
+      
+      const availableSurveys = await getAvailableSurveys();
+      
+      const filteredSurveys = availableSurveys.filter(survey => {
+        const surveyLanguage = survey.language || 'ru';
+        const matchesLanguage = surveyLanguage === language;
         
-        const filteredSurveys = availableSurveys.filter(survey => {
-          const surveyLanguage = survey.language || 'ru';
-          const matchesLanguage = surveyLanguage === language;
-          
-          return matchesLanguage;
-        });
-        
-        setSurveys(filteredSurveys);
-      } catch (error) {
-        console.error('Error loading surveys:', error);
-        setSurveys([]);
-      } finally {
-        setSurveysLoading(false);
-      }
-    };
+        return matchesLanguage;
+      });
+      
+      setSurveys(filteredSurveys);
+    } catch (error) {
+      console.error('Error loading surveys:', error);
+      setSurveys([]);
+    } finally {
+      setSurveysLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadSurveys();
   }, [getAvailableSurveys, language]);
 
@@ -62,12 +65,17 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
   const handleSurveyComplete = async (surveyId, answers) => {
     try {
       const result = await submitSurvey(surveyId, answers);
+      
+      // Обновляем профиль пользователя после успешного завершения опроса
+      await refreshUserProfile();
+      
       return result;
     } catch (error) {
       console.error('Error completing survey:', error);
       throw error;
     }
   };
+
 
 
   const openProfile = () => {
@@ -85,12 +93,13 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
                 size="w-full h-full"
                 className="bg-white/15"
                 showBorder={false}
+                iconSize="w-10 h-10"
               />
             </div>
             <div>
               <p className="text-white/90 text-md font-semibold">{t.balance}</p>
               <p className="text-3xl font-extrabold tracking-tight">
-                {user?.balance || 0} {t.sum}
+                {formatNumber(user?.balance || 0)} {t.sum}
               </p>
             </div>
           </div>
@@ -143,11 +152,8 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
             );
           })
         ) : (
-          <div className="text-center py-8 text-gray-500">
-            {language === 'ru' 
-              ? `Нет доступных опросов для языка: ${language}` 
-              : `${language} tilida mavjud so'rovlar yo'q`
-            }
+          <div className="text-center pt-50 text-gray-500 text-lg">
+            {t.noSurveys}
           </div>
         )}
       </div>

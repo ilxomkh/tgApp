@@ -378,7 +378,7 @@ const OrderSurveyScreen = () => {
               onClick={handleSubmit}
               className={`w-full flex items-center justify-center gap-2 mt-4 py-3 rounded-xl font-semibold text-lg transition-all duration-300 animate-in slide-in-from-bottom-4 ${
                 !isSubmitting
-                  ? 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white/80 hover:from-[#4A46E8] hover:to-[#6B5FFF] active:scale-95 shadow-lg'
+                  ? 'bg-gradient-to-l from-[#5538F9] to-[#7C65FF] text-white/80 hover:from-[#4A46E8] hover:to-[#6B5FFF] active:scale-95 shadow-lg'
                   : 'bg-[#8888FC] text-white/80 cursor-not-allowed'
               }`}
             >

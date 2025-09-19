@@ -445,6 +445,7 @@ const ProfileEditPage = () => {
                   size="w-full h-full"
                   className="bg-white/15"
                   showBorder={false}
+                  iconSize="w-8 h-8"
                 />
               </div>
               

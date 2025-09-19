@@ -214,3 +214,25 @@ export function XIcon({ className = "" }) {
     </svg>
   );
 }
+
+
+export function AvatarIcon({ active = false, className = "" }) {
+  return (
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      className={`shrink-0 ${className}`}
+      fill="none"
+    >
+      <path
+        d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm7 10v-1a6 6 0 0 0-6-6H11a6 6 0 0 0-6 6v1"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={active ? "opacity-100" : "opacity-80"}
+      />
+    </svg>
+  );
+}

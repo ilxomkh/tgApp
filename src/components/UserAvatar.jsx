@@ -1,38 +1,37 @@
 import React, { useState } from 'react';
-import placeholderAvatar from '../assets/user.png';
-import { CircleUserRound, User, UserIcon } from 'lucide-react';
+import { AvatarIcon } from './Main/icons';
 
-const UserAvatar = ({ 
-  avatarUrl, 
-  size = 'w-12 h-12', 
-  className = '', 
-  showBorder = true,
-  ...props 
+const UserAvatar = ({
+  avatarUrl,
+  size = 'w-12 h-12',
+  className = '',
+  showBorder = false,
+  iconSize = 'w-8 h-8', // Новый параметр для размера иконки
+  ...props
 }) => {
   const [imageError, setImageError] = useState(false);
-  
   const shouldShowPlaceholder = !avatarUrl || imageError;
-  
+
   return (
-    <div 
-      className={`${size} rounded-full overflow-hidden flex items-center justify-center ${className}`}
+    <div
+      className={`${size} rounded-full overflow-hidden relative group ${className}`}
       {...props}
     >
       {shouldShowPlaceholder ? (
-        <div className='w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center'>
-          <CircleUserRound className='text-white/90 w-full h-full stroke-1'/>
+        <div className="w-full h-full flex items-center justify-center transition-all duration-200 group-hover:from-purple-500 group-hover:via-blue-600 group-hover:to-indigo-700">
+          <AvatarIcon className={`text-white stroke-[1.5] ${iconSize}`} />
         </div>
       ) : (
         <img
           src={avatarUrl}
           alt="User Avatar"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
           onError={() => setImageError(true)}
         />
       )}
       
       {showBorder && (
-        <div className="absolute inset-0 rounded-full border-2 border-white/20 pointer-events-none" />
+        <div className="absolute inset-0 rounded-full ring-2 ring-white/30 ring-offset-1" />
       )}
     </div>
   );

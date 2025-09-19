@@ -70,12 +70,12 @@ export const SuccessModal = ({ isOpen, onClose, surveyResult, t, language = 'ru'
             {t?.congratulations || "Поздравляем!"}
           </h2>
 
-          <p className="text-gray-500 text-lg leading-relaxed mb-6">
+          <p className="text-gray-500 text-lg leading-relaxed">
             {surveyResult?.message || "Опрос успешно завершен!"}
           </p>
 
-          <div className="bg-gradient-to-r from-[#6A4CFF] to-[#7A5CFF] rounded-xl p-4 mb-6">
-            <p className="text-white text-lg font-semibold">
+          <div className="mb-6">
+            <p className="text-gray-500 text-lg text-center">
               {getMessage('PRIZE_MESSAGE', language)}
             </p>
           </div>

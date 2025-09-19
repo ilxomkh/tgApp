@@ -116,6 +116,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
                 size="w-full h-full"
                 className="bg-white/20"
                 showBorder={true}
+                iconSize="w-12 h-12"
               />
             </div>
 
