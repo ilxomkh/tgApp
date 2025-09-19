@@ -15,6 +15,7 @@ import SupportScreen from './components/SupportScreen';
 import ProfileEditPage from './components/ProfileEditPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import TallyFormsTest from './components/TallyFormsTest';
+import AdminPanel from './components/Admin/AdminPanel';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProSVG from './assets/Pro.svg';
@@ -76,6 +77,7 @@ function useTelegramInit(setIsCloseModalOpen) {
       '/support',
       '/order-survey',
       '/test-tally',
+      '/admin',
     ]);
 
     let surveyModalState = null;
@@ -251,6 +253,14 @@ function RouterContent() {
           element={
             <ProtectedRoute>
               <TallyFormsTest />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/*"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
             </ProtectedRoute>
           }
         />

@@ -460,6 +460,90 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
               />
             </svg>
           </button>
+
+          {userProfile?.phone_number === "+998998514993" && (
+            <button
+              onClick={() => handleMenuClick("/admin")}
+              className="w-full bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-red-200"
+            >
+              <div className="flex items-center gap-4">
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z"
+                    fill="url(#paint0_linear_admin)"
+                  />
+                  <path
+                    d="M19 15L19.5 17L21 17.5L19.5 18L19 20L18.5 18L17 17.5L18.5 17L19 15Z"
+                    fill="url(#paint1_linear_admin)"
+                  />
+                  <path
+                    d="M5 15L5.5 17L7 17.5L5.5 18L5 20L4.5 18L3 17.5L4.5 17L5 15Z"
+                    fill="url(#paint2_linear_admin)"
+                  />
+                  <defs>
+                    <linearGradient
+                      id="paint0_linear_admin"
+                      x1="12"
+                      y1="2"
+                      x2="12"
+                      y2="16"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="#EF4444" />
+                      <stop offset="1" stop-color="#DC2626" />
+                    </linearGradient>
+                    <linearGradient
+                      id="paint1_linear_admin"
+                      x1="19"
+                      y1="15"
+                      x2="19"
+                      y2="20"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="#EF4444" />
+                      <stop offset="1" stop-color="#DC2626" />
+                    </linearGradient>
+                    <linearGradient
+                      id="paint2_linear_admin"
+                      x1="5"
+                      y1="15"
+                      x2="5"
+                      y2="20"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="#EF4444" />
+                      <stop offset="1" stop-color="#DC2626" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                <span className="text-red-800 font-medium">
+                  Админ панель
+                </span>
+              </div>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="text-red-400"
+              >
+                <path
+                  d="M9 18l6-6-6-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
