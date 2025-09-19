@@ -160,6 +160,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
         onClose={closeModal}
         surveyResult={surveyResult}
         t={t}
+        language={language}
       />
     );
   }

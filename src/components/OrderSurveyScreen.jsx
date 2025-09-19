@@ -404,6 +404,7 @@ const OrderSurveyScreen = () => {
         onClose={() => setIsSuccessModalOpen(false)}
         surveyResult={{ message: t.orderCreated }}
         t={{ congratulations: t.success, close: t.next }}
+        language={language}
       />
     </div>
   );

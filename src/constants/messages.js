@@ -40,6 +40,7 @@ export const MESSAGES = {
     LOGOUT_CONFIRMATION_MESSAGE: 'Вы уверены, что хотите выйти из аккаунта?',
     LOGOUT_CONFIRM: 'Да, выйти',
     LOGOUT_CANCEL: 'Отмена',
+    PRIZE_MESSAGE: 'Ваш приз 12 000 сум',
   },
   
   uz: {
@@ -83,6 +84,7 @@ export const MESSAGES = {
     LOGOUT_CONFIRMATION_MESSAGE: 'Hisobingizdan chiqishni xohlaysizmi?',
     LOGOUT_CONFIRM: 'Ha, chiqish',
     LOGOUT_CANCEL: 'Bekor qilish',
+    PRIZE_MESSAGE: 'Sizning sovg\'angiz 12 000 so\'m',
   }
 };
 

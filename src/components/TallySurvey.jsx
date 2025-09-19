@@ -715,6 +715,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           message: t.surveyCompleted
         }}
         t={t}
+        language={language}
       />
     );
   }

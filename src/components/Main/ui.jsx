@@ -2,6 +2,7 @@ import React from 'react';
 import ProSVG from '../../assets/Pro.svg';
 import WaveOverlay from '../WaveOverlay';
 import { useHapticClick } from '../../utils/hapticFeedback';
+import { getMessage } from '../../constants/messages';
 
 export const SectionCard = ({ children, className = '' }) => (
   <div className={`bg-white rounded-2xl border border-[#ECECFA] shadow-[0_8px_28px_rgba(40,40,80,0.08)] ${className}`}>
@@ -48,7 +49,7 @@ export const StatPill = ({ label, value, className = '' }) => (
   </div>
 );
 
-export const SuccessModal = ({ isOpen, onClose, surveyResult, t }) => {
+export const SuccessModal = ({ isOpen, onClose, surveyResult, t, language = 'ru' }) => {
   if (!isOpen) return null;
 
   return (
@@ -72,6 +73,12 @@ export const SuccessModal = ({ isOpen, onClose, surveyResult, t }) => {
           <p className="text-gray-500 text-lg leading-relaxed mb-6">
             {surveyResult?.message || "Опрос успешно завершен!"}
           </p>
+
+          <div className="bg-gradient-to-r from-[#6A4CFF] to-[#7A5CFF] rounded-xl p-4 mb-6">
+            <p className="text-white text-lg font-semibold">
+              {getMessage('PRIZE_MESSAGE', language)}
+            </p>
+          </div>
 
           <button
             onClick={onClose}
