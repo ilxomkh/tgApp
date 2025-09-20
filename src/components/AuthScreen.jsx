@@ -26,6 +26,14 @@ const formatUzPhone = (rawDigits) => {
   return `${p1} ${p2} ${p3} ${p4}`;
 };
 
+// Функция для получения initData из Telegram WebApp
+const getTelegramInitData = () => {
+  if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+    return window.Telegram.WebApp.initData;
+  }
+  return null;
+};
+
 const AuthScreen = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -101,7 +109,7 @@ const AuthScreen = () => {
         resend: "Отправить код повторно",
         confirm: "Авторизоваться",
         confirming: "Проверяется...",
-        privacy1: "Нажимая на кнопку “Авторизоваться”, вы соглашаетесь с ",
+        privacy1: "Нажимая на кнопку "Авторизоваться", вы соглашаетесь с ",
         privacyLink: "политикой конфиденциальности",
         privacyLink2: "",
         wrongOtp:
@@ -124,7 +132,7 @@ const AuthScreen = () => {
         resend: "Qayta yuborish",
         confirm: "Avtorizatsiya qilish",
         confirming: "Tekshirilmoqda...",
-        privacy1: "“Avtorizatsiya qilish” tugmasini bosish orqali siz ",
+        privacy1: ""Avtorizatsiya qilish" tugmasini bosish orqali siz ",
         privacyLink: "maxfiylik siyosati",
         privacyLink2: "ga rozi bo'lasiz",
         wrongOtp:
@@ -219,7 +227,11 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await sendOtp(phoneE164, referralCode);
+      // Получаем initData от Telegram WebApp
+      const initData = getTelegramInitData();
+      console.log('Sending OTP with initData:', initData ? 'present' : 'missing');
+      
+      const ok = await sendOtp(phoneE164, referralCode, initData);
       if (ok) {
         setStep("otp");
         setOtp(Array(OTP_LENGTH).fill(""));
@@ -252,7 +264,11 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await login(phoneE164, code);
+      // Получаем initData от Telegram WebApp
+      const initData = getTelegramInitData();
+      console.log('Verifying OTP with initData:', initData ? 'present' : 'missing');
+      
+      const ok = await login(phoneE164, code, initData);
       if (ok) {
         navigate("/main");
       } else {
@@ -279,7 +295,11 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await sendOtp(phoneE164, referralCode);
+      // Получаем initData от Telegram WebApp
+      const initData = getTelegramInitData();
+      console.log('Resending OTP with initData:', initData ? 'present' : 'missing');
+      
+      const ok = await sendOtp(phoneE164, referralCode, initData);
       if (ok) {
         startResendTimer();
       } else {
