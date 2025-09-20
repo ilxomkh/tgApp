@@ -109,7 +109,7 @@ const AuthScreen = () => {
         resend: "Отправить код повторно",
         confirm: "Авторизоваться",
         confirming: "Проверяется...",
-        privacy1: "Нажимая на кнопку "Авторизоваться", вы соглашаетесь с ",
+        privacy1: "Нажимая на кнопку Авторизоваться вы соглашаетесь с",
         privacyLink: "политикой конфиденциальности",
         privacyLink2: "",
         wrongOtp:
@@ -132,7 +132,7 @@ const AuthScreen = () => {
         resend: "Qayta yuborish",
         confirm: "Avtorizatsiya qilish",
         confirming: "Tekshirilmoqda...",
-        privacy1: ""Avtorizatsiya qilish" tugmasini bosish orqali siz ",
+        privacy1: "Avtorizatsiya qilish tugmasini bosish orqali siz ",
         privacyLink: "maxfiylik siyosati",
         privacyLink2: "ga rozi bo'lasiz",
         wrongOtp:
