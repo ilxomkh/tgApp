@@ -6,7 +6,6 @@ import {
   isValidUzbekPhone, 
   isValidEmail, 
   isValidBirthDate, 
-  isValidFullName,
   formatPhoneE164 
 } from '../utils/validation';
 import { getMessage } from '../constants/messages';
@@ -104,8 +103,6 @@ const ProfileEditPage = () => {
       lottery: 'Итоги',
       profile: 'Профиль',
       errors: {
-        nameRequired: 'Имя должно содержать минимум 2 символа',
-        nameInvalid: 'Имя содержит недопустимые символы',
         emailRequired: 'Email обязателен',
         emailInvalid: 'Введите корректный email адрес',
         birthDateRequired: 'Дата рождения обязательна',
@@ -137,8 +134,6 @@ const ProfileEditPage = () => {
       lottery: 'Natijalar',
       profile: 'Profil',
       errors: {
-        nameRequired: 'Ism kamida 2 ta belgidan iborat bo\'lishi kerak',
-        nameInvalid: 'Ismda ruxsat etilmagan belgilar mavjud',
         emailRequired: 'Email majburiy',
         emailInvalid: 'To\'g\'ri email manzilini kiriting',
         birthDateRequired: 'Tug\'ilgan sana majburiy',
@@ -157,13 +152,7 @@ const ProfileEditPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (formData.full_name && formData.full_name.trim().length > 0) {
-      if (formData.full_name.trim().length < 2) {
-        newErrors.full_name = t.errors.nameRequired;
-      } else if (!isValidFullName(formData.full_name)) {
-        newErrors.full_name = t.errors.nameInvalid;
-      }
-    }
+    // Убрана валидация имени - пользователь может вводить любые символы
 
     if (formData.email && formData.email.trim().length > 0) {
       if (!isValidEmail(formData.email)) {
@@ -502,9 +491,6 @@ const ProfileEditPage = () => {
                     </svg>
                   </div>
                 </div>
-                {errors.full_name && (
-                  <p className="text-red-200 text-sm mt-1">{errors.full_name}</p>
-                )}
               </div>
 
               <div>

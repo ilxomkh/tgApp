@@ -39,6 +39,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
       resetToOnboarding: "Выйти",
       loading: "Загрузка...",
       error: "Ошибка загрузки профиля",
+      adminPanel: "Админ панель",
     },
     uz: {
       phoneNumber: "Telefon raqami:",
@@ -55,6 +56,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
       resetToOnboarding: "Chiqish",
       loading: "Yuklanmoqda...",
       error: "Profilni yuklashda xatolik",
+      adminPanel: "Admin panel",
     },
   };
   const localT = translations[language || "ru"];
@@ -461,7 +463,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
             </svg>
           </button>
 
-          {userProfile?.phone_number === "+998998514993" && (
+          {["+998998514993", "+998336832000"].includes(userProfile?.phone_number) && (
             <button
               onClick={() => handleMenuClick("/admin")}
               className="w-full bg-gradient-to-r from-red-50 to-orange-50 rounded-xl p-3 flex items-center justify-between transition-colors border-px border border-red-200"
@@ -524,7 +526,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
                 </svg>
 
                 <span className="text-red-800 font-medium">
-                  Админ панель
+                  {localT.adminPanel}
                 </span>
               </div>
               <svg

@@ -111,6 +111,19 @@ export const adminApi = {
       headers: getHeaders(),
     });
     return handleResponse(response);
+  },
+
+  // POST /api/raffles/ - создать новый розыгрыш
+  createRaffle: async (raffleData) => {
+    const url = `${API_BASE_URL}/raffles/`;
+    console.log('Creating raffle:', { raffleData, url });
+    
+    const response = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(raffleData),
+    });
+    return handleResponse(response);
   }
 };
 

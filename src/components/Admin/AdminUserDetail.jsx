@@ -5,8 +5,10 @@ import UserSources from './UserSources';
 import UserStats from './UserStats';
 import UserReferrals from './UserReferrals';
 import UserBalance from './UserBalance';
-import { LinkIcon, BarChartIcon, UsersGroupIcon, UserIcon, WalletIcon, ArrowLeftIcon } from '../Main/icons';
+import { LinkIcon, BarChartIcon, UsersGroupIcon, UserIcon, DollarSignIcon, ArrowLeftIcon } from '../Main/icons';
+import UserAvatar from './UserAvatar';
 import { formatDate, formatPhoneNumber, getLanguageInfo, getDeviceInfo, getUserInitials } from '../../utils/adminUtils.jsx';
+import PRO from '../../assets/Pro.svg';
 
 const AdminUserDetail = () => {
   const { userId } = useParams();
@@ -35,20 +37,27 @@ const AdminUserDetail = () => {
   }, [userId]);
 
 
+  // Кастомные иконки с одинаковым размером
+  const UserIconCustom = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm7 10v-1a6 6 0 0 0-6-6H11a6 6 0 0 0-6 6v1"/>
+    </svg>
+  );
+
   const tabs = [
-    { id: 'overview', name: 'Обзор', icon: <UserIcon className="w-4 h-4" /> },
+    { id: 'overview', name: 'Обзор', icon: <UserIconCustom /> },
     { id: 'sources', name: 'Источники', icon: <LinkIcon className="w-4 h-4" /> },
     { id: 'stats', name: 'Статистика', icon: <BarChartIcon className="w-4 h-4" /> },
     { id: 'referrals', name: 'Рефералы', icon: <UsersGroupIcon className="w-4 h-4" /> },
-    { id: 'balance', name: 'Баланс', icon: <WalletIcon className="w-4 h-4" /> }
+    { id: 'balance', name: 'Баланс', icon: <DollarSignIcon className="w-4 h-4" /> }
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F4F4FF] flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin mx-auto"></div>
-          <p className="text-slate-500 text-sm">Загрузка...</p>
+          <div className="w-8 h-8 border-2 border-[#7C65FF]/30 border-t-[#7C65FF] rounded-full animate-spin mx-auto"></div>
+          <p className="text-gray-600 text-sm">Загрузка...</p>
         </div>
       </div>
     );
@@ -56,25 +65,25 @@ const AdminUserDetail = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F4F4FF] flex items-center justify-center">
         <div className="text-center space-y-6 p-8">
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto">
             <span className="text-red-500 text-2xl">⚠️</span>
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-medium text-slate-900">Не удалось загрузить данные</h2>
-            <p className="text-slate-500 text-sm max-w-sm mx-auto">{error}</p>
+            <h2 className="text-xl font-medium text-gray-900">Не удалось загрузить данные</h2>
+            <p className="text-gray-600 text-sm max-w-sm mx-auto">{error}</p>
           </div>
           <div className="flex gap-3 justify-center">
             <button
               onClick={fetchUser}
-              className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white text-sm rounded-lg hover:from-[#4A2FE8] hover:to-[#6B4FFF] transition-all duration-200 active:scale-95"
             >
               Повторить
             </button>
             <button
               onClick={() => navigate('/admin')}
-              className="px-4 py-2 border border-slate-200 text-slate-700 text-sm rounded-lg hover:bg-slate-50 transition-colors"
+              className="px-4 py-2 border border-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition-all duration-200"
             >
               Назад
             </button>
@@ -86,17 +95,17 @@ const AdminUserDetail = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#F4F4FF] flex items-center justify-center">
         <div className="text-center space-y-6 p-8">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
-            <span className="text-slate-400 text-2xl">👤</span>
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+            <span className="text-gray-400 text-2xl">👤</span>
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-medium text-slate-900">Пользователь не найден</h2>
+            <h2 className="text-xl font-medium text-gray-900">Пользователь не найден</h2>
           </div>
           <button
             onClick={() => navigate('/admin')}
-            className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white text-sm rounded-lg hover:from-[#4A2FE8] hover:to-[#6B4FFF] transition-all duration-200 active:scale-95"
           >
             Назад к списку
           </button>
@@ -109,86 +118,79 @@ const AdminUserDetail = () => {
   const deviceInfo = getDeviceInfo(user.device_info);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#F4F4FF]">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex items-center justify-between py-6">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/')}
-                className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors text-sm font-medium"
-              >
-                <ArrowLeftIcon className="w-4 h-4" />
-                Вернуться в приложение
-              </button>
-              <button
-                onClick={() => navigate('/admin')}
-                className="flex items-center gap-2 text-slate-500 hover:text-slate-700 transition-colors text-sm"
-              >
-                ← Назад к списку
-              </button>
+      <div className="bg-gradient-to-b from-[#5538F9] to-[#7C65FF]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between py-4 sm:py-6 gap-4">
+            <button
+              onClick={() => navigate('/admin')}
+              className="flex items-center gap-2 px-4 py-2 text-white hover:text-white/80 hover:bg-white/10 rounded-lg transition-all duration-200 text-sm font-medium order-1 sm:order-1"
+            >
+              <ArrowLeftIcon className="w-4 h-4" />
+              Назад
+            </button>
+            <img src={PRO} alt="" className="w-48 sm:w-60 order-2 sm:order-2" />
+            <div className="text-center sm:text-right text-white order-3 sm:order-3">
+              <div className="text-xl sm:text-2xl font-semibold">{user?.id || '—'}</div>
+              <div className="text-xs sm:text-sm opacity-90">ID пользователя</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {/* User Profile Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 mb-8">
-          <div className="p-8">
-            <div className="flex items-start gap-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)] mb-8">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
               {/* Avatar */}
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-800 rounded-2xl flex items-center justify-center">
-                  <span className="text-white font-medium text-xl">
-                    {getUserInitials(user.full_name)}
-                  </span>
-                </div>
+              <div className="flex-shrink-0 mx-auto sm:mx-0">
+                <UserAvatar user={user} size="lg" />
               </div>
               
               {/* User Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-2xl font-semibold text-slate-900">{user.full_name || 'Без имени'}</h1>
-                  <div className="flex items-center gap-2">
+              <div className="flex-1 min-w-0 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                  <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{user.full_name || 'Без имени'}</h1>
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
                     <span className="text-xl">{langInfo.icon}</span>
-                    <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md">
+                    <span className="px-2 py-1 bg-[#7C65FF]/10 text-[#7C65FF] text-xs rounded-md">
                       {langInfo.name}
                     </span>
                   </div>
                 </div>
-                <p className="text-slate-500 text-sm mb-4">ID: {user.id}</p>
+                <p className="text-gray-600 text-sm mb-4">ID: {user.id}</p>
                 
                 {/* Key Info Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Телефон</p>
-                    <p className="text-sm text-slate-900">{formatPhoneNumber(user.phone_number)}</p>
-                    <p className="text-xs text-slate-500">{user.operator || '—'}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Телефон</p>
+                    <p className="text-sm text-gray-900 break-all">{formatPhoneNumber(user.phone_number)}</p>
+                    <p className="text-xs text-gray-600">{user.operator || '—'}</p>
                   </div>
                   
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Email</p>
-                    <p className="text-sm text-slate-900">{user.email || '—'}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</p>
+                    <p className="text-sm text-gray-900 break-all">{user.email || '—'}</p>
                   </div>
                   
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Баланс</p>
-                    <p className="text-sm text-slate-900 font-medium">{user.balance?.toLocaleString() || '0'} сум</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Баланс</p>
+                    <p className="text-sm text-gray-900 font-medium">{user.balance?.toLocaleString() || '0'} сум</p>
                   </div>
                   
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Устройство</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Устройство</p>
                     <div className="flex items-center gap-2">
-                      <div className="text-slate-600">{deviceInfo.icon}</div>
-                      <span className="text-sm text-slate-900">{deviceInfo.name}</span>
+                      <div className="text-gray-600">{deviceInfo.icon}</div>
+                      <span className="text-sm text-gray-900">{deviceInfo.name}</span>
                     </div>
                   </div>
                   
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Регистрация</p>
-                    <p className="text-sm text-slate-900">{formatDate(user.created_at)}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Регистрация</p>
+                    <p className="text-sm text-gray-900">{formatDate(user.created_at)}</p>
                   </div>
                 </div>
               </div>
@@ -197,21 +199,23 @@ const AdminUserDetail = () => {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-2xl border border-slate-200">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)]">
           {/* Tab Navigation */}
-          <div className="border-b border-slate-200">
-            <nav className="flex px-8">
+          <div className="border-b border-gray-200">
+            <nav className="flex overflow-x-auto px-4 sm:px-8">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-4 border-b-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-4 border-b-2 text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'border-slate-900 text-slate-900'
-                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                      ? 'border-[#7C65FF] text-[#7C65FF]'
+                      : 'border-transparent text-gray-600 hover:text-[#7C65FF] hover:border-[#7C65FF]/30'
                   }`}
                 >
-                  <div className="text-slate-600">{tab.icon}</div>
+                  <div className={`${activeTab === tab.id ? 'text-[#7C65FF]' : 'text-gray-600'}`}>
+                    {tab.icon}
+                  </div>
                   {tab.name}
                 </button>
               ))}
@@ -219,47 +223,47 @@ const AdminUserDetail = () => {
           </div>
 
           {/* Tab Content */}
-          <div className="p-8">
+          <div className="p-4 sm:p-6 lg:p-8">
             {activeTab === 'overview' && (
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 {/* Additional Details */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Дата рождения</p>
-                    <p className="text-lg text-slate-900">{user.birth_date ? formatDate(user.birth_date) : '—'}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Дата рождения</p>
+                    <p className="text-base sm:text-lg text-gray-900">{user.birth_date ? formatDate(user.birth_date) : '—'}</p>
                   </div>
                   
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Telegram ID</p>
-                    <p className="text-lg text-slate-900 font-mono">{user.telegram_id || '—'}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Telegram ID</p>
+                    <p className="text-base sm:text-lg text-gray-900 font-mono break-all">{user.telegram_id || '—'}</p>
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">Браузер</p>
-                    <p className="text-lg text-slate-900">{user.device_info?.browser || '—'}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Браузер</p>
+                    <p className="text-base sm:text-lg text-gray-900">{user.device_info?.browser || '—'}</p>
                   </div>
                 </div>
 
                 {/* Device Details */}
                 {user.device_info && (
-                  <div className="p-6 bg-slate-50 rounded-xl">
-                    <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wide mb-4">Детали устройства</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 sm:p-6 bg-[#7C65FF]/5 rounded-xl">
+                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Детали устройства</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-500">Операционная система</p>
-                        <p className="text-sm text-slate-900">{user.device_info.os || '—'}</p>
+                        <p className="text-xs font-medium text-gray-600">Операционная система</p>
+                        <p className="text-sm text-gray-900">{user.device_info.os || '—'}</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-500">Версия ОС</p>
-                        <p className="text-sm text-slate-900">{user.device_info.os_version || '—'}</p>
+                        <p className="text-xs font-medium text-gray-600">Версия ОС</p>
+                        <p className="text-sm text-gray-900">{user.device_info.os_version || '—'}</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-500">Устройство</p>
-                        <p className="text-sm text-slate-900">{user.device_info.device || '—'}</p>
+                        <p className="text-xs font-medium text-gray-600">Устройство</p>
+                        <p className="text-sm text-gray-900">{user.device_info.device || '—'}</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-500">Модель</p>
-                        <p className="text-sm text-slate-900">{user.device_info.model || '—'}</p>
+                        <p className="text-xs font-medium text-gray-600">Модель</p>
+                        <p className="text-sm text-gray-900">{user.device_info.model || '—'}</p>
                       </div>
                     </div>
                   </div>

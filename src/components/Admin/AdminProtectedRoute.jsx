@@ -23,7 +23,8 @@ const AdminProtectedRoute = ({ children }) => {
         const result = await getUserProfile();
         if (result.success) {
           // Проверяем, является ли пользователь администратором
-          setIsAuthorized(result.data?.phone_number === "+998998514993");
+          const adminPhoneNumbers = ["+998998514993", "+998336832000"];
+          setIsAuthorized(adminPhoneNumbers.includes(result.data?.phone_number));
         }
       } catch (error) {
         console.error("Error checking admin access:", error);

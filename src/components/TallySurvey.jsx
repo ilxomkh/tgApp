@@ -328,7 +328,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   }, []);
 
   const CustomRadio = React.memo(({ checked, onChange, value, label }) => (
-    <label className="flex items-center space-x-3 cursor-pointer p-2 rounded-lg border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
+    <label className="flex items-center space-x-3 cursor-pointer px-5 py-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
         <input
           type="radio"
@@ -347,7 +347,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           )}
         </div>
       </div>
-      <span className={`font-medium transition-colors ${
+      <span className={`font-medium text-sm transition-colors ${
         checked ? 'text-[#7C65FF]' : 'text-gray-700 group-hover:text-[#7C65FF]'
       }`}>
         {label}
@@ -356,7 +356,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   ));
 
   const CustomCheckbox = React.memo(({ checked, onChange, value, label }) => (
-    <label className="flex items-center space-x-3 cursor-pointer p-2 rounded-lg border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
+    <label className="flex items-center space-x-3 cursor-pointer px-5 py-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
         <input
           type="checkbox"
@@ -377,7 +377,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           )}
         </div>
       </div>
-      <span className={`font-medium transition-colors ${
+      <span className={`font-medium text-sm transition-colors ${
         checked ? 'text-[#7C65FF]' : 'text-gray-700 group-hover:text-[#7C65FF]'
       }`}>
         {label}
@@ -418,7 +418,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           type="number"
           value={value}
           onChange={handleChange}
-          className={`w-full p-3 border-2 border-gray-200 rounded-lg 
+          className={`w-full px-4 py-4 border-2 border-gray-200 rounded-xl 
             focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] 
             transition-all duration-200 text-center text-base font-medium 
             bg-white focus:scale-105 ${className}`}
@@ -446,7 +446,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           value={value || ''}
           onChange={onChange}
           onKeyPress={onKeyPress}
-          className={`w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-base font-medium bg-white focus:scale-105 ${className}`}
+          className={`w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-base font-medium bg-white focus:scale-105 ${className}`}
           placeholder={placeholder}
           autoComplete="off"
           inputMode="text"
@@ -778,9 +778,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             <h2 className="text-white text-xl sm:text-2xl font-semibold text-center relative z-10">
               {survey.title}
             </h2>
-            <div className="text-white/90 text-sm sm:text-base text-center mt-2 sm:mt-3 relative z-10">
-              {t.questionCounter} {currentQuestionIndex + 1} {t.of} {formDetails.questions.length}
-            </div>
           </div>
         </div>
 
