@@ -22,7 +22,7 @@ const SurveyCard = ({ title, lines = [], ctaLabel, onStart }) => {
         className="
           mt-4 w-full h-12 rounded-xl bg-white text-[#7C65FF]
           font-semibold px-4 flex items-center justify-between
-          hover:bg-white/30 active:scale-[0.99] transition
+          active:scale-[0.99] transition
         "
       >
         <span>{ctaLabel}</span>

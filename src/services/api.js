@@ -30,6 +30,7 @@ export const getTelegramHeaders = () => {
   const { initData, telegramId } = readTelegramContext();
   if (initData) return { 'X-Telegram-Init-Data': initData };
   if (telegramId) return { 'X-Telegram-Id': String(telegramId) };
+  return {};
 };
 
 

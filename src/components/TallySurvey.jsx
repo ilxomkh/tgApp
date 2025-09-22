@@ -328,7 +328,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   }, []);
 
   const CustomRadio = React.memo(({ checked, onChange, value, label }) => (
-    <label className="flex items-center space-x-4 cursor-pointer p-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
+    <label className="flex items-center space-x-3 cursor-pointer p-2 rounded-lg border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
         <input
           type="radio"
@@ -337,13 +337,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           value={value}
           className="sr-only"
         />
-        <div className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
+        <div className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${
           checked 
             ? 'border-[#7C65FF] bg-[#7C65FF] scale-110' 
             : 'border-gray-300 group-hover:border-[#7C65FF]'
         }`}>
           {checked && (
-            <div className="w-3 h-3 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            <div className="w-2 h-2 bg-white rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
           )}
         </div>
       </div>
@@ -356,7 +356,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   ));
 
   const CustomCheckbox = React.memo(({ checked, onChange, value, label }) => (
-    <label className="flex items-center space-x-4 cursor-pointer p-4 rounded-xl border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
+    <label className="flex items-center space-x-3 cursor-pointer p-2 rounded-lg border-2 border-gray-200 hover:border-[#7C65FF] hover:bg-[#7C65FF]/5 transition-all duration-200 group active:scale-95">
       <div className="relative">
         <input
           type="checkbox"
@@ -365,13 +365,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           value={value}
           className="sr-only"
         />
-        <div className={`w-6 h-6 rounded border-2 transition-all duration-200 ${
+        <div className={`w-5 h-5 rounded border-2 transition-all duration-200 ${
           checked 
             ? 'border-[#7C65FF] bg-[#7C65FF] scale-110' 
             : 'border-gray-300 group-hover:border-[#7C65FF]'
         }`}>
           {checked && (
-            <svg className="w-4 h-4 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-3 h-3 text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           )}
@@ -418,9 +418,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           type="number"
           value={value}
           onChange={handleChange}
-          className={`w-full p-4 border-2 border-gray-200 rounded-xl 
+          className={`w-full p-3 border-2 border-gray-200 rounded-lg 
             focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] 
-            transition-all duration-200 text-center text-lg font-medium 
+            transition-all duration-200 text-center text-base font-medium 
             bg-white focus:scale-105 ${className}`}
           placeholder={placeholder}
           autoComplete="off"
@@ -428,7 +428,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           enterKeyHint="done"
           step="1"
         />
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r 
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r 
           from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none 
           opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
       </div>
@@ -446,13 +446,13 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           value={value || ''}
           onChange={onChange}
           onKeyPress={onKeyPress}
-          className={`w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-lg font-medium bg-white focus:scale-105 ${className}`}
+          className={`w-full p-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7C65FF] focus:border-[#7C65FF] transition-all duration-200 text-center text-base font-medium bg-white focus:scale-105 ${className}`}
           placeholder={placeholder}
           autoComplete="off"
           inputMode="text"
           enterKeyHint="next"
         />
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200" />
       </div>
     );
   });
@@ -564,7 +564,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       switch (questionType) {
         case 'choice':
           return (
-            <div className="space-y-3">
+            <div className="space-y-1">
               {question.options?.map((option, index) => (
                 <CustomRadio
                   key={index}
@@ -579,7 +579,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
         case 'multichoice':
           return (
-            <div className="space-y-3">
+            <div className="space-y-1">
               {question.options?.map((option, index) => (
                 <CustomCheckbox
                   key={index}
@@ -593,7 +593,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
                     }}
                   value={option}
                   label={option}
-                  />
+                />
               ))}
             </div>
           );
@@ -610,7 +610,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         case 'text':
           if (question.options && question.options.length > 0) {
           return (
-            <div className="space-y-3">
+            <div className="space-y-1">
                 {question.options.map((option, index) => (
                   <CustomRadio
                     key={index}
@@ -647,7 +647,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }, [questionType, question, currentAnswer, handleAnswerChange, handleKeyPress, t]);
 
     return (
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-1 sm:space-y-1">
         {renderQuestionInput()}
       </div>
     );
@@ -799,7 +799,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           </div>
         </div>
 
-        <div className={`flex-1 p-4 sm:p-6 pb-32 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 transition-all duration-300 ease-out ${
+        <div className={`flex-1 p-2 sm:p-6 pb-32 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 transition-all duration-300 ease-out ${
           shouldLiftSurvey ? 'transform -translate-y-24' : ''
         }`} style={{ height: `calc(100vh - 450px)` }}>
           <div className="max-w-md mx-auto px-2">
