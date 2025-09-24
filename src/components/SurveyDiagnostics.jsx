@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../../contexts/LanguageContext';
-import surveyDebugger from '../../utils/surveyDebugger';
+import { useLanguage } from '../contexts/LanguageContext';
+import surveyDebugger from '../utils/surveyDebugger';
 
 const SurveyDiagnostics = () => {
   const { language } = useLanguage();
