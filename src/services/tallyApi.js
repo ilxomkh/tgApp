@@ -2,6 +2,7 @@ import api from './api.js';
 import config from '../config.js';
 import { detectFormLanguage, filterFormsByLanguage } from '../utils/languageDetection.js';
 import { isSurveyCompleted } from '../utils/completedSurveys.js';
+import { shouldHideSurveyDueToGroup } from '../utils/surveyGroups.js';
 
 class TallyApiService {
   constructor() {
@@ -159,6 +160,12 @@ class TallyApiService {
           const isCompleted = await this.checkSurveyStatus(form.id);
           if (isCompleted) {
             console.log(`📝 Опрос ${form.id} уже пройден (сервер) - исключаем из списка`);
+            continue;
+          }
+          
+          // Проверяем группировку опросов
+          if (shouldHideSurveyDueToGroup(form.id)) {
+            console.log(`📝 Опрос ${form.id} скрыт из-за группировки (другой опрос из группы уже пройден)`);
             continue;
           }
           

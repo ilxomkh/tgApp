@@ -1,6 +1,7 @@
 import config from '../config.js';
 import { API_ENDPOINTS, ERROR_MESSAGES } from '../types/api.js';
 import { markSurveyAsCompleted } from '../utils/completedSurveys.js';
+import { markGroupAsCompleted, getSurveyGroup } from '../utils/surveyGroups.js';
 
 let isInitializing = false;
 
@@ -315,6 +316,13 @@ export const api = {
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
         console.log(`📝 Опрос ${formId} уже пройден, отмечаем как завершенный`);
         markSurveyAsCompleted(formId);
+        
+        // Проверяем, есть ли группа для этого опроса
+        const groupId = getSurveyGroup(formId);
+        if (groupId) {
+          console.log(`📝 Опрос ${formId} входит в группу ${groupId}, отмечаем всю группу как пройденную`);
+          markGroupAsCompleted(groupId);
+        }
       }
       
       throw error;

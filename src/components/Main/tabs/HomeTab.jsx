@@ -29,6 +29,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
   const loadSurveys = async () => {
     try {
+      console.log('🔄 Загружаем список опросов...');
       setSurveysLoading(true);
       
       const availableSurveys = await getAvailableSurveys();
@@ -41,6 +42,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         return matchesLanguage && isNotCompleted;
       });
       
+      console.log(`📊 Обновлен список опросов: ${filteredSurveys.length} доступных опросов`);
       setSurveys(filteredSurveys);
     } catch (error) {
       console.error('Error loading surveys:', error);
@@ -72,13 +74,18 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
   const handleSurveyComplete = async (surveyId, answers) => {
     try {
+      console.log(`✅ Опрос ${surveyId} завершен, обновляем список...`);
       const result = await submitSurvey(surveyId, answers);
       
       // Обновляем профиль пользователя после успешного завершения опроса
       await refreshUserProfile();
       
-      // Перезагружаем список опросов, чтобы скрыть пройденный опрос
-      loadSurveys();
+      // Добавляем небольшую задержку перед перезагрузкой списка опросов
+      // чтобы дать время сохраниться данным о пройденном опросе
+      setTimeout(() => {
+        console.log(`🔄 Перезагружаем список опросов после завершения ${surveyId}`);
+        loadSurveys();
+      }, 100); // 100мс задержки
       
       return result;
     } catch (error) {
