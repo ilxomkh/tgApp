@@ -9,7 +9,7 @@ import CloseConfirmationModal from '../CloseConfirmationModal.jsx';
 import { isCustomInputOption, getCustomInputPlaceholder } from '../../utils/customInputDetection.js';
 import { useKeyboard } from '../../hooks/useKeyboard.js';
 
-const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
+const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete }) => {
   const { language } = useLanguage();
   const { isKeyboardOpen } = useKeyboard();
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -267,10 +267,17 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
     setIsCompleted(false);
     setSurveyResult(null);
     
-    // Добавляем небольшую задержку, чтобы дать время обновиться списку опросов
-    setTimeout(() => {
-      onClose();
-    }, 500); // 500мс задержки
+    // Если есть функция обновления списка опросов, вызываем её
+    if (onSurveyComplete) {
+      console.log('🔄 Обновляем список опросов после закрытия модального окна');
+      // Добавляем небольшую задержку для гарантии
+      setTimeout(() => {
+        onSurveyComplete();
+      }, 100);
+    }
+    
+    // Закрываем модальное окно
+    onClose();
   };
 
   const handleCloseClick = () => {

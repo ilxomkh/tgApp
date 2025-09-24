@@ -6,7 +6,6 @@ import tallyApiService from '../services/tallyApi.js';
 import api from '../services/api.js';
 import config from '../config.js';
 import { markSurveyAsCompleted } from '../utils/completedSurveys.js';
-import { markGroupAsCompleted, getSurveyGroup } from '../utils/surveyGroups.js';
 
 export const useSurvey = () => {
   const [loading, setLoading] = useState(false);
@@ -102,13 +101,6 @@ export const useSurvey = () => {
 
       // Отмечаем опрос как пройденный при успешном завершении
       markSurveyAsCompleted(formId);
-      
-      // Проверяем, есть ли группа для этого опроса
-      const groupId = getSurveyGroup(formId);
-      if (groupId) {
-        console.log(`📝 Опрос ${formId} входит в группу ${groupId}, отмечаем всю группу как пройденную`);
-        markGroupAsCompleted(groupId);
-      }
 
       return result;
     } catch (err) {

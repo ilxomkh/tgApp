@@ -11,7 +11,6 @@ import { useSurveyModal } from '../../../hooks/useSurveyModal';
 import UserAvatar from '../../UserAvatar';
 import { formatNumber } from '../../../utils/numberFormat';
 import { isSurveyCompleted } from '../../../utils/completedSurveys';
-import SurveyDiagnostics from '../../SurveyDiagnostics';
 
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
@@ -93,12 +92,9 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       // Обновляем профиль пользователя после успешного завершения опроса
       await refreshUserProfile();
       
-      // Добавляем небольшую задержку перед перезагрузкой списка опросов
-      // чтобы дать время сохраниться данным о пройденном опросе
-      setTimeout(() => {
-        console.log(`🔄 Перезагружаем список опросов после завершения ${surveyId}`);
-        loadSurveys();
-      }, 100); // 100мс задержки
+      // Запрашиваем актуальный список форм с API
+      console.log(`🔄 Запрашиваем актуальный список форм с API после завершения ${surveyId}`);
+      await loadSurveys();
       
       return result;
     } catch (error) {
@@ -147,11 +143,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         </SoftButton>
       </GradientCard>
 
-      {/* Компонент диагностики - показываем только если нет опросов */}
-      {!surveysLoading && surveys.length === 0 && (
-        <SurveyDiagnostics />
-      )}
-
       <div className="space-y-4">
         {surveysLoading ? (
           <div className="space-y-4">
@@ -199,6 +190,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         onClose={closeSurveyModal}
         survey={selectedSurvey}
         onComplete={handleSurveyComplete}
+        onSurveyComplete={loadSurveys}
         t={t}
       />
 
