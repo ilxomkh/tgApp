@@ -267,10 +267,8 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
     setIsCompleted(false);
     setSurveyResult(null);
     
-    // Добавляем небольшую задержку, чтобы дать время обновиться списку опросов
-    setTimeout(() => {
-      onClose();
-    }, 500); // 500мс задержки
+    // Закрываем модальное окно сразу, так как опрос уже удален из списка
+    onClose();
   };
 
   const handleCloseClick = () => {
