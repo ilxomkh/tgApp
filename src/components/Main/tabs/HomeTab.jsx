@@ -10,6 +10,7 @@ import { useSurvey } from '../../../hooks/useSurvey';
 import { useSurveyModal } from '../../../hooks/useSurveyModal';
 import UserAvatar from '../../UserAvatar';
 import { formatNumber } from '../../../utils/numberFormat';
+import { isSurveyCompleted } from '../../../utils/completedSurveys';
 
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
@@ -35,8 +36,9 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       const filteredSurveys = availableSurveys.filter(survey => {
         const surveyLanguage = survey.language || 'ru';
         const matchesLanguage = surveyLanguage === language;
+        const isNotCompleted = !isSurveyCompleted(survey.id);
         
-        return matchesLanguage;
+        return matchesLanguage && isNotCompleted;
       });
       
       setSurveys(filteredSurveys);
@@ -59,6 +61,12 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       openSurveyModal(survey);
     } catch (error) {
       console.error('Error loading survey:', error);
+      
+      // Если опрос уже пройден, отмечаем его как завершенный и обновляем список
+      if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
+        console.log(`📝 Опрос ${surveyId} уже пройден, обновляем список`);
+        loadSurveys(); // Перезагружаем список опросов
+      }
     }
   };
 
@@ -68,6 +76,9 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       
       // Обновляем профиль пользователя после успешного завершения опроса
       await refreshUserProfile();
+      
+      // Перезагружаем список опросов, чтобы скрыть пройденный опрос
+      loadSurveys();
       
       return result;
     } catch (error) {

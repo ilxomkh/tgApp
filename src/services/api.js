@@ -1,5 +1,6 @@
 import config from '../config.js';
 import { API_ENDPOINTS, ERROR_MESSAGES } from '../types/api.js';
+import { markSurveyAsCompleted } from '../utils/completedSurveys.js';
 
 let isInitializing = false;
 
@@ -309,6 +310,13 @@ export const api = {
         userId,
         timestamp: new Date().toISOString()
       });
+      
+      // Проверяем, является ли ошибка сообщением о том, что опрос уже пройден
+      if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
+        console.log(`📝 Опрос ${formId} уже пройден, отмечаем как завершенный`);
+        markSurveyAsCompleted(formId);
+      }
+      
       throw error;
     }
   },

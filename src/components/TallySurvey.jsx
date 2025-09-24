@@ -52,19 +52,18 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         console.error('❌ Ошибка при загрузке опроса:', err);
         setError(err.message);
         
-        const fallbackDetails = tallyApiService.getFallbackFormDetails(surveyId);
+        // Если опрос уже пройден, не показываем фолбек
+        if (err.message && err.message.includes('Вы уже прошли этот опрос')) {
+          console.log(`📝 Опрос ${surveyId} уже пройден, закрываем модальное окно`);
+          if (onClose) {
+            onClose();
+          }
+          return;
+        }
         
-        setFormDetails(fallbackDetails);
-        
-        const surveyData = {
-          id: surveyId,
-          title: fallbackDetails.title,
-          type: 'tally',
-          formId: fallbackDetails.formId,
-          questions: fallbackDetails.questions
-        };
-        
-        setSurvey(surveyData);
+        // Для других ошибок показываем сообщение об ошибке
+        setFormDetails(null);
+        setSurvey(null);
       } finally {
         setLoading(false);
       }

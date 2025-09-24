@@ -5,6 +5,7 @@ import tallyWebhookService from '../services/tallyWebhook.js';
 import tallyApiService from '../services/tallyApi.js';
 import api from '../services/api.js';
 import config from '../config.js';
+import { markSurveyAsCompleted } from '../utils/completedSurveys.js';
 
 export const useSurvey = () => {
   const [loading, setLoading] = useState(false);
@@ -53,35 +54,17 @@ export const useSurvey = () => {
     setError(null);
     
     try {
-      const forms = await tallyApiService.getAvailableForms(language);
-      
-      const form = forms.find(f => f.id === surveyId);
-      
-      if (!form) {
-        throw new Error(`Опрос с ID "${surveyId}" не найден`);
-      }
+      // Получаем детали опроса напрямую с сервера
+      const details = await tallyApiService.getFormDetails(surveyId);
       
       return {
         id: surveyId,
-        title: form.title,
+        title: details.title,
         type: 'tally',
-        formUrl: form.url || tallyApiService.getFormUrl(language, form.formId),
+        formUrl: tallyApiService.getFormUrl(language, details.formId),
         language,
-        formId: form.formId,
-        questions: [
-          {
-            id: 1,
-            text: language === 'ru' ? 'Укажите свой пол' : 'Jinsingizni ko\'rsating',
-            type: 'choice',
-            required: true,
-          },
-          {
-            id: 2,
-            text: language === 'ru' ? 'Сколько вам лет?' : 'Yoshingiz nechchida?',
-            type: 'number',
-            required: true,
-          }
-        ]
+        formId: details.formId,
+        questions: details.questions
       };
     } catch (err) {
       setError(err.message);
@@ -115,6 +98,9 @@ export const useSurvey = () => {
 
       
       const result = await api.submitTallyForm(formId, submitData, userId);
+
+      // Отмечаем опрос как пройденный при успешном завершении
+      markSurveyAsCompleted(formId);
 
       return result;
     } catch (err) {

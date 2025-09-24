@@ -17,7 +17,7 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [surveyResult, setSurveyResult] = useState(null);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
-  const [activeCustomInput, setActiveCustomInput] = useState(null); // {questionId, optionIndex, value}
+  const [activeCustomInput, setActiveCustomInput] = useState(null);
 
   const texts = {
     ru: {
@@ -91,24 +91,20 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
       'какие платформы',
       'какие сервисы',
       'какие приложения',
-      // Uzbek keywords for income sources
       'daromadingiz manbalari',
       'manbalari qanday',
       'daromad',
       'manbalari',
       'shaxsiy daromadingiz',
       'qanday manbalar',
-      // Uzbek keywords for social networks
       'ijtimoiy tarmoqlardan',
       'qaysi ijtimoiy',
       'ijtimoiy tarmoqlar',
       'tarmoqlardan foydalanasiz',
-      // Uzbek keywords for free time
       'bo\'sh vaqtingizni',
       'qanday o\'tkazasiz',
       'bo\'sh vaqt',
       'vaqtingizni qanday',
-      // Uzbek keywords for banking and payment services
       'bank yoki to\'lov',
       'qaysi bank',
       'to\'lov xizmatlaridan',
@@ -134,7 +130,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   };
 
   const handleAnswer = (questionId, answer, isMultiple = false, optionIndex = null) => {
-    // Проверяем, является ли выбранный вариант пользовательским вводом
     if (!isMultiple && isCustomInputOption(answer)) {
       setActiveCustomInput({
         questionId,
@@ -146,14 +141,12 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
 
     if (isMultiple) {
       if (isCustomInputOption(answer)) {
-        // Для пользовательского варианта в multichoice активируем inline ввод
         setActiveCustomInput({
           questionId,
           optionIndex,
           value: ''
         });
       } else {
-        // Для обычных вариантов в multichoice работаем с массивом
         setAnswers(prev => {
           const currentValues = Array.isArray(prev[questionId]) ? prev[questionId] : [];
           const newValues = currentValues.includes(answer)
@@ -179,9 +172,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
         ...prev,
         value
       }));
-      
-      // НЕ сохраняем промежуточные значения в финальные ответы
-      // Сохранение произойдет только при потере фокуса (onBlur)
     }
   };
 
@@ -193,10 +183,8 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
       
       if (finalValue) {
         if (questionType === 'multichoice') {
-          // Для multichoice сохраняем как массив
           const currentValues = Array.isArray(answers[activeCustomInput.questionId]) ? answers[activeCustomInput.questionId] : [];
           
-          // Удаляем оригинальный вариант и добавляем пользовательский ввод
           const filteredValues = currentValues.filter(v => v !== question.options[activeCustomInput.optionIndex].value);
           const newValues = [...filteredValues, finalValue];
           
@@ -205,7 +193,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             [activeCustomInput.questionId]: newValues
           }));
         } else {
-          // Для обычных вопросов сохраняем как строку
           setAnswers(prev => ({
             ...prev,
             [activeCustomInput.questionId]: finalValue
@@ -225,10 +212,8 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
       
       if (finalValue) {
         if (questionType === 'multichoice') {
-          // Для multichoice сохраняем как массив
           const currentValues = Array.isArray(answers[activeCustomInput.questionId]) ? answers[activeCustomInput.questionId] : [];
           
-          // Удаляем оригинальный вариант и добавляем пользовательский ввод
           const filteredValues = currentValues.filter(v => v !== question.options[activeCustomInput.optionIndex].value);
           const newValues = [...filteredValues, finalValue];
           
@@ -237,7 +222,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             [activeCustomInput.questionId]: newValues
           }));
         } else {
-          // Для обычных вопросов сохраняем как строку
           setAnswers(prev => ({
             ...prev,
             [activeCustomInput.questionId]: finalValue
@@ -250,7 +234,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   };
 
   const handleNext = () => {
-    // Сохраняем активный пользовательский ввод перед переходом
     saveCustomInputIfActive();
     
     if (currentQuestion < survey.questions.length - 1) {
@@ -268,7 +251,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
 
   const completeSurvey = async () => {
     try {
-      // Сохраняем активный пользовательский ввод перед завершением
       saveCustomInputIfActive();
       
       const result = await onComplete(survey.id, answers);
@@ -331,22 +313,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
             />
           </div>
         </div>
-        
-        {/* Временно закомментировано - кнопки опросника остаются за BottomNav */}
-        {/* <div className="relative z-10 flex-shrink-0">
-          <BottomNav 
-            tabs={[
-              { id: 'home', label: localizedTexts.home },
-              { id: 'invite', label: localizedTexts.invite },
-              { id: 'lottery', label: localizedTexts.lottery },
-              { id: 'profile', label: localizedTexts.profile }
-            ]}
-            activeTab="home"
-            onChange={(tab) => {
-              onClose();
-            }}
-          />
-        </div> */}
       </div>
     );
   }
@@ -486,7 +452,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
         </div>
       </div>
 
-      {/* Модальное окно подтверждения выхода */}
       <CloseConfirmationModal
         isOpen={showExitConfirmation}
         onConfirm={handleConfirmExit}

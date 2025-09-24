@@ -1,6 +1,7 @@
 import api from './api.js';
 import config from '../config.js';
 import { detectFormLanguage, filterFormsByLanguage } from '../utils/languageDetection.js';
+import { isSurveyCompleted } from '../utils/completedSurveys.js';
 
 class TallyApiService {
   constructor() {
@@ -69,16 +70,14 @@ class TallyApiService {
    * @returns {Object}
    */
   getFallbackFormDetails(formId) {
-    const isUzbekForm = formId.includes('uz') || formId === 'wbp8L6';
-    const language = isUzbekForm ? 'uz' : 'ru';
-    
-    
+    // Возвращаем пустые данные - никаких мок данных
+    console.warn(`getFallbackFormDetails called for ${formId} - returning empty data (no mock data)`);
     return {
       formId: formId,
-      title: language === 'ru' ? 'Registration Pro Survey Ru' : 'Registration Pro Survey Uz',
-      questions: this.getFallbackQuestions(language),
-      totalQuestions: 5,
-      requiredQuestions: 3
+      title: 'Опрос недоступен',
+      questions: [],
+      totalQuestions: 0,
+      requiredQuestions: 0
     };
   }
 
@@ -87,81 +86,9 @@ class TallyApiService {
    * @returns {Array}
    */
   getFallbackQuestions(language) {
-    if (language === 'uz') {
-      return [
-        {
-          id: 'gender',
-          text: 'Jinsingizni ko\'rsating',
-          type: 'choice',
-          required: true,
-          options: ['Erkak', 'Ayol']
-        },
-        {
-          id: 'age',
-          text: 'Yoshingizni kiriting',
-          type: 'number',
-          required: true
-        },
-        {
-          id: 'social_networks',
-          text: 'Qaysi ijtimoiy tarmoqlardan foydalanasiz?',
-          type: 'multichoice',
-          required: true,
-          options: ['Telegram', 'Instagram', 'Facebook', 'TikTok']
-        },
-        {
-          id: 'banking_services',
-          text: 'Qaysi bank yoki to\'lov xizmatlaridan foydalanasiz?',
-          type: 'multichoice',
-          required: true,
-          options: ['Payme', 'Click', 'Uzum Bank', 'Humo']
-        },
-        {
-          id: 'interests',
-          text: 'Qiziqishlaringiz nima?',
-          type: 'text',
-          required: false,
-          options: ['Texnologiya', 'San\'at', 'Sport', 'Musiqa']
-        }
-      ];
-    } else {
-      return [
-        {
-          id: 'gender',
-          text: 'Укажите свой пол',
-          type: 'choice',
-          required: true,
-          options: ['Мужской', 'Женский']
-        },
-        {
-          id: 'age',
-          text: 'Сколько вам лет?',
-          type: 'number',
-          required: true
-        },
-        {
-          id: 'social_networks',
-          text: 'Какие соц. сети вы используете?',
-          type: 'multichoice',
-          required: true,
-          options: ['Telegram', 'Instagram', 'Facebook', 'TikTok']
-        },
-        {
-          id: 'banking_services',
-          text: 'Какие банковские или платежные сервисы вы используете?',
-          type: 'multichoice',
-          required: true,
-          options: ['Payme', 'Click', 'Uzum Bank', 'Humo']
-        },
-        {
-          id: 'interests',
-          text: 'Что вас интересует?',
-          type: 'text',
-          required: false,
-          options: ['Технологии', 'Искусство', 'Спорт', 'Музыка']
-        }
-      ];
-    }
+    // Возвращаем пустой массив - никаких мок данных
+    console.warn('getFallbackQuestions called - returning empty array (no mock data)');
+    return [];
   }
 
   /**
@@ -203,7 +130,8 @@ class TallyApiService {
    */
   async getAvailableForms(language = 'ru') {
     if (!config.TALLY.SERVER_API.ENABLED) {
-      return this.getFallbackForms(language);
+      console.warn('Server API is disabled, returning empty array');
+      return [];
     }
 
     try {
@@ -212,11 +140,34 @@ class TallyApiService {
       if (serverForms && serverForms.length > 0) {
         const filteredForms = filterFormsByLanguage(serverForms, language);
 
-        return filteredForms.map(form => {
+        // Проверяем статус каждого опроса и фильтруем пройденные
+        const availableForms = [];
+        
+        console.log(`🔍 Проверяем ${filteredForms.length} опросов на предмет завершения...`);
+        
+        for (const form of filteredForms) {
+          console.log(`🔍 Проверяем опрос ${form.id} (${form.name})`);
+          
+          // Сначала проверяем локальное хранилище
+          if (isSurveyCompleted(form.id)) {
+            console.log(`📝 Опрос ${form.id} уже пройден (локальное хранилище)`);
+            continue;
+          }
+          
+          // Затем проверяем статус на сервере
+          console.log(`🔍 Проверяем статус опроса ${form.id} на сервере...`);
+          const isCompleted = await this.checkSurveyStatus(form.id);
+          if (isCompleted) {
+            console.log(`📝 Опрос ${form.id} уже пройден (сервер) - исключаем из списка`);
+            continue;
+          }
+          
+          console.log(`✅ Опрос ${form.id} доступен - добавляем в список`);
+          
           const detectedLanguage = detectFormLanguage(form.name);
           const titlePrefix = detectedLanguage === 'ru' ? 'Тема: ' : 'Mavzu: ';
           
-          return {
+          availableForms.push({
             id: form.id,
             formId: form.id,
             title: `${titlePrefix}${form.name || 'Опрос'}`,
@@ -237,14 +188,20 @@ class TallyApiService {
               updatedAt: form.updatedAt,
               isClosed: form.isClosed
             }
-          };
-        });
+          });
+        }
+        
+        console.log(`📊 Результат: из ${filteredForms.length} опросов доступно ${availableForms.length}`);
+        return availableForms;
       }
+      
+      // Если нет форм с сервера, возвращаем пустой массив
+      console.warn('No forms received from server');
+      return [];
     } catch (error) {
-      console.warn('Failed to get forms from server, using fallback:', error);
+      console.warn('Failed to get forms from server:', error);
+      return [];
     }
-
-    return this.getFallbackForms(language);
   }
 
   /**
@@ -321,6 +278,35 @@ class TallyApiService {
       return true;
     } catch (error) {
       return false;
+    }
+  }
+
+  /**
+   * Проверяет статус опроса - пройден ли он уже
+   * @param {string} formId - ID опроса
+   * @returns {Promise<boolean>} true если опрос уже пройден
+   */
+  async checkSurveyStatus(formId) {
+    try {
+      // Делаем прямой запрос к API для проверки статуса
+      const response = await api.getTallyFormById(formId);
+      return false; // Если получили данные, значит опрос доступен
+    } catch (error) {
+      console.log(`🔍 Проверка статуса опроса ${formId}:`, error.message);
+      
+      // Если получили ошибку 400, считаем опрос недоступным (пройденным)
+      if (error.message && (
+        error.message.includes('Вы уже прошли этот опрос') ||
+        error.message.includes('Откройте приложение внутри Telegram') ||
+        error.message.includes('Личность пользователя не определена')
+      )) {
+        console.log(`📝 Опрос ${formId} недоступен (ошибка 400) - исключаем из списка`);
+        return true; // Опрос недоступен/пройден
+      }
+      
+      // Для других ошибок считаем, что опрос недоступен
+      console.log(`⚠️ Опрос ${formId} недоступен по другой причине:`, error.message);
+      return true; // Любые ошибки при получении опроса = опрос недоступен
     }
   }
 }
