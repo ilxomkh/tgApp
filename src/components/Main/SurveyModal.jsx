@@ -261,14 +261,16 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
     }
   };
 
-  const closeModal = () => {
+  const closeModal = async () => {
     setCurrentQuestion(0);
     setAnswers({});
     setIsCompleted(false);
     setSurveyResult(null);
     
-    // Закрываем модальное окно сразу, так как список уже обновлен
-    onClose();
+    // Добавляем небольшую задержку, чтобы дать время обновиться списку опросов
+    setTimeout(() => {
+      onClose();
+    }, 500); // 500мс задержки
   };
 
   const handleCloseClick = () => {

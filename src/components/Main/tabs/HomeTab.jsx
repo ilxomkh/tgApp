@@ -11,7 +11,6 @@ import { useSurveyModal } from '../../../hooks/useSurveyModal';
 import UserAvatar from '../../UserAvatar';
 import { formatNumber } from '../../../utils/numberFormat';
 import { isSurveyCompleted } from '../../../utils/completedSurveys';
-import { getSurveysInGroup, getSurveyGroup } from '../../../utils/surveyGroups';
 
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
@@ -53,26 +52,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     }
   };
 
-  // Функция для удаления опроса и всех опросов из его группы
-  const removeSurveyFromList = (surveyId) => {
-    setSurveys(prevSurveys => {
-      // Получаем группу опроса
-      const groupId = getSurveyGroup(surveyId);
-      let surveysToRemove = [surveyId];
-      
-      if (groupId) {
-        // Если опрос в группе, убираем все опросы из группы
-        const surveysInGroup = getSurveysInGroup(groupId);
-        surveysToRemove = surveysInGroup;
-        console.log(`📝 Убираем всю группу ${groupId}: ${surveysInGroup.join(', ')}`);
-      }
-      
-      const updatedSurveys = prevSurveys.filter(survey => !surveysToRemove.includes(survey.id));
-      console.log(`📊 Сразу обновлен список: ${updatedSurveys.length} опросов (убрали: ${surveysToRemove.join(', ')})`);
-      return updatedSurveys;
-    });
-  };
-
   useEffect(() => {
     loadSurveys();
   }, [getAvailableSurveys, language]);
@@ -85,26 +64,28 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
     } catch (error) {
       console.error('Error loading survey:', error);
       
-      // Если опрос уже пройден, сразу убираем его из списка
+      // Если опрос уже пройден, отмечаем его как завершенный и обновляем список
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
-        console.log(`📝 Опрос ${surveyId} уже пройден, сразу убираем из списка`);
-        removeSurveyFromList(surveyId);
+        console.log(`📝 Опрос ${surveyId} уже пройден, обновляем список`);
+        loadSurveys(); // Перезагружаем список опросов
       }
     }
   };
 
   const handleSurveyComplete = async (surveyId, answers) => {
     try {
-      console.log(`✅ Опрос ${surveyId} завершен, сразу обновляем список...`);
-      
-      // Сразу обновляем локальное состояние - убираем пройденный опрос и всю группу
-      removeSurveyFromList(surveyId);
-      
-      // Затем выполняем API запросы в фоне
+      console.log(`✅ Опрос ${surveyId} завершен, обновляем список...`);
       const result = await submitSurvey(surveyId, answers);
       
       // Обновляем профиль пользователя после успешного завершения опроса
       await refreshUserProfile();
+      
+      // Добавляем небольшую задержку перед перезагрузкой списка опросов
+      // чтобы дать время сохраниться данным о пройденном опросе
+      setTimeout(() => {
+        console.log(`🔄 Перезагружаем список опросов после завершения ${surveyId}`);
+        loadSurveys();
+      }, 100); // 100мс задержки
       
       return result;
     } catch (error) {
