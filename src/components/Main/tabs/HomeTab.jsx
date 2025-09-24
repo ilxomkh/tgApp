@@ -11,6 +11,7 @@ import { useSurveyModal } from '../../../hooks/useSurveyModal';
 import UserAvatar from '../../UserAvatar';
 import { formatNumber } from '../../../utils/numberFormat';
 import { isSurveyCompleted } from '../../../utils/completedSurveys';
+import SurveyDiagnostics from '../../SurveyDiagnostics';
 
 
 const HomeTab = ({ t, onOpenProfile, user }) => {
@@ -33,19 +34,31 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       setSurveysLoading(true);
       
       const availableSurveys = await getAvailableSurveys();
+      console.log(`📋 Получено ${availableSurveys.length} опросов с сервера`);
       
       const filteredSurveys = availableSurveys.filter(survey => {
         const surveyLanguage = survey.language || 'ru';
         const matchesLanguage = surveyLanguage === language;
         const isNotCompleted = !isSurveyCompleted(survey.id);
         
+        console.log(`🔍 Опрос ${survey.id}: язык=${surveyLanguage} (нужен ${language}), пройден=${!isNotCompleted}`);
+        
+        if (!matchesLanguage) {
+          console.log(`❌ Опрос ${survey.id} исключен: не совпадает язык`);
+        }
+        if (!isNotCompleted) {
+          console.log(`❌ Опрос ${survey.id} исключен: уже пройден`);
+        }
+        
         return matchesLanguage && isNotCompleted;
       });
       
       console.log(`📊 Обновлен список опросов: ${filteredSurveys.length} доступных опросов`);
+      console.log('📋 Доступные опросы:', filteredSurveys.map(s => ({ id: s.id, title: s.title })));
       setSurveys(filteredSurveys);
     } catch (error) {
-      console.error('Error loading surveys:', error);
+      console.error('❌ Ошибка при загрузке опросов:', error);
+      console.error('🔍 Детали ошибки:', error.message);
       setSurveys([]);
     } finally {
       setSurveysLoading(false);
@@ -133,6 +146,11 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
           <span>{t.withdraw}</span>
         </SoftButton>
       </GradientCard>
+
+      {/* Компонент диагностики - показываем только если нет опросов */}
+      {!surveysLoading && surveys.length === 0 && (
+        <SurveyDiagnostics />
+      )}
 
       <div className="space-y-4">
         {surveysLoading ? (
