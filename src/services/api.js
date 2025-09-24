@@ -312,6 +312,15 @@ export const api = {
       throw error;
     }
   },
+
+  // Admin API methods
+  getUserStats: async () => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/admin/users/overstat`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
 };
 
 export default api;

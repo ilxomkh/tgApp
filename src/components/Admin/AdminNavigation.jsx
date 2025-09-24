@@ -1,13 +1,15 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Users, Film, BarChart3 } from 'lucide-react';
 
 const AdminNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const tabs = [
-    { path: '/admin/users', label: 'Пользователи', icon: '👥' },
-    { path: '/admin/raffles', label: 'Розыгрыши', icon: '🎥' }
+    { path: '/admin/users', label: 'Пользователи', icon: Users },
+    { path: '/admin/raffles', label: 'Розыгрыши', icon: Film },
+    { path: '/admin/stats', label: 'Статистика', icon: BarChart3 }
   ];
 
   return (
@@ -27,7 +29,7 @@ const AdminNavigation = () => {
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-lg">{tab.icon}</span>
+                  <tab.icon className="w-5 h-5" />
                   {tab.label}
                 </span>
               </button>

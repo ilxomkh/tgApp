@@ -6,17 +6,19 @@ import { useSurvey } from '../hooks/useSurvey.js';
 import { useHapticClick } from '../utils/hapticFeedback';
 import { SuccessModal } from './Main/ui.jsx';
 import CloseConfirmationModal from './CloseConfirmationModal.jsx';
+import { isCustomInputOption, getCustomInputPlaceholder } from '../utils/customInputDetection.js';
+import { useKeyboard } from '../hooks/useKeyboard.js';
 
 const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const { language } = useLanguage();
   const { refreshUserProfile } = useAuth();
   const { submitSurvey, loading: submitLoading, error: submitError } = useSurvey();
+  const { isKeyboardOpen, scrollToActiveElement } = useKeyboard();
   const [survey, setSurvey] = useState(null);
   const [formDetails, setFormDetails] = useState(null);
   const [answers, setAnswers] = useState({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const hapticClick = useHapticClick();
@@ -25,6 +27,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const answersRef = useRef({});
   const [numberFieldValid, setNumberFieldValid] = useState(false);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
+  const [activeCustomInput, setActiveCustomInput] = useState(null); // {questionId, optionIndex, value}
 
   useEffect(() => {
     setLoading(true);
@@ -70,47 +73,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     loadSurvey();
   }, [surveyId]);
 
-  useEffect(() => {
-    let timeoutId;
-    
-    const handleResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const currentHeight = window.visualViewport?.height || window.innerHeight;
-        const isKeyboardVisible = currentHeight < window.innerHeight * 0.8;
-        setIsKeyboardOpen(isKeyboardVisible);
-      }, 100);
-    };
-
-    const handleFocusIn = (e) => {
-      if (e.target.tagName === 'INPUT' && e.target.type !== 'number') {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          const currentHeight = window.visualViewport?.height || window.innerHeight;
-          const isKeyboardVisible = currentHeight < window.innerHeight * 0.8;
-          setIsKeyboardOpen(isKeyboardVisible);
-        }, 150);
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize);
-    } else {
-      window.addEventListener('resize', handleResize);
-    }
-    
-    document.addEventListener('focusin', handleFocusIn);
-
-    return () => {
-      clearTimeout(timeoutId);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleResize);
-      } else {
-        window.removeEventListener('resize', handleResize);
-      }
-      document.removeEventListener('focusin', handleFocusIn);
-    };
-  }, []);
 
   useEffect(() => {
     if (shouldMaintainFocus && inputRef.current) {
@@ -174,7 +136,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   }, [currentQuestionIndex, formDetails]);
 
-  const handleAnswerChange = useCallback((questionId, value) => {
+  const handleAnswerChange = useCallback((questionId, value, optionIndex = null) => {
     const currentQuestion = formDetails?.questions?.find(q => q.id === questionId);
     const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
     
@@ -183,6 +145,20 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
     
     hapticClick();
+    
+    // Проверяем, является ли выбранный вариант пользовательским вводом
+    if (isCustomInputOption(value)) {
+      setActiveCustomInput({
+        questionId,
+        optionIndex,
+        value: ''
+      });
+      // Прокручиваем к полю ввода после небольшой задержки
+      setTimeout(() => {
+        scrollToActiveElement(150);
+      }, 100);
+      return;
+    }
     
     answersRef.current = {
       ...answersRef.current,
@@ -194,6 +170,102 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       [questionId]: value
     }));
   }, [formDetails, hapticClick]);
+
+  const handleCustomInputChange = useCallback((value) => {
+    if (activeCustomInput) {
+      setActiveCustomInput(prev => ({
+        ...prev,
+        value
+      }));
+      
+      // НЕ сохраняем промежуточные значения в финальные ответы
+      // Сохранение произойдет только при потере фокуса (onBlur)
+    }
+  }, [activeCustomInput]);
+
+  const handleCustomInputBlur = useCallback(() => {
+    if (activeCustomInput) {
+      const currentQuestion = formDetails?.questions?.find(q => q.id === activeCustomInput.questionId);
+      const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
+      const finalValue = activeCustomInput.value.trim();
+      
+      if (finalValue) {
+        if (questionType === 'multichoice') {
+          // Для multichoice сохраняем как массив
+          const currentValues = Array.isArray(answers[activeCustomInput.questionId]) ? answers[activeCustomInput.questionId] : [];
+          
+          // Удаляем оригинальный вариант и добавляем пользовательский ввод
+          const filteredValues = currentValues.filter(v => v !== currentQuestion.options[activeCustomInput.optionIndex]);
+          const newValues = [...filteredValues, finalValue];
+          
+          answersRef.current = {
+            ...answersRef.current,
+            [activeCustomInput.questionId]: newValues
+          };
+          
+          setAnswers(prev => ({
+            ...prev,
+            [activeCustomInput.questionId]: newValues
+          }));
+        } else {
+          // Для обычных вопросов сохраняем как строку
+          answersRef.current = {
+            ...answersRef.current,
+            [activeCustomInput.questionId]: finalValue
+          };
+          
+          setAnswers(prev => ({
+            ...prev,
+            [activeCustomInput.questionId]: finalValue
+          }));
+        }
+      }
+      
+      setActiveCustomInput(null);
+    }
+  }, [activeCustomInput, formDetails, answers]);
+
+  const saveCustomInputIfActive = useCallback(() => {
+    if (activeCustomInput) {
+      const currentQuestion = formDetails?.questions?.find(q => q.id === activeCustomInput.questionId);
+      const questionType = currentQuestion ? getQuestionType(currentQuestion) : 'unknown';
+      const finalValue = activeCustomInput.value.trim();
+      
+      if (finalValue) {
+        if (questionType === 'multichoice') {
+          // Для multichoice сохраняем как массив
+          const currentValues = Array.isArray(answers[activeCustomInput.questionId]) ? answers[activeCustomInput.questionId] : [];
+          
+          // Удаляем оригинальный вариант и добавляем пользовательский ввод
+          const filteredValues = currentValues.filter(v => v !== currentQuestion.options[activeCustomInput.optionIndex]);
+          const newValues = [...filteredValues, finalValue];
+          
+          answersRef.current = {
+            ...answersRef.current,
+            [activeCustomInput.questionId]: newValues
+          };
+          
+          setAnswers(prev => ({
+            ...prev,
+            [activeCustomInput.questionId]: newValues
+          }));
+        } else {
+          // Для обычных вопросов сохраняем как строку
+          answersRef.current = {
+            ...answersRef.current,
+            [activeCustomInput.questionId]: finalValue
+          };
+          
+          setAnswers(prev => ({
+            ...prev,
+            [activeCustomInput.questionId]: finalValue
+          }));
+        }
+      }
+      
+      setActiveCustomInput(null);
+    }
+  }, [activeCustomInput, formDetails, answers]);
 
   const isCurrentQuestionValid = () => {
     if (!formDetails || !formDetails.questions) return false;
@@ -228,24 +300,196 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
   };
 
+  const getNextQuestionIndex = useCallback((currentIndex, answers) => {
+    if (!formDetails?.questions || currentIndex >= formDetails.questions.length - 1) {
+      return null; // Нет следующего вопроса
+    }
+
+    const currentQuestion = formDetails.questions[currentIndex];
+    const currentAnswer = answers[currentQuestion.id];
+
+    console.log('🔍 Проверка логики скипа:', {
+      questionId: currentQuestion.id,
+      questionText: currentQuestion.text,
+      currentAnswer,
+      logic: currentQuestion.logic
+    });
+
+    // Проверяем логику завершения опроса (end_if)
+    if (currentQuestion.logic && currentQuestion.logic.end_if) {
+      const endConditions = Array.isArray(currentQuestion.logic.end_if) 
+        ? currentQuestion.logic.end_if 
+        : [currentQuestion.logic.end_if];
+      
+      console.log('🏁 Проверка логики завершения опроса:', endConditions);
+      
+      const shouldEnd = endConditions.includes(currentAnswer);
+      console.log('🏁 Условие завершения:', { currentAnswer, endConditions, shouldEnd });
+      
+      if (shouldEnd) {
+        console.log('🏁 Завершаем опрос!');
+        // Возвращаем специальное значение для завершения опроса
+        return 'END_SURVEY';
+      }
+    }
+
+    // Проверяем логику скипа для текущего вопроса
+    if (currentQuestion.logic && currentQuestion.logic.skip) {
+      const skipCondition = currentQuestion.logic.skip;
+      
+      console.log('📋 Условие скипа:', skipCondition);
+      
+      // Проверяем условие скипа
+      let shouldSkip = false;
+      
+      // Логика может быть массивом условий или одним объектом
+      const conditions = Array.isArray(skipCondition) ? skipCondition : [skipCondition];
+      
+      for (const condition of conditions) {
+        console.log('🔍 Проверяем условие:', condition);
+        
+        if (condition.answer !== undefined) {
+          // Прямое сравнение ответа
+          shouldSkip = currentAnswer === condition.answer;
+          console.log('✅ Прямое сравнение:', { currentAnswer, skipAnswer: condition.answer, shouldSkip });
+        } else if (condition.answers && Array.isArray(condition.answers)) {
+          // Проверка на вхождение в массив ответов
+          shouldSkip = condition.answers.includes(currentAnswer);
+          console.log('✅ Проверка массива:', { currentAnswer, skipAnswers: condition.answers, shouldSkip });
+        } else if (condition.condition) {
+          // Более сложные условия (можно расширить)
+          switch (condition.condition) {
+            case 'equals':
+              shouldSkip = currentAnswer === condition.value;
+              break;
+            case 'not_equals':
+              shouldSkip = currentAnswer !== condition.value;
+              break;
+            case 'contains':
+              shouldSkip = Array.isArray(currentAnswer) && currentAnswer.includes(condition.value);
+              break;
+            case 'not_contains':
+              shouldSkip = !Array.isArray(currentAnswer) || !currentAnswer.includes(condition.value);
+              break;
+            default:
+              shouldSkip = false;
+          }
+          console.log('✅ Условная проверка:', { condition: condition.condition, value: condition.value, shouldSkip });
+        }
+        
+        // Если условие выполнено, выходим из цикла
+        if (shouldSkip) break;
+      }
+
+      if (shouldSkip) {
+        console.log('🚀 Выполняем скип!');
+        
+        // Используем первое условие для определения куда переходить
+        const firstCondition = conditions[0];
+        
+        // Пропускаем указанное количество вопросов или переходим к конкретному вопросу
+        if (firstCondition.skip_to || firstCondition.skipTo) {
+          // Переходим к конкретному вопросу (поддерживаем оба формата)
+          const targetQuestionId = firstCondition.skip_to || firstCondition.skipTo;
+          const targetIndex = formDetails.questions.findIndex(q => q.id === targetQuestionId);
+          console.log('🎯 Переход к вопросу:', targetQuestionId, 'индекс:', targetIndex);
+          return targetIndex !== -1 ? targetIndex : currentIndex + 1;
+        } else if (firstCondition.skipCount || firstCondition.skip_count) {
+          // Пропускаем указанное количество вопросов (поддерживаем оба формата)
+          const skipCount = firstCondition.skipCount || firstCondition.skip_count;
+          const nextIndex = Math.min(currentIndex + skipCount + 1, formDetails.questions.length - 1);
+          console.log('⏭️ Пропускаем вопросов:', skipCount, 'следующий индекс:', nextIndex);
+          return nextIndex;
+        } else {
+          // Пропускаем один вопрос по умолчанию
+          const nextIndex = Math.min(currentIndex + 2, formDetails.questions.length - 1);
+          console.log('⏭️ Пропускаем 1 вопрос по умолчанию, следующий индекс:', nextIndex);
+          return nextIndex;
+        }
+      } else {
+        console.log('❌ Условие скипа не выполнено');
+      }
+    } else {
+      console.log('ℹ️ Логика скипа отсутствует для вопроса:', currentQuestion.id);
+    }
+
+    // Обычный переход к следующему вопросу
+    const nextIndex = currentIndex + 1;
+    console.log('➡️ Обычный переход к следующему вопросу:', nextIndex);
+    return nextIndex;
+  }, [formDetails]);
+
   const handleNextQuestion = useCallback(() => {
-    if (currentQuestionIndex < formDetails.questions.length - 1) {
+    if (!formDetails?.questions) return;
+    
+    // Сохраняем активный пользовательский ввод перед переходом
+    saveCustomInputIfActive();
+    
+    const allAnswers = { ...answers, ...answersRef.current };
+    console.log('🔄 Переход к следующему вопросу:', {
+      currentIndex: currentQuestionIndex,
+      allAnswers,
+      currentQuestion: formDetails.questions[currentQuestionIndex]
+    });
+    
+    const nextIndex = getNextQuestionIndex(currentQuestionIndex, allAnswers);
+    
+    console.log('📍 Следующий индекс:', nextIndex);
+    
+    if (nextIndex === 'END_SURVEY') {
+      console.log('🏁 Завершаем опрос по логике end_if');
+      // Завершаем опрос и показываем SuccessModal
+      handleFormSubmit();
+      return;
+    }
+    
+    if (nextIndex !== null && nextIndex < formDetails.questions.length) {
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
       setNumberFieldValid(false);
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex(nextIndex);
     }
-  }, [currentQuestionIndex, formDetails]);
+  }, [currentQuestionIndex, formDetails, getNextQuestionIndex, answers, answersRef, saveCustomInputIfActive]);
+
+  const getPreviousQuestionIndex = useCallback((currentIndex, answers) => {
+    if (!formDetails?.questions || currentIndex <= 0) {
+      return null; // Нет предыдущего вопроса
+    }
+
+    // Простая логика для кнопки "Назад" - переходим к предыдущему вопросу
+    // В будущем можно добавить более сложную логику для отслеживания пропущенных вопросов
+    return currentIndex - 1;
+  }, [formDetails]);
 
   const handlePreviousQuestion = useCallback(() => {
-    if (currentQuestionIndex > 0) {
+    if (!formDetails?.questions) return;
+    
+    const prevIndex = getPreviousQuestionIndex(currentQuestionIndex, { ...answers, ...answersRef.current });
+    
+    if (prevIndex !== null && prevIndex >= 0) {
       setAnswers(prev => ({ ...prev, ...answersRef.current }));
       setNumberFieldValid(false);
-      setCurrentQuestionIndex(prev => prev - 1);
+      setCurrentQuestionIndex(prevIndex);
     }
-  }, [currentQuestionIndex]);
+  }, [currentQuestionIndex, formDetails, getPreviousQuestionIndex, answers]);
+
+  const isLastQuestion = useCallback(() => {
+    if (!formDetails?.questions) return false;
+    
+    const nextIndex = getNextQuestionIndex(currentQuestionIndex, { ...answers, ...answersRef.current });
+    
+    // Если следующий шаг - завершение опроса, то это последний вопрос
+    if (nextIndex === 'END_SURVEY') {
+      return true;
+    }
+    
+    return nextIndex === null || nextIndex >= formDetails.questions.length;
+  }, [currentQuestionIndex, formDetails, getNextQuestionIndex, answers, answersRef]);
 
   const handleFormSubmit = async () => {
     try {
+      // Сохраняем активный пользовательский ввод перед отправкой
+      saveCustomInputIfActive();
+      
       const formId = formDetails.formId;
       
       const currentQuestionForSubmit = formDetails.questions[currentQuestionIndex];
@@ -535,7 +779,45 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       'можно отметить несколько',
       'несколько вариантов',
       'все подходящие',
-      'отметьте все'
+      'отметьте все',
+      'источники вашего личного дохода',
+      'каковы источники',
+      'источники дохода',
+      'доходы от',
+      'какие источники',
+      'какие соц. сети',
+      'социальные сети',
+      'соц. сети',
+      'как вы проводите',
+      'свободное время',
+      'какие платформы',
+      'какие сервисы',
+      'какие приложения',
+      // Uzbek keywords for income sources
+      'daromadingiz manbalari',
+      'manbalari qanday',
+      'daromad',
+      'manbalari',
+      'shaxsiy daromadingiz',
+      'qanday manbalar',
+      // Uzbek keywords for social networks
+      'ijtimoiy tarmoqlardan',
+      'qaysi ijtimoiy',
+      'ijtimoiy tarmoqlar',
+      'tarmoqlardan foydalanasiz',
+      // Uzbek keywords for free time
+      'bo\'sh vaqtingizni',
+      'qanday o\'tkazasiz',
+      'bo\'sh vaqt',
+      'vaqtingizni qanday',
+      // Uzbek keywords for banking and payment services
+      'bank yoki to\'lov',
+      'qaysi bank',
+      'to\'lov xizmatlaridan',
+      'bank xizmatlaridan',
+      'xizmatlaridan foydalanasiz',
+      'bank yoki',
+      'to\'lov xizmatlari'
     ];
     
     const isMultipleChoice = multipleChoiceKeywords.some(keyword => 
@@ -565,36 +847,99 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         case 'choice':
           return (
             <div className="space-y-1">
-              {question.options?.map((option, index) => (
-                <CustomRadio
-                  key={index}
-                    checked={currentAnswer === option}
-                    onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                  value={option}
-                  label={option}
-                  />
-              ))}
+              {question.options?.map((option, index) => {
+                const isCustomOption = isCustomInputOption(option);
+                const isActiveCustomInput = activeCustomInput?.questionId === question.id && activeCustomInput?.optionIndex === index;
+                const isSelected = currentAnswer === option || (isCustomOption && activeCustomInput?.questionId === question.id);
+                
+                return (
+                  <div key={index}>
+                    {isActiveCustomInput ? (
+                      <input
+                        type="text"
+                        value={activeCustomInput.value}
+                        onChange={(e) => handleCustomInputChange(e.target.value)}
+                        onBlur={handleCustomInputBlur}
+                        placeholder={getCustomInputPlaceholder(option, language)}
+                        className="w-full px-4 py-3 border-2 border-[#6A4CFF] rounded-xl focus:outline-none focus:border-[#6A4CFF] text-gray-800 placeholder-gray-400"
+                        autoFocus
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck="false"
+                      />
+                    ) : (
+                      <CustomRadio
+                        checked={isSelected}
+                        onChange={(e) => handleAnswerChange(question.id, e.target.value, index)}
+                        value={option}
+                        label={option}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
 
         case 'multichoice':
           return (
             <div className="space-y-1">
-              {question.options?.map((option, index) => (
-                <CustomCheckbox
-                  key={index}
-                    checked={Array.isArray(currentAnswer) && currentAnswer.includes(option)}
-                    onChange={(e) => {
-                      const currentValues = Array.isArray(currentAnswer) ? currentAnswer : [];
-                      const newValues = e.target.checked
-                        ? [...currentValues, option]
-                        : currentValues.filter(v => v !== option);
-                      handleAnswerChange(question.id, newValues);
-                    }}
-                  value={option}
-                  label={option}
-                />
-              ))}
+              {question.options?.map((option, index) => {
+                const isCustomOption = isCustomInputOption(option);
+                const isActiveCustomInput = activeCustomInput?.questionId === question.id && activeCustomInput?.optionIndex === index;
+                const isChecked = Array.isArray(currentAnswer) && (
+                  currentAnswer.includes(option) || 
+                  (isCustomOption && activeCustomInput?.questionId === question.id && activeCustomInput?.value.trim())
+                );
+                
+                return (
+                  <div key={index}>
+                    {isActiveCustomInput ? (
+                      <input
+                        type="text"
+                        value={activeCustomInput.value}
+                        onChange={(e) => handleCustomInputChange(e.target.value)}
+                        onBlur={handleCustomInputBlur}
+                        placeholder={getCustomInputPlaceholder(option, language)}
+                        className="w-full px-4 py-3 border-2 border-[#6A4CFF] rounded-xl focus:outline-none focus:border-[#6A4CFF] text-gray-800 placeholder-gray-400"
+                        autoFocus
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck="false"
+                      />
+                    ) : (
+                      <CustomCheckbox
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (isCustomOption && e.target.checked) {
+                            // Для пользовательского варианта активируем inline ввод
+                            setActiveCustomInput({
+                              questionId: question.id,
+                              optionIndex: index,
+                              value: ''
+                            });
+                            // Прокручиваем к полю ввода после небольшой задержки
+                            setTimeout(() => {
+                              scrollToActiveElement(150);
+                            }, 100);
+                          } else {
+                            // Для обычных вариантов работаем с массивом
+                            const currentValues = Array.isArray(currentAnswer) ? currentAnswer : [];
+                            const newValues = e.target.checked
+                              ? [...currentValues, option]
+                              : currentValues.filter(v => v !== option);
+                            handleAnswerChange(question.id, newValues);
+                          }
+                        }}
+                        value={option}
+                        label={option}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
 
@@ -644,7 +989,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             />
           );
       }
-    }, [questionType, question, currentAnswer, handleAnswerChange, handleKeyPress, t]);
+    }, [questionType, question, currentAnswer, handleAnswerChange, handleKeyPress, t, activeCustomInput, handleCustomInputChange, handleCustomInputBlur, language]);
 
     return (
       <div className="space-y-1 sm:space-y-1">
@@ -730,7 +1075,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   }
 
   const currentQuestion = formDetails.questions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === formDetails.questions.length - 1;
+  const isLastQuestionValue = isLastQuestion();
   const isFirstQuestion = currentQuestionIndex === 0;
   const isCurrentQuestionAnswered = isCurrentQuestionValid();
 
@@ -762,10 +1107,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const modalHeight = getModalHeight();
 
-  const currentQuestionForLift = formDetails?.questions?.[currentQuestionIndex];
-  const questionTypeForLift = currentQuestionForLift ? getQuestionType(currentQuestionForLift) : 'unknown';
-  
-  const shouldLiftSurvey = isKeyboardOpen && questionTypeForLift !== 'number';
 
   return (
     <>
@@ -797,14 +1138,19 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         </div>
 
         <div className={`flex-1 p-2 sm:p-6 pb-32 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 transition-all duration-300 ease-out ${
-          shouldLiftSurvey ? 'transform -translate-y-24' : ''
-        }`} style={{ height: `calc(100vh - 450px)` }}>
+          isKeyboardOpen ? 'transform -translate-y-32' : ''
+        }`} style={{ 
+          height: isKeyboardOpen ? `calc(100vh - 300px)` : `calc(100vh - 450px)`,
+          maxHeight: isKeyboardOpen ? '60vh' : 'none'
+        }}>
           <div className="max-w-md mx-auto px-2">
             <QuestionComponent question={currentQuestion} />
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-6 px-4 sm:py-8 sm:px-6 z-20">
+        <div className={`fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-6 px-4 sm:py-8 sm:px-6 z-20 transition-all duration-300 ${
+          isKeyboardOpen ? 'transform translate-y-0' : ''
+        }`}>
           <div className="flex justify-between items-center mb-2 sm:mb-4">
             <button
               onClick={isFirstQuestion ? handleCloseClick : handlePreviousQuestion}
@@ -823,7 +1169,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
               {currentQuestionIndex + 1} / {formDetails.questions.length}
             </div>
 
-            {isLastQuestion ? (
+            {isLastQuestionValue ? (
               <button
                 onClick={handleFormSubmit}
                 disabled={submitLoading || !isCurrentQuestionAnswered}
