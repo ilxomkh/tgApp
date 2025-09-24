@@ -13,7 +13,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const { language } = useLanguage();
   const { refreshUserProfile } = useAuth();
   const { submitSurvey, loading: submitLoading, error: submitError } = useSurvey();
-  const { isKeyboardOpen, scrollToActiveElement } = useKeyboard();
+  const { isKeyboardOpen } = useKeyboard();
   const [survey, setSurvey] = useState(null);
   const [formDetails, setFormDetails] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -153,10 +153,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         optionIndex,
         value: ''
       });
-      // Прокручиваем к полю ввода после небольшой задержки
-      setTimeout(() => {
-        scrollToActiveElement(150);
-      }, 100);
       return;
     }
     
@@ -920,10 +916,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
                               optionIndex: index,
                               value: ''
                             });
-                            // Прокручиваем к полю ввода после небольшой задержки
-                            setTimeout(() => {
-                              scrollToActiveElement(150);
-                            }, 100);
                           } else {
                             // Для обычных вариантов работаем с массивом
                             const currentValues = Array.isArray(currentAnswer) ? currentAnswer : [];
@@ -1137,20 +1129,15 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
           </div>
         </div>
 
-        <div className={`flex-1 p-2 sm:p-6 pb-32 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 transition-all duration-300 ease-out ${
-          isKeyboardOpen ? 'transform -translate-y-32' : ''
-        }`} style={{ 
-          height: isKeyboardOpen ? `calc(100vh - 300px)` : `calc(100vh - 450px)`,
-          maxHeight: isKeyboardOpen ? '60vh' : 'none'
-        }}>
+        <div className={`flex-1 p-2 sm:p-6 overflow-y-auto bg-gray-50 survey-answers-scroll z-10 ${
+          isKeyboardOpen ? 'pb-32' : 'pb-32'
+        }`} style={{ height: `calc(100vh - 450px)` }}>
           <div className="max-w-md mx-auto px-2">
             <QuestionComponent question={currentQuestion} />
           </div>
         </div>
 
-        <div className={`fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-6 px-4 sm:py-8 sm:px-6 z-20 transition-all duration-300 ${
-          isKeyboardOpen ? 'transform translate-y-0' : ''
-        }`}>
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-6 px-4 sm:py-8 sm:px-6 z-20">
           <div className="flex justify-between items-center mb-2 sm:mb-4">
             <button
               onClick={isFirstQuestion ? handleCloseClick : handlePreviousQuestion}

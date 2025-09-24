@@ -1,30 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 export const useKeyboard = () => {
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  // Функция для прокрутки к активному элементу
-  const scrollToActiveElement = useCallback((offset = 100) => {
-    const activeElement = document.activeElement;
-    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-      setTimeout(() => {
-        const elementRect = activeElement.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const keyboardHeight = isKeyboardOpen ? keyboardHeight : 0;
-        const availableHeight = viewportHeight - keyboardHeight;
-        
-        // Если элемент находится за клавиатурой
-        if (elementRect.bottom > availableHeight) {
-          const scrollAmount = elementRect.bottom - availableHeight + offset;
-          window.scrollBy({
-            top: scrollAmount,
-            behavior: 'smooth'
-          });
-        }
-      }, 300); // Задержка для анимации клавиатуры
-    }
-  }, [isKeyboardOpen, keyboardHeight]);
 
   useEffect(() => {
     let timeoutId;
@@ -39,9 +16,7 @@ export const useKeyboard = () => {
           const heightDifference = initialHeight - currentHeight;
           
           const keyboardOpen = heightDifference > 150;
-          
           setIsKeyboardOpen(keyboardOpen);
-          setKeyboardHeight(keyboardOpen ? heightDifference : 0);
         } else {
           // Fallback для старых браузеров
           const windowHeight = window.innerHeight;
@@ -49,26 +24,12 @@ export const useKeyboard = () => {
           const heightDifference = windowHeight - documentHeight;
           
           const keyboardOpen = heightDifference > 150;
-          
           setIsKeyboardOpen(keyboardOpen);
-          setKeyboardHeight(keyboardOpen ? heightDifference : 0);
         }
       }, 100);
     };
 
     const handleResize = () => {
-      checkKeyboard();
-    };
-
-    const handleFocus = (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        checkKeyboard();
-        // Автоматически прокручиваем к активному элементу
-        scrollToActiveElement();
-      }
-    };
-
-    const handleBlur = () => {
       checkKeyboard();
     };
 
@@ -80,8 +41,6 @@ export const useKeyboard = () => {
     }
     
     window.addEventListener('orientationchange', handleResize);
-    document.addEventListener('focusin', handleFocus);
-    document.addEventListener('focusout', handleBlur);
 
     checkKeyboard();
 
@@ -94,14 +53,10 @@ export const useKeyboard = () => {
         window.removeEventListener('resize', handleResize);
       }
       window.removeEventListener('orientationchange', handleResize);
-      document.removeEventListener('focusin', handleFocus);
-      document.removeEventListener('focusout', handleBlur);
     };
-  }, [scrollToActiveElement]);
+  }, []);
 
   return {
-    isKeyboardOpen,
-    keyboardHeight,
-    scrollToActiveElement
+    isKeyboardOpen
   };
 };

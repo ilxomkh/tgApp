@@ -11,7 +11,7 @@ import { useKeyboard } from '../../hooks/useKeyboard.js';
 
 const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   const { language } = useLanguage();
-  const { isKeyboardOpen, scrollToActiveElement } = useKeyboard();
+  const { isKeyboardOpen } = useKeyboard();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isCompleted, setIsCompleted] = useState(false);
@@ -141,10 +141,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
         optionIndex,
         value: ''
       });
-      // Прокручиваем к полю ввода после небольшой задержки
-      setTimeout(() => {
-        scrollToActiveElement(150);
-      }, 100);
       return;
     }
 
@@ -156,10 +152,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
           optionIndex,
           value: ''
         });
-        // Прокручиваем к полю ввода после небольшой задержки
-        setTimeout(() => {
-          scrollToActiveElement(150);
-        }, 100);
       } else {
         // Для обычных вариантов в multichoice работаем с массивом
         setAnswers(prev => {
@@ -374,14 +366,12 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t }) => {
   return (
     <>
     <img src={ProSVG} className='absolute w-[250px] top-1/5 right-1/2 left-1/2 -translate-x-1/2 z-999'/>
-    <div className={`fixed inset-0 z-50 flex items-end justify-end transition-all duration-300 ${
-      isKeyboardOpen ? 'items-start pt-20' : 'items-end'
-    }`}>
+    <div className="fixed inset-0 z-50 flex items-end justify-end">
       <div className="absolute inset-0 bg-gradient-to-b from-[#6A4CFF] to-[#4D2DE0]" />
       <WaveOverlay />
       <div className="relative z-10 w-full">
-        <div className={`bg-white rounded-t-3xl p-8 shadow-2xl transition-all duration-300 ${
-          isKeyboardOpen ? 'max-h-[70vh] overflow-y-auto' : ''
+        <div className={`bg-white rounded-t-3xl p-8 shadow-2xl ${
+          isKeyboardOpen ? 'pb-32' : ''
         }`}>
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
