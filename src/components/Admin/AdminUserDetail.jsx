@@ -37,7 +37,6 @@ const AdminUserDetail = () => {
   }, [userId]);
 
 
-  // Кастомные иконки с одинаковым размером
   const UserIconCustom = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm7 10v-1a6 6 0 0 0-6-6H11a6 6 0 0 0-6 6v1"/>
@@ -119,7 +118,6 @@ const AdminUserDetail = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F4FF]">
-      {/* Header */}
       <div className="bg-gradient-to-b from-[#5538F9] to-[#7C65FF]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-center justify-between py-4 sm:py-6 gap-4">
@@ -140,16 +138,13 @@ const AdminUserDetail = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        {/* User Profile Card */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)] mb-8">
           <div className="p-4 sm:p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-              {/* Avatar */}
               <div className="flex-shrink-0 mx-auto sm:mx-0">
                 <UserAvatar user={user} size="lg" />
               </div>
               
-              {/* User Info */}
               <div className="flex-1 min-w-0 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
                   <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">{user.full_name || 'Без имени'}</h1>
@@ -162,7 +157,6 @@ const AdminUserDetail = () => {
                 </div>
                 <p className="text-gray-600 text-sm mb-4">ID: {user.id}</p>
                 
-                {/* Key Info Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
                   <div className="space-y-1">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Телефон</p>
@@ -198,9 +192,7 @@ const AdminUserDetail = () => {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)]">
-          {/* Tab Navigation */}
           <div className="border-b border-gray-200">
             <nav className="flex overflow-x-auto px-4 sm:px-8">
               {tabs.map((tab) => (
@@ -222,11 +214,9 @@ const AdminUserDetail = () => {
             </nav>
           </div>
 
-          {/* Tab Content */}
           <div className="p-4 sm:p-6 lg:p-8">
             {activeTab === 'overview' && (
               <div className="space-y-6 sm:space-y-8">
-                {/* Additional Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <div className="space-y-1">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Дата рождения</p>
@@ -244,7 +234,6 @@ const AdminUserDetail = () => {
                   </div>
                 </div>
 
-                {/* Device Details */}
                 {user.device_info && (
                   <div className="p-4 sm:p-6 bg-[#7C65FF]/5 rounded-xl">
                     <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Детали устройства</h3>

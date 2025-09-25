@@ -9,9 +9,7 @@ import {
   getCompletedSurveysStats 
 } from '../utils/completedSurveys';
 
-/**
- * Тестовый компонент для проверки новой логики скрытия опросов
- */
+
 const SurveyStatusTest = () => {
   const [testResults, setTestResults] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -19,20 +17,15 @@ const SurveyStatusTest = () => {
 
   const testSurveyStatus = async () => {
     setIsLoading(true);
-    try {
-      console.log(`🧪 Тестируем статус опроса ${testFormId}...`);
-      
+    try {      
       const isCompleted = await tallyApiService.checkSurveyStatus(testFormId);
       
       setTestResults({
         formId: testFormId,
         isCompleted,
         timestamp: new Date().toISOString()
-      });
-      
-      console.log(`📊 Результат теста: опрос ${testFormId} ${isCompleted ? 'пройден' : 'доступен'}`);
+      });      
     } catch (error) {
-      console.error('❌ Ошибка при тестировании:', error);
       setTestResults({
         formId: testFormId,
         error: error.message,
@@ -46,7 +39,6 @@ const SurveyStatusTest = () => {
   const testAvailableForms = async () => {
     setIsLoading(true);
     try {
-      console.log(`🧪 Тестируем получение доступных опросов...`);
       
       const forms = await tallyApiService.getAvailableForms('uz');
       
@@ -56,7 +48,6 @@ const SurveyStatusTest = () => {
         timestamp: new Date().toISOString()
       });
       
-      console.log(`📊 Результат: получено ${forms.length} доступных опросов`);
       forms.forEach(form => {
         console.log(`  - ${form.id}: ${form.title}`);
       });

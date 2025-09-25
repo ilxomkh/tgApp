@@ -49,19 +49,15 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         
         setSurvey(surveyData);
       } catch (err) {
-        console.error('❌ Ошибка при загрузке опроса:', err);
         setError(err.message);
         
-        // Если опрос уже пройден, не показываем фолбек
         if (err.message && err.message.includes('Вы уже прошли этот опрос')) {
-          console.log(`📝 Опрос ${surveyId} уже пройден, закрываем модальное окно`);
           if (onClose) {
             onClose();
           }
           return;
         }
         
-        // Для других ошибок показываем сообщение об ошибке
         setFormDetails(null);
         setSurvey(null);
       } finally {
@@ -145,7 +141,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     
     hapticClick();
     
-    // Проверяем, является ли выбранный вариант пользовательским вводом
     if (isCustomInputOption(value)) {
       setActiveCustomInput({
         questionId,
@@ -171,10 +166,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       setActiveCustomInput(prev => ({
         ...prev,
         value
-      }));
-      
-      // НЕ сохраняем промежуточные значения в финальные ответы
-      // Сохранение произойдет только при потере фокуса (onBlur)
+      }));      
     }
   }, [activeCustomInput]);
 
@@ -186,10 +178,8 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       
       if (finalValue) {
         if (questionType === 'multichoice') {
-          // Для multichoice сохраняем как массив
           const currentValues = Array.isArray(answers[activeCustomInput.questionId]) ? answers[activeCustomInput.questionId] : [];
           
-          // Удаляем оригинальный вариант и добавляем пользовательский ввод
           const filteredValues = currentValues.filter(v => v !== currentQuestion.options[activeCustomInput.optionIndex]);
           const newValues = [...filteredValues, finalValue];
           
@@ -203,7 +193,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             [activeCustomInput.questionId]: newValues
           }));
         } else {
-          // Для обычных вопросов сохраняем как строку
           answersRef.current = {
             ...answersRef.current,
             [activeCustomInput.questionId]: finalValue
@@ -228,10 +217,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       
       if (finalValue) {
         if (questionType === 'multichoice') {
-          // Для multichoice сохраняем как массив
           const currentValues = Array.isArray(answers[activeCustomInput.questionId]) ? answers[activeCustomInput.questionId] : [];
-          
-          // Удаляем оригинальный вариант и добавляем пользовательский ввод
           const filteredValues = currentValues.filter(v => v !== currentQuestion.options[activeCustomInput.optionIndex]);
           const newValues = [...filteredValues, finalValue];
           
@@ -245,7 +231,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             [activeCustomInput.questionId]: newValues
           }));
         } else {
-          // Для обычных вопросов сохраняем как строку
           answersRef.current = {
             ...answersRef.current,
             [activeCustomInput.questionId]: finalValue
@@ -297,62 +282,36 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const getNextQuestionIndex = useCallback((currentIndex, answers) => {
     if (!formDetails?.questions || currentIndex >= formDetails.questions.length - 1) {
-      return null; // Нет следующего вопроса
+      return null;
     }
 
     const currentQuestion = formDetails.questions[currentIndex];
     const currentAnswer = answers[currentQuestion.id];
-
-    console.log('🔍 Проверка логики скипа:', {
-      questionId: currentQuestion.id,
-      questionText: currentQuestion.text,
-      currentAnswer,
-      logic: currentQuestion.logic
-    });
-
-    // Проверяем логику завершения опроса (end_if)
     if (currentQuestion.logic && currentQuestion.logic.end_if) {
       const endConditions = Array.isArray(currentQuestion.logic.end_if) 
         ? currentQuestion.logic.end_if 
         : [currentQuestion.logic.end_if];
-      
-      console.log('🏁 Проверка логики завершения опроса:', endConditions);
-      
-      const shouldEnd = endConditions.includes(currentAnswer);
-      console.log('🏁 Условие завершения:', { currentAnswer, endConditions, shouldEnd });
-      
+            
+      const shouldEnd = endConditions.includes(currentAnswer);      
       if (shouldEnd) {
-        console.log('🏁 Завершаем опрос!');
-        // Возвращаем специальное значение для завершения опроса
+       
         return 'END_SURVEY';
       }
     }
 
-    // Проверяем логику скипа для текущего вопроса
+    
     if (currentQuestion.logic && currentQuestion.logic.skip) {
-      const skipCondition = currentQuestion.logic.skip;
-      
-      console.log('📋 Условие скипа:', skipCondition);
-      
-      // Проверяем условие скипа
-      let shouldSkip = false;
-      
-      // Логика может быть массивом условий или одним объектом
+      const skipCondition = currentQuestion.logic.skip;                  
+      let shouldSkip = false;      
       const conditions = Array.isArray(skipCondition) ? skipCondition : [skipCondition];
       
       for (const condition of conditions) {
-        console.log('🔍 Проверяем условие:', condition);
         
         if (condition.answer !== undefined) {
-          // Прямое сравнение ответа
           shouldSkip = currentAnswer === condition.answer;
-          console.log('✅ Прямое сравнение:', { currentAnswer, skipAnswer: condition.answer, shouldSkip });
         } else if (condition.answers && Array.isArray(condition.answers)) {
-          // Проверка на вхождение в массив ответов
           shouldSkip = condition.answers.includes(currentAnswer);
-          console.log('✅ Проверка массива:', { currentAnswer, skipAnswers: condition.answers, shouldSkip });
         } else if (condition.condition) {
-          // Более сложные условия (можно расширить)
           switch (condition.condition) {
             case 'equals':
               shouldSkip = currentAnswer === condition.value;
@@ -369,71 +328,42 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
             default:
               shouldSkip = false;
           }
-          console.log('✅ Условная проверка:', { condition: condition.condition, value: condition.value, shouldSkip });
         }
         
-        // Если условие выполнено, выходим из цикла
         if (shouldSkip) break;
       }
 
       if (shouldSkip) {
-        console.log('🚀 Выполняем скип!');
         
-        // Используем первое условие для определения куда переходить
         const firstCondition = conditions[0];
-        
-        // Пропускаем указанное количество вопросов или переходим к конкретному вопросу
         if (firstCondition.skip_to || firstCondition.skipTo) {
-          // Переходим к конкретному вопросу (поддерживаем оба формата)
           const targetQuestionId = firstCondition.skip_to || firstCondition.skipTo;
           const targetIndex = formDetails.questions.findIndex(q => q.id === targetQuestionId);
-          console.log('🎯 Переход к вопросу:', targetQuestionId, 'индекс:', targetIndex);
           return targetIndex !== -1 ? targetIndex : currentIndex + 1;
         } else if (firstCondition.skipCount || firstCondition.skip_count) {
-          // Пропускаем указанное количество вопросов (поддерживаем оба формата)
           const skipCount = firstCondition.skipCount || firstCondition.skip_count;
           const nextIndex = Math.min(currentIndex + skipCount + 1, formDetails.questions.length - 1);
-          console.log('⏭️ Пропускаем вопросов:', skipCount, 'следующий индекс:', nextIndex);
           return nextIndex;
         } else {
-          // Пропускаем один вопрос по умолчанию
           const nextIndex = Math.min(currentIndex + 2, formDetails.questions.length - 1);
-          console.log('⏭️ Пропускаем 1 вопрос по умолчанию, следующий индекс:', nextIndex);
           return nextIndex;
         }
-      } else {
-        console.log('❌ Условие скипа не выполнено');
-      }
-    } else {
-      console.log('ℹ️ Логика скипа отсутствует для вопроса:', currentQuestion.id);
-    }
+      } else {}
+    } else {}
 
-    // Обычный переход к следующему вопросу
     const nextIndex = currentIndex + 1;
-    console.log('➡️ Обычный переход к следующему вопросу:', nextIndex);
     return nextIndex;
   }, [formDetails]);
 
   const handleNextQuestion = useCallback(() => {
     if (!formDetails?.questions) return;
     
-    // Сохраняем активный пользовательский ввод перед переходом
     saveCustomInputIfActive();
     
     const allAnswers = { ...answers, ...answersRef.current };
-    console.log('🔄 Переход к следующему вопросу:', {
-      currentIndex: currentQuestionIndex,
-      allAnswers,
-      currentQuestion: formDetails.questions[currentQuestionIndex]
-    });
     
-    const nextIndex = getNextQuestionIndex(currentQuestionIndex, allAnswers);
-    
-    console.log('📍 Следующий индекс:', nextIndex);
-    
+    const nextIndex = getNextQuestionIndex(currentQuestionIndex, allAnswers);    
     if (nextIndex === 'END_SURVEY') {
-      console.log('🏁 Завершаем опрос по логике end_if');
-      // Завершаем опрос и показываем SuccessModal
       handleFormSubmit();
       return;
     }
@@ -447,11 +377,9 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const getPreviousQuestionIndex = useCallback((currentIndex, answers) => {
     if (!formDetails?.questions || currentIndex <= 0) {
-      return null; // Нет предыдущего вопроса
+      return null;
     }
 
-    // Простая логика для кнопки "Назад" - переходим к предыдущему вопросу
-    // В будущем можно добавить более сложную логику для отслеживания пропущенных вопросов
     return currentIndex - 1;
   }, [formDetails]);
 
@@ -472,7 +400,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     
     const nextIndex = getNextQuestionIndex(currentQuestionIndex, { ...answers, ...answersRef.current });
     
-    // Если следующий шаг - завершение опроса, то это последний вопрос
     if (nextIndex === 'END_SURVEY') {
       return true;
     }
@@ -482,7 +409,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
 
   const handleFormSubmit = async () => {
     try {
-      // Сохраняем активный пользовательский ввод перед отправкой
       saveCustomInputIfActive();
       
       const formId = formDetails.formId;
@@ -510,15 +436,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       const result = await submitSurvey(formId, finalAnswers);
       setIsFormSubmitted(true);
       
-      // Обновляем профиль пользователя после успешного завершения опроса
       await refreshUserProfile();
       
       if (onComplete) {
         onComplete(result);
       }
     } catch (err) {
-      console.error('❌ Ошибка при отправке опроса:', err);
-      console.error('❌ JSON данных которые не удалось отправить:');
       console.error(JSON.stringify({
         formId: formDetails?.formId,
         answers: finalAnswers,
@@ -541,13 +464,11 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     setShowExitConfirmation(false);
   };
 
-  // Обработка кнопки "Назад" Telegram
   useEffect(() => {
     const handleTelegramBack = () => {
       setShowExitConfirmation(true);
     };
 
-    // Регистрируем обработчик для кнопки "Назад" Telegram
     if (window.setSurveyModalState) {
       window.setSurveyModalState({
         isSurveyModalOpen: true,
@@ -556,7 +477,6 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     }
 
     return () => {
-      // Очищаем состояние при размонтировании
       if (window.setSurveyModalState) {
         window.setSurveyModalState({
           isSurveyModalOpen: false,
@@ -788,24 +708,20 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
       'какие платформы',
       'какие сервисы',
       'какие приложения',
-      // Uzbek keywords for income sources
       'daromadingiz manbalari',
       'manbalari qanday',
       'daromad',
       'manbalari',
       'shaxsiy daromadingiz',
       'qanday manbalar',
-      // Uzbek keywords for social networks
       'ijtimoiy tarmoqlardan',
       'qaysi ijtimoiy',
       'ijtimoiy tarmoqlar',
       'tarmoqlardan foydalanasiz',
-      // Uzbek keywords for free time
       'bo\'sh vaqtingizni',
       'qanday o\'tkazasiz',
       'bo\'sh vaqt',
       'vaqtingizni qanday',
-      // Uzbek keywords for banking and payment services
       'bank yoki to\'lov',
       'qaysi bank',
       'to\'lov xizmatlaridan',
@@ -909,14 +825,12 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
                         checked={isChecked}
                         onChange={(e) => {
                           if (isCustomOption && e.target.checked) {
-                            // Для пользовательского варианта активируем inline ввод
                             setActiveCustomInput({
                               questionId: question.id,
                               optionIndex: index,
                               value: ''
                             });
                           } else {
-                            // Для обычных вариантов работаем с массивом
                             const currentValues = Array.isArray(currentAnswer) ? currentAnswer : [];
                             const newValues = e.target.checked
                               ? [...currentValues, option]

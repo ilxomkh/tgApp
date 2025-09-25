@@ -8,10 +8,7 @@ import {
   getCompletedSurveysStats 
 } from '../utils/completedSurveys';
 
-/**
- * Тестовый компонент для проверки функциональности отслеживания пройденных опросов
- * Можно использовать в режиме разработки для тестирования
- */
+
 const CompletedSurveysTest = () => {
   const [stats, setStats] = useState(getCompletedSurveysStats());
   const [testSurveyId, setTestSurveyId] = useState('test-survey-123');

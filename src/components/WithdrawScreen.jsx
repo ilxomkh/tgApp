@@ -97,7 +97,6 @@ const maskCard = (digits) => {
 const formatMaskedCardNumber = (maskedNumber) => {
   if (!maskedNumber) return "";
   
-  // Используем меньший кружочек
   const formatted = maskedNumber.replace(/\*/g, "•");
   
   return group4(formatted.replace(/\s/g, ""));

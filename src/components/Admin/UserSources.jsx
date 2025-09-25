@@ -103,9 +103,7 @@ const UserSources = ({ userId }) => {
 
   return (
     <div className="space-y-8">
-      {/* Primary Sources */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Referral Source */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -121,7 +119,6 @@ const UserSources = ({ userId }) => {
           </div>
         </div>
 
-        {/* Initial Entry Point */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -138,7 +135,6 @@ const UserSources = ({ userId }) => {
         </div>
       </div>
 
-      {/* Social Link */}
       {sources.social_link && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -166,7 +162,6 @@ const UserSources = ({ userId }) => {
         </div>
       )}
 
-      {/* Entry Points Used */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
@@ -204,7 +199,6 @@ const UserSources = ({ userId }) => {
         )}
       </div>
 
-      {/* Summary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-slate-50 rounded-xl p-4 text-center">
           <div className="text-2xl font-semibold text-slate-900">

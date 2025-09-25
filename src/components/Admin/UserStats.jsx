@@ -79,9 +79,7 @@ const UserStats = ({ userId }) => {
 
   return (
     <div className="space-y-8">
-      {/* Main Survey Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Surveys Completed */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -99,7 +97,6 @@ const UserStats = ({ userId }) => {
           </div>
         </div>
 
-        {/* Average Survey Time */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -117,7 +114,6 @@ const UserStats = ({ userId }) => {
           </div>
         </div>
 
-        {/* Last Survey Time */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -138,9 +134,7 @@ const UserStats = ({ userId }) => {
         </div>
       </div>
 
-      {/* Activity Analysis */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Activity Level */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -163,7 +157,6 @@ const UserStats = ({ userId }) => {
           </div>
         </div>
 
-        {/* Time Efficiency */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
@@ -188,12 +181,10 @@ const UserStats = ({ userId }) => {
         </div>
       </div>
 
-      {/* Survey Activity Timeline */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <h4 className="font-medium text-slate-900 mb-6">Активность пользователя</h4>
         
         <div className="space-y-6">
-          {/* Survey Count Progress */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -213,7 +204,6 @@ const UserStats = ({ userId }) => {
             </div>
           </div>
 
-          {/* Time Efficiency Progress */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -237,7 +227,6 @@ const UserStats = ({ userId }) => {
           </div>
         </div>
 
-        {/* Summary */}
         <div className="mt-6 pt-6 border-t border-slate-100">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Последняя активность:</span>
@@ -248,7 +237,6 @@ const UserStats = ({ userId }) => {
         </div>
       </div>
 
-      {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-slate-50 rounded-xl p-4 text-center">
           <div className="text-2xl font-semibold text-slate-900">

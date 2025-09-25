@@ -117,7 +117,13 @@ export function ArrowRightIcon() {
 
 export function ArrowLeftIcon({ className = "" }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className={className}>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+    >
       <path
         d="M19 12H5M11 5l-7 7 7 7"
         stroke="currentColor"
@@ -258,7 +264,7 @@ export function AppleIcon({ className = "" }) {
       fill="currentColor"
       className={className}
     >
-      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
     </svg>
   );
 }
@@ -272,7 +278,7 @@ export function AndroidIcon({ className = "" }) {
       fill="currentColor"
       className={className}
     >
-      <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4119 13.8533 7.8508 12 7.8508s-3.5902.5611-5.1367 1.5559L4.841 5.9037a.416.416 0 00-.5676-.1521.416.416 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396"/>
+      <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4119 13.8533 7.8508 12 7.8508s-3.5902.5611-5.1367 1.5559L4.841 5.9037a.416.416 0 00-.5676-.1521.416.416 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396" />
     </svg>
   );
 }
@@ -290,24 +296,23 @@ export function LaptopIcon({ className = "" }) {
       strokeLinejoin="round"
       className={className}
     >
-      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-      <line x1="8" y1="21" x2="16" y2="21"/>
-      <line x1="12" y1="17" x2="12" y2="21"/>
+      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
     </svg>
   );
 }
 
-// Additional icons for admin panel
 export function FlagUzIcon({ className = "" }) {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" className={className}>
-      <rect width="24" height="16" fill="#1EB53A"/>
-      <rect width="24" height="5.33" fill="#0099B5"/>
-      <rect y="10.67" width="24" height="5.33" fill="#CE1126"/>
-      <path d="M0 0h8v16H0z" fill="#fff"/>
-      <circle cx="4" cy="8" r="2.5" fill="#1EB53A"/>
-      <circle cx="4" cy="8" r="1.5" fill="#fff"/>
-      <circle cx="4" cy="8" r="0.5" fill="#1EB53A"/>
+      <rect width="24" height="16" fill="#1EB53A" />
+      <rect width="24" height="5.33" fill="#0099B5" />
+      <rect y="10.67" width="24" height="5.33" fill="#CE1126" />
+      <path d="M0 0h8v16H0z" fill="#fff" />
+      <circle cx="4" cy="8" r="2.5" fill="#1EB53A" />
+      <circle cx="4" cy="8" r="1.5" fill="#fff" />
+      <circle cx="4" cy="8" r="0.5" fill="#1EB53A" />
     </svg>
   );
 }
@@ -315,9 +320,9 @@ export function FlagUzIcon({ className = "" }) {
 export function FlagRuIcon({ className = "" }) {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" className={className}>
-      <rect width="24" height="8" fill="#fff"/>
-      <rect y="8" width="24" height="8" fill="#0039A6"/>
-      <rect y="16" width="24" height="8" fill="#D52B1E"/>
+      <rect width="24" height="8" fill="#fff" />
+      <rect y="8" width="24" height="8" fill="#0039A6" />
+      <rect y="16" width="24" height="8" fill="#D52B1E" />
     </svg>
   );
 }
@@ -325,118 +330,228 @@ export function FlagRuIcon({ className = "" }) {
 export function FlagUsIcon({ className = "" }) {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" className={className}>
-      <rect width="24" height="16" fill="#B22234"/>
-      <rect width="24" height="1.23" fill="#fff"/>
-      <rect y="2.46" width="24" height="1.23" fill="#fff"/>
-      <rect y="4.92" width="24" height="1.23" fill="#fff"/>
-      <rect y="7.38" width="24" height="1.23" fill="#fff"/>
-      <rect y="9.84" width="24" height="1.23" fill="#fff"/>
-      <rect y="12.3" width="24" height="1.23" fill="#fff"/>
-      <rect y="14.76" width="24" height="1.23" fill="#fff"/>
-      <rect width="9.6" height="8.62" fill="#3C3B6E"/>
+      <rect width="24" height="16" fill="#B22234" />
+      <rect width="24" height="1.23" fill="#fff" />
+      <rect y="2.46" width="24" height="1.23" fill="#fff" />
+      <rect y="4.92" width="24" height="1.23" fill="#fff" />
+      <rect y="7.38" width="24" height="1.23" fill="#fff" />
+      <rect y="9.84" width="24" height="1.23" fill="#fff" />
+      <rect y="12.3" width="24" height="1.23" fill="#fff" />
+      <rect y="14.76" width="24" height="1.23" fill="#fff" />
+      <rect width="9.6" height="8.62" fill="#3C3B6E" />
     </svg>
   );
 }
 
 export function GlobeIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="2" y1="12" x2="22" y2="12"/>
-      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
     </svg>
   );
 }
 
 export function LinkIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </svg>
   );
 }
 
 export function BarChartIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <line x1="12" y1="20" x2="12" y2="10"/>
-      <line x1="18" y1="20" x2="18" y2="4"/>
-      <line x1="6" y1="20" x2="6" y2="16"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <line x1="12" y1="20" x2="12" y2="10" />
+      <line x1="18" y1="20" x2="18" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="16" />
     </svg>
   );
 }
 
 export function UsersGroupIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-      <path d="M20 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+      <path d="M20 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   );
 }
 
 export function DollarSignIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <line x1="12" y1="1" x2="12" y2="23"/>
-      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
     </svg>
   );
 }
 
 export function ClockIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="10"/>
-      <polyline points="12,6 12,12 16,14"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12,6 12,12 16,14" />
     </svg>
   );
 }
 
 export function CheckIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <polyline points="20,6 9,17 4,12"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polyline points="20,6 9,17 4,12" />
     </svg>
   );
 }
 
 export function XCircleIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="15" y1="9" x2="9" y2="15"/>
-      <line x1="9" y1="9" x2="15" y2="15"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="15" y1="9" x2="9" y2="15" />
+      <line x1="9" y1="9" x2="15" y2="15" />
     </svg>
   );
 }
 
 export function BanIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
     </svg>
   );
 }
 
 export function MapPinIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-      <circle cx="12" cy="10" r="3"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
     </svg>
   );
 }
 
 export function TrendingUpIcon({ className = "" }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
-      <polyline points="17,6 23,6 23,12"/>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" />
+      <polyline points="17,6 23,6 23,12" />
     </svg>
   );
 }

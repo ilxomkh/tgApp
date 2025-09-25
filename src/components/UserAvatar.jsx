@@ -6,7 +6,7 @@ const UserAvatar = ({
   size = 'w-12 h-12',
   className = '',
   showBorder = false,
-  iconSize = 'w-8 h-8', // Новый параметр для размера иконки
+  iconSize = 'w-8 h-8',
   ...props
 }) => {
   const [imageError, setImageError] = useState(false);

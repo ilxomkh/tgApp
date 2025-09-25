@@ -86,7 +86,6 @@ const UserReferrals = ({ userId }) => {
 
   return (
     <div className="space-y-8">
-      {/* Referral Code Card */}
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 text-white">
         <div className="flex items-center justify-between">
           <div className="space-y-4">
@@ -123,7 +122,6 @@ const UserReferrals = ({ userId }) => {
         </div>
       </div>
 
-      {/* Revenue Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -160,7 +158,6 @@ const UserReferrals = ({ userId }) => {
         </div>
       </div>
 
-      {/* Referrals Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -199,7 +196,6 @@ const UserReferrals = ({ userId }) => {
         </div>
       </div>
 
-      {/* Analytics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -232,12 +228,10 @@ const UserReferrals = ({ userId }) => {
         </div>
       </div>
 
-      {/* Progress Visualization */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <h4 className="font-medium text-slate-900 mb-6">Распределение рефералов</h4>
         
         <div className="space-y-6">
-          {/* Active referrals */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
@@ -258,7 +252,6 @@ const UserReferrals = ({ userId }) => {
             </div>
           </div>
 
-          {/* Pending referrals */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">

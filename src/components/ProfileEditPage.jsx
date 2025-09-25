@@ -152,7 +152,6 @@ const ProfileEditPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Убрана валидация имени - пользователь может вводить любые символы
 
     if (formData.email && formData.email.trim().length > 0) {
       if (!isValidEmail(formData.email)) {
@@ -402,7 +401,6 @@ const ProfileEditPage = () => {
     }
   }, [isKeyboardOpen]);
 
-  // Отслеживаем изменения в форме для предупреждения о несохраненных данных
   useEffect(() => {
     const hasData = Object.values(formData).some(value => value && value.trim());
     if (hasData) {

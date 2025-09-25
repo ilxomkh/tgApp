@@ -103,7 +103,7 @@ export const exampleCardsWorkflow = async () => {
     const cards = await api.getCards();
     
     
-    const testCardNumber = '4111111111111111'; // Тестовый номер Visa
+    const testCardNumber = '4111111111111111';
     const newCard = await api.addCard(testCardNumber);
     
     

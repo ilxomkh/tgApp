@@ -4,7 +4,6 @@ import adminApi from '../../services/adminApi';
 import AdminNavigation from './AdminNavigation';
 import AdminHeader from './AdminHeader';
 
-// Custom Icons
 const CalendarIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -41,12 +40,11 @@ const ChevronDownIcon = ({ className }) => (
   </svg>
 );
 
-// Custom DateTime Picker Component
 const CustomDateTimePicker = ({ value, onChange, error }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(value ? new Date(value) : new Date());
   const [tempDate, setTempDate] = useState(value ? new Date(value) : new Date());
-  const [viewMode, setViewMode] = useState('date'); // 'date' or 'time'
+  const [viewMode, setViewMode] = useState('date');
 
   const formatDateTime = (date) => {
     if (!date) return 'Выберите дату';
@@ -69,19 +67,16 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
     
     const days = [];
     
-    // Previous month's days
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const prevDate = new Date(year, month, -i);
       days.push({ date: prevDate, isCurrentMonth: false });
     }
     
-    // Current month's days
     for (let i = 1; i <= daysInMonth; i++) {
       days.push({ date: new Date(year, month, i), isCurrentMonth: true });
     }
     
-    // Next month's days to fill the grid
-    const remainingDays = 42 - days.length; // 6 rows × 7 days
+    const remainingDays = 42 - days.length;
     for (let i = 1; i <= remainingDays; i++) {
       const nextDate = new Date(year, month + 1, i);
       days.push({ date: nextDate, isCurrentMonth: false });
@@ -152,7 +147,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
           {viewMode === 'date' ? (
             <div className="p-3">
-              {/* Month/Year Header */}
               <div className="flex items-center justify-between mb-3">
                 <button
                   type="button"
@@ -175,7 +169,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
                 </button>
               </div>
 
-              {/* Week Days */}
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {weekDays.map(day => (
                   <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
@@ -184,7 +177,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
                 ))}
               </div>
 
-              {/* Calendar Days */}
               <div className="grid grid-cols-7 gap-1">
                 {getDaysInMonth(tempDate).map((dayObj, index) => {
                   const isToday = dayObj.date.toDateString() === new Date().toDateString();
@@ -254,7 +246,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex items-center justify-between p-3 bg-gray-50 border-t">
             {viewMode === 'time' && (
               <button
@@ -292,7 +283,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
   );
 };
 
-// Custom Toggle Component - iPhone Style
 const CustomToggle = ({ checked, onChange, label }) => {
   return (
     <div className="flex items-center gap-3">
@@ -357,7 +347,6 @@ const AdminRaffles = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Валидация
     if (!formData.title.trim()) {
       setError('Название обязательно для заполнения');
       return;
@@ -378,7 +367,6 @@ const AdminRaffles = () => {
       return;
     }
 
-    // Проверка URL
     try {
       new URL(formData.video_url);
     } catch {
@@ -407,7 +395,6 @@ const AdminRaffles = () => {
         end_date: ''
       });
       
-      // Скрыть сообщение об успехе через 3 секунды
       setTimeout(() => setSuccess(false), 3000);
       
     } catch (err) {
@@ -420,16 +407,13 @@ const AdminRaffles = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F4FF]">
-      {/* Header */}
       <AdminHeader 
         title="Розыгрыши"
         subtitle="добавление видео"
       />
 
-      {/* Navigation */}
       <AdminNavigation />
 
-      {/* Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden backdrop-blur-sm">
           <div className="px-6 py-6">
@@ -443,7 +427,6 @@ const AdminRaffles = () => {
               </div>
             </div>
             
-            {/* Success Message */}
             {success && (
               <div className="mb-6 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
                 <div className="flex items-center">
@@ -464,7 +447,6 @@ const AdminRaffles = () => {
               </div>
             )}
 
-            {/* Error Message */}
             {error && (
               <div className="mb-6 p-3 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg">
                 <div className="flex items-center">
@@ -486,7 +468,6 @@ const AdminRaffles = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Title */}
               <div className="group">
                 <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
                   Название розыгрыша *
@@ -510,7 +491,6 @@ const AdminRaffles = () => {
 
 
               <div className="grid md:grid-cols-2 gap-5">
-                {/* Prize Amount */}
                 <div className="group">
                   <label htmlFor="prize_amount" className="block text-sm font-semibold text-gray-700 mb-2">
                     Сумма приза *
@@ -536,7 +516,6 @@ const AdminRaffles = () => {
                   </div>
                 </div>
 
-                {/* End Date */}
                 <div className="group">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Дата проведения *
@@ -549,7 +528,6 @@ const AdminRaffles = () => {
                 </div>
               </div>
 
-              {/* Video URL */}
               <div className="group">
                 <label htmlFor="video_url" className="block text-sm font-semibold text-gray-700 mb-2">
                   Ссылка на видео *
@@ -575,7 +553,6 @@ const AdminRaffles = () => {
                 </p>
               </div>
 
-              {/* Active Status */}
               <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-100">
                 <div className="flex items-center justify-between">
                   <div>
@@ -592,7 +569,6 @@ const AdminRaffles = () => {
                 </div>
               </div>
 
-              {/* Submit Button */}
               <div className="flex pt-4 border-t border-gray-100">
                 <button
                   type="submit"

@@ -9,7 +9,6 @@ const UserAvatar = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   
-  // Размеры аватарки
   const sizeClasses = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 sm:w-12 sm:h-12 text-xs sm:text-sm',
@@ -19,10 +18,8 @@ const UserAvatar = ({
   
   const sizeClass = sizeClasses[size] || sizeClasses.md;
   
-  // Проверяем, есть ли аватарка у пользователя
   const avatarUrl = user?.avatar_url || user?.avatar || user?.profile_picture || user?.image_url;
   
-  // Отладочная информация
   console.log('User data:', user);
   if (avatarUrl) {
     console.log('Avatar URL found:', avatarUrl);
@@ -30,7 +27,6 @@ const UserAvatar = ({
     console.log('No avatar URL found for user:', user?.full_name);
   }
   
-  // Fallback на инициалы
   const initials = getUserInitials(user?.full_name);
   
   return (

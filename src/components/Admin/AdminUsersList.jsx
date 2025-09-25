@@ -23,7 +23,6 @@ const AdminUsersList = () => {
       setError(null);
       const response = await adminApi.getUsers(page, pagination.limit);
       
-      // Проверяем структуру ответа API
       if (response && response.users) {
         setUsers(response.users);
         setPagination({
@@ -32,7 +31,6 @@ const AdminUsersList = () => {
           total: response.total || 0
         });
       } else {
-        // Если API возвращает массив напрямую
         setUsers(Array.isArray(response) ? response : []);
         setPagination({
           page: page,
@@ -101,19 +99,15 @@ const AdminUsersList = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F4FF]">
-      {/* Header */}
       <AdminHeader 
         title={pagination.total.toLocaleString()}
         subtitle="всего пользователей"
       />
 
-      {/* Navigation */}
       <AdminNavigation />
 
-      {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)] overflow-hidden">
-          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -151,7 +145,6 @@ const AdminUsersList = () => {
                       }`}
                       onClick={() => handleUserClick(user.id)}
                     >
-                      {/* User Info */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center gap-3 sm:gap-4">
                           <UserAvatar user={user} size="md" />
@@ -160,7 +153,6 @@ const AdminUsersList = () => {
                               {user.full_name || 'Без имени'}
                             </div>
                             <div className="text-xs sm:text-sm text-gray-600">ID: {user.id}</div>
-                            {/* Мобильная версия контактов */}
                             <div className="sm:hidden mt-1">
                               <div className="text-xs text-gray-900 font-mono">
                                 {formatPhoneNumber(user.phone_number)}
@@ -172,8 +164,6 @@ const AdminUsersList = () => {
                           </div>
                         </div>
                       </td>
-
-                      {/* Contacts - скрыто на мобильных */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
                         <div className="space-y-1">
                           <div className="text-sm text-gray-900 font-mono">
@@ -191,7 +181,6 @@ const AdminUsersList = () => {
                         </div>
                       </td>
 
-                      {/* Device - скрыто на мобильных и планшетах */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
                         <div className="flex items-center gap-3">
                           <div className="text-gray-600">{deviceInfo.icon}</div>
@@ -202,21 +191,18 @@ const AdminUsersList = () => {
                         </div>
                       </td>
 
-                      {/* Balance */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4">
                         <div className="text-sm text-gray-900 font-medium">
                           {user.balance?.toLocaleString() || '0'} сум
                         </div>
                       </td>
 
-                      {/* Registration Date - скрыто на мобильных */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
                         <div className="text-sm text-gray-900">
                           {formatDate(user.created_at)}
                         </div>
                       </td>
 
-                      {/* Actions */}
                       <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
                         <button
                           onClick={(e) => {
@@ -235,11 +221,9 @@ const AdminUsersList = () => {
             </table>
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="border-t border-gray-100 px-3 sm:px-6 py-3 sm:py-4">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
-                {/* Results Info */}
                 <div className="text-xs sm:text-sm text-gray-600 order-2 sm:order-1">
                   Показано{' '}
                   <span className="font-medium text-gray-900">
@@ -255,9 +239,7 @@ const AdminUsersList = () => {
                   </span>
                 </div>
 
-                {/* Pagination Controls */}
                 <div className="flex items-center gap-1 order-1 sm:order-2">
-                  {/* Previous Button */}
                   <button
                     onClick={() => handlePageChange(pagination.page - 1)}
                     disabled={pagination.page === 1}
@@ -266,7 +248,6 @@ const AdminUsersList = () => {
                     ← Назад
                   </button>
 
-                  {/* Page Numbers */}
                   <div className="flex items-center gap-1 mx-2">
                     {(() => {
                       const getPageNumbers = () => {
@@ -324,7 +305,6 @@ const AdminUsersList = () => {
                     })()}
                   </div>
 
-                  {/* Next Button */}
                   <button
                     onClick={() => handlePageChange(pagination.page + 1)}
                     disabled={pagination.page === totalPages}
