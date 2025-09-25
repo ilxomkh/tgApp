@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -34,13 +34,13 @@ const AuthScreen = () => {
   const { isKeyboardOpen } = useKeyboard();
 
   const [phoneDigits, setPhoneDigits] = useState("");
-  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
+  const [otp, setOtp] = useState("");
   const [step, setStep] = useState("phone");
   const [isLoading, setIsLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
 
-  const otpRefs = useRef(Array.from({ length: OTP_LENGTH }, () => React.createRef()));
+  const hiddenOtpRef = useRef(null);
 
   const closeKeyboard = () => {
     if (document.activeElement && document.activeElement.blur) {
@@ -58,40 +58,10 @@ const AuthScreen = () => {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
-  // Фокус именно на первый видимый инпут — критично для Telegram/Safari iOS
   useEffect(() => {
-    if (step === "otp") {
-      const t = setTimeout(() => {
-        otpRefs.current?.[0]?.current?.focus();
-      }, 250);
+    if (step === "otp" && hiddenOtpRef.current) {
+      const t = setTimeout(() => hiddenOtpRef.current.focus(), 250);
       return () => clearTimeout(t);
-    }
-  }, [step]);
-
-  // WebOTP API (Android Chrome)
-  useEffect(() => {
-    if (step !== "otp") return;
-
-    if ("OTPCredential" in window) {
-      const ac = new AbortController();
-
-      navigator.credentials
-        .get({
-          otp: { transport: ["sms"] },
-          signal: ac.signal,
-        })
-        .then((cred) => {
-          if (cred && cred.code) {
-            const code = cred.code.replace(/\D/g, "").slice(0, OTP_LENGTH);
-            if (code.length === OTP_LENGTH) {
-              setOtp(code.split(""));
-              setTimeout(closeKeyboard, 100);
-            }
-          }
-        })
-        .catch((err) => console.log("WebOTP error:", err));
-
-      return () => ac.abort();
     }
   }, [step]);
 
@@ -142,55 +112,6 @@ const AuthScreen = () => {
     }[language || "ru"];
 
   const phoneE164 = `+998${phoneDigits}`;
-  const otpToString = () => otp.join("");
-
-  // Хелпер — разложить строку цифр по ячейкам
-  const fillOtpFromString = (str) => {
-    const digits = (str || "").replace(/\D/g, "").slice(0, OTP_LENGTH);
-    const next = Array(OTP_LENGTH).fill("");
-    for (let i = 0; i < digits.length; i++) next[i] = digits[i];
-    setOtp(next);
-    if (digits.length === OTP_LENGTH) setTimeout(closeKeyboard, 100);
-  };
-
-  // Ловим автоподстановку из подсказки в первый инпут
-  const handleOtpAutoFillFromFirst = (e) => {
-    const raw = e.currentTarget.value || "";
-    if (raw && raw.length >= 4) {
-      fillOtpFromString(raw);
-    }
-  };
-
-  const handleOtpChange = (i, v) => {
-    // Если в первый инпут прилетела целая строка — раскладываем
-    if (i === 0 && v && v.length > 1) {
-      fillOtpFromString(v);
-      return;
-    }
-    const val = (v || "").replace(/\D/g, "").slice(0, 1);
-    const next = [...otp];
-    next[i] = val;
-    setOtp(next);
-
-    if (val && i < OTP_LENGTH - 1) {
-      otpRefs.current[i + 1]?.current?.focus();
-    } else if (val && i === OTP_LENGTH - 1) {
-      setTimeout(closeKeyboard, 100);
-    }
-  };
-
-  const handleOtpKeyDown = (i, e) => {
-    if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1]?.current?.focus();
-    if (e.key === "ArrowLeft" && i > 0) otpRefs.current[i - 1]?.current?.focus();
-    if (e.key === "ArrowRight" && i < OTP_LENGTH - 1) otpRefs.current[i + 1]?.current?.focus();
-  };
-
-  const handleOtpPaste = (e) => {
-    const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
-    if (!paste) return;
-    e.preventDefault();
-    fillOtpFromString(paste);
-  };
 
   const startResendTimer = () => setResendTimer(60);
 
@@ -206,7 +127,7 @@ const AuthScreen = () => {
       const ok = await sendOtp(phoneE164, referralCode);
       if (ok) {
         setStep("otp");
-        setOtp(Array(OTP_LENGTH).fill(""));
+        setOtp("");
         startResendTimer();
       } else {
         setErrorText(getMessage("NETWORK_ERROR", language));
@@ -221,8 +142,7 @@ const AuthScreen = () => {
   };
 
   const onVerify = async () => {
-    const code = otpToString();
-    if (!isValidOtp(code)) {
+    if (!isValidOtp(otp)) {
       setErrorText(getMessage("INVALID_OTP", language));
       return;
     }
@@ -230,7 +150,7 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await login(phoneE164, code);
+      const ok = await login(phoneE164, otp);
       if (ok) {
         navigate("/main");
       } else {
@@ -247,7 +167,7 @@ const AuthScreen = () => {
 
   const handleBackToPhone = () => {
     setStep("phone");
-    setOtp(Array(OTP_LENGTH).fill(""));
+    setOtp("");
     setErrorText("");
   };
 
@@ -259,7 +179,7 @@ const AuthScreen = () => {
       const ok = await sendOtp(phoneE164, referralCode);
       if (ok) {
         startResendTimer();
-        setTimeout(() => otpRefs.current?.[0]?.current?.focus(), 250);
+        setTimeout(() => hiddenOtpRef.current?.focus(), 250);
       } else {
         setErrorText(getMessage("NETWORK_ERROR", language));
       }
@@ -340,24 +260,30 @@ const AuthScreen = () => {
                 </div>
               </div>
 
+              {/* Скрытый инпут, который ловит автофилл */}
+              <input
+                ref={hiddenOtpRef}
+                type="tel"
+                name="otp"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={OTP_LENGTH}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH))}
+                className="absolute opacity-0 pointer-events-none"
+              />
+
+              {/* Визуализация в виде квадратиков */}
               <div className="mt-6 flex justify-center">
-                <div className="flex gap-3" onPaste={handleOtpPaste}>
-                  {otp.map((val, i) => (
-                    <input
+                <div className="flex gap-3">
+                  {Array.from({ length: OTP_LENGTH }).map((_, i) => (
+                    <div
                       key={i}
-                      ref={otpRefs.current[i]}
-                      type="tel"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={i === 0 ? OTP_LENGTH : 1}
-                      value={val}
-                      onChange={(e) => handleOtpChange(i, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                      onInput={i === 0 ? handleOtpAutoFillFromFirst : undefined}
-                      autoComplete={i === 0 ? "one-time-code" : "off"}
-                      name={i === 0 ? "otp" : undefined}
-                      className="w-[48px] h-[48px] rounded-xl border bg-white text-center text-[22px] font-bold text-[#2B2B33] border-[#E1E1F3] focus:border-[#6A4CFF] focus:outline-none"
-                    />
+                      className="w-[48px] h-[48px] rounded-xl border bg-white flex items-center justify-center text-[22px] font-bold text-[#2B2B33] border-[#E1E1F3]"
+                    >
+                      {otp[i] || ""}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -433,11 +359,9 @@ const AuthScreen = () => {
           <div className="rounded-2xl bg-[#EDEAFF] p-2">
             <button
               onClick={useHapticClick(onVerify, "medium")}
-              disabled={isLoading || otpToString().length !== OTP_LENGTH}
+              disabled={isLoading || otp.length !== OTP_LENGTH}
               className={`w-full h-[48px] rounded-xl text-white font-semibold disabled:opacity-50 active:scale-[0.99] transition ${
-                otpToString().length === OTP_LENGTH
-                  ? "bg-[#6A4CFF] hover:bg-[#5A3CE8]"
-                  : "bg-[#8C8AF9]"
+                otp.length === OTP_LENGTH ? "bg-[#6A4CFF] hover:bg-[#5A3CE8]" : "bg-[#8C8AF9]"
               }`}
             >
               {isLoading ? T.confirming : T.confirm}
@@ -459,7 +383,7 @@ const AuthScreen = () => {
               onClick={useHapticClick(() => {
                 setErrorText("");
                 setStep("phone");
-                setOtp(Array(OTP_LENGTH).fill(""));
+                setOtp("");
               }, "light")}
               className="w-full h-[48px] rounded-xl bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white font-semibold active:scale-[0.99] transition"
             >
