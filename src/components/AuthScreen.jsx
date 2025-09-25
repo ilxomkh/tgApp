@@ -41,7 +41,6 @@ const AuthScreen = () => {
   const [resendTimer, setResendTimer] = useState(0);
 
   const otpRefs = useRef(Array.from({ length: OTP_LENGTH }, () => React.createRef()));
-  const hiddenOtpRef = useRef(null);
 
   const closeKeyboard = () => {
     if (document.activeElement && document.activeElement.blur) {
@@ -59,18 +58,17 @@ const AuthScreen = () => {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
-  // Фокусируем скрытое поле при переходе на шаг OTP — это критично для iOS подсказки
+  // Фокус именно на первый видимый инпут — критично для Telegram/Safari iOS
   useEffect(() => {
     if (step === "otp") {
-      // небольшая задержка, чтобы DOM точно дорендерился
       const t = setTimeout(() => {
-        hiddenOtpRef.current?.focus();
+        otpRefs.current?.[0]?.current?.focus();
       }, 250);
       return () => clearTimeout(t);
     }
   }, [step]);
 
-  // WebOTP API (Android Chrome) — подтягивает код из SMS автоматически
+  // WebOTP API (Android Chrome)
   useEffect(() => {
     if (step !== "otp") return;
 
@@ -146,8 +144,30 @@ const AuthScreen = () => {
   const phoneE164 = `+998${phoneDigits}`;
   const otpToString = () => otp.join("");
 
+  // Хелпер — разложить строку цифр по ячейкам
+  const fillOtpFromString = (str) => {
+    const digits = (str || "").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    const next = Array(OTP_LENGTH).fill("");
+    for (let i = 0; i < digits.length; i++) next[i] = digits[i];
+    setOtp(next);
+    if (digits.length === OTP_LENGTH) setTimeout(closeKeyboard, 100);
+  };
+
+  // Ловим автоподстановку из подсказки в первый инпут
+  const handleOtpAutoFillFromFirst = (e) => {
+    const raw = e.currentTarget.value || "";
+    if (raw && raw.length >= 4) {
+      fillOtpFromString(raw);
+    }
+  };
+
   const handleOtpChange = (i, v) => {
-    const val = v.replace(/\D/g, "").slice(0, 1);
+    // Если в первый инпут прилетела целая строка — раскладываем
+    if (i === 0 && v && v.length > 1) {
+      fillOtpFromString(v);
+      return;
+    }
+    const val = (v || "").replace(/\D/g, "").slice(0, 1);
     const next = [...otp];
     next[i] = val;
     setOtp(next);
@@ -169,27 +189,7 @@ const AuthScreen = () => {
     const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
     if (!paste) return;
     e.preventDefault();
-    const next = Array(OTP_LENGTH).fill("");
-    for (let i = 0; i < paste.length; i++) next[i] = paste[i];
-    setOtp(next);
-    if (paste.length === OTP_LENGTH) {
-      setTimeout(closeKeyboard, 100);
-    }
-  };
-
-  // главный обработчик скрытого input: сюда Safari/Chrome вставляют код по "Из сообщений…"
-  const handleHiddenOtpChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, OTP_LENGTH);
-    if (value.length > 0) {
-      const next = Array(OTP_LENGTH).fill("");
-      for (let i = 0; i < value.length; i++) {
-        next[i] = value[i];
-      }
-      setOtp(next);
-      if (value.length === OTP_LENGTH) {
-        setTimeout(closeKeyboard, 100);
-      }
-    }
+    fillOtpFromString(paste);
   };
 
   const startResendTimer = () => setResendTimer(60);
@@ -259,8 +259,7 @@ const AuthScreen = () => {
       const ok = await sendOtp(phoneE164, referralCode);
       if (ok) {
         startResendTimer();
-        // после повторной отправки опять фокус на скрытый input, чтобы iOS снова показал подсказку
-        setTimeout(() => hiddenOtpRef.current?.focus(), 250);
+        setTimeout(() => otpRefs.current?.[0]?.current?.focus(), 250);
       } else {
         setErrorText(getMessage("NETWORK_ERROR", language));
       }
@@ -341,43 +340,22 @@ const AuthScreen = () => {
                 </div>
               </div>
 
-              {/* Главное скрытое поле — оно в фокусе, чтобы iOS показал "Из сообщений..." */}
-              <input
-                ref={hiddenOtpRef}
-                type="text"
-                name="otp"
-                autoComplete="one-time-code"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={OTP_LENGTH}
-                style={{
-                  position: "absolute",
-                  width: "1px",
-                  height: "1px",
-                  opacity: 0,
-                  zIndex: -1,
-                  top: 0,
-                  left: 0,
-                  border: 0,
-                  padding: 0,
-                }}
-                aria-label="One-time code"
-                onChange={handleHiddenOtpChange}
-              />
-
               <div className="mt-6 flex justify-center">
                 <div className="flex gap-3" onPaste={handleOtpPaste}>
                   {otp.map((val, i) => (
                     <input
                       key={i}
                       ref={otpRefs.current[i]}
-                      type="text"
+                      type="tel"
                       inputMode="numeric"
                       pattern="[0-9]*"
-                      maxLength={1}
+                      maxLength={i === 0 ? OTP_LENGTH : 1}
                       value={val}
                       onChange={(e) => handleOtpChange(i, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                      onInput={i === 0 ? handleOtpAutoFillFromFirst : undefined}
+                      autoComplete={i === 0 ? "one-time-code" : "off"}
+                      name={i === 0 ? "otp" : undefined}
                       className="w-[48px] h-[48px] rounded-xl border bg-white text-center text-[22px] font-bold text-[#2B2B33] border-[#E1E1F3] focus:border-[#6A4CFF] focus:outline-none"
                     />
                   ))}
