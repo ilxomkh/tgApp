@@ -9,7 +9,7 @@ const AdminNavigation = () => {
   const tabs = [
     { path: '/admin/users', label: 'Пользователи', icon: Users },
     { path: '/admin/raffles', label: 'Розыгрыши', icon: Film },
-    { path: '/admin/stats', label: 'Статистика', icon: BarChart3 }
+    // { path: '/admin/stats', label: 'Статистика', icon: BarChart3 }
   ];
 
   return (
