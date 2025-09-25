@@ -61,6 +61,7 @@ const AuthScreen = () => {
   useEffect(() => {
     if (step !== "otp") return;
 
+    // WebOTP API для автоматического получения SMS кода
     if ("OTPCredential" in window) {
       const ac = new AbortController();
 
@@ -71,18 +72,49 @@ const AuthScreen = () => {
         })
         .then((otp) => {
           if (otp && otp.code) {
-            console.log("WebOTP code:", otp.code);
+            console.log("WebOTP code received:", otp.code);
 
             const code = otp.code.replace(/\D/g, "").slice(0, OTP_LENGTH);
             if (code.length === OTP_LENGTH) {
               setOtp(code.split(""));
               setTimeout(closeKeyboard, 100);
+              
+              // Автоматически отправляем код на проверку
+              setTimeout(() => {
+                onVerify();
+              }, 500);
             }
           }
         })
-        .catch((err) => console.log("WebOTP error:", err));
+        .catch((err) => {
+          console.log("WebOTP error:", err);
+          // Не показываем ошибку пользователю, так как это нормальное поведение
+        });
 
       return () => ac.abort();
+    }
+
+    // Fallback для старых браузеров - слушаем изменения в скрытом поле
+    const hiddenInput = document.querySelector('input[name="otp"]');
+    if (hiddenInput) {
+      const handleInput = (e) => {
+        const value = e.target.value.replace(/\D/g, "");
+        if (value.length === OTP_LENGTH) {
+          console.log("Fallback autofill detected:", value);
+          setOtp(value.split(""));
+          setTimeout(closeKeyboard, 100);
+          
+          // Автоматически отправляем код на проверку
+          setTimeout(() => {
+            onVerify();
+          }, 500);
+        }
+      };
+
+      hiddenInput.addEventListener('input', handleInput);
+      return () => {
+        hiddenInput.removeEventListener('input', handleInput);
+      };
     }
   }, [step]);
 
@@ -151,6 +183,16 @@ const AuthScreen = () => {
       setTimeout(closeKeyboard, 100);
     }
   };
+
+  const handleOtpFocus = (i) => {
+    // При фокусе на первое поле, фокусируем скрытое поле для SMS autofill
+    if (i === 0) {
+      const hiddenInput = document.querySelector('input[name="otp"]');
+      if (hiddenInput) {
+        hiddenInput.focus();
+      }
+    }
+  };
   const handleOtpKeyDown = (i, e) => {
     if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1]?.current?.focus();
     if (e.key === "ArrowLeft" && i > 0) otpRefs.current[i - 1]?.current?.focus();
@@ -183,7 +225,13 @@ const AuthScreen = () => {
       }
       setOtp(next);
       setTimeout(closeKeyboard, 100);
+      
+      // Автоматически отправляем код на проверку
+      setTimeout(() => {
+        onVerify();
+      }, 500);
     } else if (value.length > 0 && value.length < OTP_LENGTH) {
+      // Частичное заполнение
       const next = [...otp];
       for (let i = 0; i < value.length; i++) {
         next[i] = value[i];
@@ -203,6 +251,18 @@ const AuthScreen = () => {
       }
       setOtp(next);
       setTimeout(closeKeyboard, 100);
+      
+      // Автоматически отправляем код на проверку
+      setTimeout(() => {
+        onVerify();
+      }, 500);
+    } else if (value.length > 0 && value.length < OTP_LENGTH) {
+      // Частичное заполнение
+      const next = [...otp];
+      for (let i = 0; i < value.length; i++) {
+        next[i] = value[i];
+      }
+      setOtp(next);
     }
   };
 
@@ -366,20 +426,7 @@ const AuthScreen = () => {
                 </div>
               </div>
 
-              <input
-                type="text"
-                name="otp-code"
-                autoComplete="one-time-code"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={OTP_LENGTH}
-                placeholder="Введите код"
-                style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
-                tabIndex={-1}
-                aria-hidden="true"
-                onChange={handleHiddenOtpChange}
-              />
-              
+              {/* Скрытое поле для SMS autofill - должно быть видимым для браузера */}
               <input
                 type="text"
                 name="otp"
@@ -387,11 +434,23 @@ const AuthScreen = () => {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={OTP_LENGTH}
-                data-testid="otp-autofill"
-                style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+                placeholder="Введите код"
+                style={{ 
+                  position: 'absolute', 
+                  left: '-9999px', 
+                  opacity: 0, 
+                  pointerEvents: 'none',
+                  width: '1px',
+                  height: '1px'
+                }}
                 tabIndex={-1}
                 aria-hidden="true"
                 onChange={handleHiddenOtpChange}
+                onInput={handleHiddenOtpChange}
+                data-testid="otp-autofill"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck="false"
               />
               
               <div className="mt-6 flex justify-center">
@@ -408,10 +467,15 @@ const AuthScreen = () => {
                       onChange={(e) => handleOtpChange(i, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(i, e)}
                       onInput={handleOtpAutofill}
+                      onFocus={() => handleOtpFocus(i)}
                       className="w-[48px] h-[48px] rounded-xl border bg-white text-center text-[22px] font-bold text-[#2B2B33] border-[#E1E1F3] focus:border-[#6A4CFF] focus:outline-none"
                       autoComplete={i === 0 ? "one-time-code" : "off"}
                       name={i === 0 ? "otp" : undefined}
                       data-testid={`otp-input-${i}`}
+                      // Дополнительные атрибуты для лучшей поддержки SMS autofill
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                     />
                   ))}
                 </div>

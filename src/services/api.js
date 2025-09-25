@@ -323,7 +323,7 @@ export const api = {
 
   // Admin API methods
   getUserStats: async () => {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/admin/users/overstat`, {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/admin/users/stats/overall`, {
       method: 'GET',
       headers: getHeaders(),
     });
