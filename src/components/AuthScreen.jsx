@@ -61,7 +61,6 @@ const AuthScreen = () => {
   useEffect(() => {
     if (step !== "otp") return;
 
-    // WebOTP API для автоматического заполнения OTP
     if ("OTPCredential" in window) {
       const ac = new AbortController();
 
@@ -85,43 +84,6 @@ const AuthScreen = () => {
 
       return () => ac.abort();
     }
-
-    // Дополнительная проверка буфера обмена для OTP кода
-    const checkClipboardForOTP = async () => {
-      try {
-        if (navigator.clipboard && navigator.clipboard.readText) {
-          const clipboardText = await navigator.clipboard.readText();
-          const otpMatch = clipboardText.match(/\b\d{4,6}\b/);
-          
-          if (otpMatch) {
-            const code = otpMatch[0].replace(/\D/g, "").slice(0, OTP_LENGTH);
-            if (code.length === OTP_LENGTH) {
-              console.log("OTP found in clipboard:", code);
-              setOtp(code.split(""));
-              setTimeout(closeKeyboard, 100);
-            }
-          }
-        }
-      } catch (error) {
-        console.log("Clipboard access denied:", error);
-      }
-    };
-
-    // Проверяем буфер обмена при переходе на шаг OTP
-    checkClipboardForOTP();
-
-    // Слушаем изменения буфера обмена
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkClipboardForOTP();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, [step]);
 
   const T =
@@ -198,9 +160,6 @@ const AuthScreen = () => {
     const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
     if (!paste) return;
     e.preventDefault();
-    
-    console.log('OTP paste detected:', paste);
-    
     const next = Array(OTP_LENGTH).fill("");
     for (let i = 0; i < paste.length; i++) next[i] = paste[i];
     setOtp(next);
@@ -210,40 +169,6 @@ const AuthScreen = () => {
     
     if (paste.length === OTP_LENGTH) {
       setTimeout(closeKeyboard, 100);
-    }
-  };
-
-  // Дополнительная функция для обработки SMS через Clipboard API
-  const handleSMSFromClipboard = async () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.readText) {
-        const clipboardText = await navigator.clipboard.readText();
-        
-        // Ищем OTP код в различных форматах SMS
-        const otpPatterns = [
-          /\b(\d{4,6})\b/, // Обычный OTP код
-          /код[:\s]*(\d{4,6})/i, // "код: 1234"
-          /code[:\s]*(\d{4,6})/i, // "code: 1234"
-          /verification[:\s]*(\d{4,6})/i, // "verification: 1234"
-          /(\d{4,6})[:\s]*код/i, // "1234: код"
-          /(\d{4,6})[:\s]*code/i, // "1234: code"
-        ];
-        
-        for (const pattern of otpPatterns) {
-          const match = clipboardText.match(pattern);
-          if (match) {
-            const code = match[1].replace(/\D/g, "").slice(0, OTP_LENGTH);
-            if (code.length === OTP_LENGTH) {
-              console.log('OTP found in SMS text:', code);
-              setOtp(code.split(""));
-              setTimeout(closeKeyboard, 100);
-              return;
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.log("SMS clipboard access denied:", error);
     }
   };
 
@@ -275,15 +200,6 @@ const AuthScreen = () => {
       const next = Array(OTP_LENGTH).fill("");
       for (let i = 0; i < value.length; i++) {
         next[i] = value[i];
-      }
-      setOtp(next);
-      setTimeout(closeKeyboard, 100);
-    } else if (value.length > OTP_LENGTH) {
-      // Если код длиннее нужного, берем первые символы
-      const code = value.slice(0, OTP_LENGTH);
-      const next = Array(OTP_LENGTH).fill("");
-      for (let i = 0; i < code.length; i++) {
-        next[i] = code[i];
       }
       setOtp(next);
       setTimeout(closeKeyboard, 100);
@@ -499,16 +415,6 @@ const AuthScreen = () => {
                     />
                   ))}
                 </div>
-              </div>
-
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={handleSMSFromClipboard}
-                  className="text-sm text-[#6A4CFF] hover:text-[#5A3CE8] hover:opacity-80 underline underline-offset-4 transition"
-                >
-                  📋 Проверить SMS в буфере обмена
-                </button>
               </div>
 
               <div className="mt-4 text-center">
