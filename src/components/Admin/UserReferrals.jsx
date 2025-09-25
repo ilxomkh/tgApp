@@ -95,18 +95,26 @@ const UserReferrals = ({ userId }) => {
               <div className="flex items-center gap-3">
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
                   <code className="text-xl font-mono text-white">
-                    {referrals.referral_id}
+                    {referrals.referral_code}
                   </code>
                 </div>
                 <button
-                  onClick={() => copyToClipboardHandler(referrals.referral_id)}
-                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  onClick={() => copyToClipboardHandler(referrals.referral_code)}
+                  className={`px-4 py-3.5 rounded-xl text-sm font-medium transition-all ${
                     copied 
                       ? 'bg-green-600 text-white' 
                       : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
                   }`}
                 >
-                  {copied ? '✓ Скопировано' : '📋 Копировать'}
+                  {copied ? (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  )}
                 </button>
               </div>
             </div>

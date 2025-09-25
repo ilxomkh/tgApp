@@ -267,13 +267,10 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
     setIsCompleted(false);
     setSurveyResult(null);
     
-    // Если есть функция обновления списка опросов, вызываем её
+    // Если есть функция обновления списка опросов, вызываем её сразу
     if (onSurveyComplete) {
       console.log('🔄 Обновляем список опросов после закрытия модального окна');
-      // Добавляем небольшую задержку для гарантии
-      setTimeout(() => {
-        onSurveyComplete();
-      }, 100);
+      onSurveyComplete();
     }
     
     // Закрываем модальное окно
@@ -320,7 +317,14 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
                 setSurveyResult(result);
                 setIsCompleted(true);
               }}
-              onClose={onClose}
+              onClose={() => {
+                // Обновляем список опросов перед закрытием
+                if (onSurveyComplete) {
+                  console.log('🔄 Обновляем список опросов после завершения tally опроса');
+                  onSurveyComplete();
+                }
+                onClose();
+              }}
             />
           </div>
         </div>

@@ -297,7 +297,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <button
                 onClick={handleResumePlay}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-6 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
+                className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-6 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
               >
                 <Play className="w-12 h-12 ml-1" />
               </button>
@@ -322,7 +322,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
                 
                 <button
                   onClick={handleExitFullscreen}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 transition-colors z-20"
+                  className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-3 transition-colors z-20"
                   style={{ pointerEvents: 'auto' }}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,7 +333,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
               
               <button
                 onClick={handleCloseVideo}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-3 transition-colors z-20"
+                className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-3 transition-colors z-20"
                 style={{ pointerEvents: 'auto' }}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,7 +392,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
                 <button
                   onClick={handleResumePlay}
-                  className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
+                  className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
                 >
                   <Play className="w-8 h-8 ml-0.5" />
                 </button>
@@ -419,7 +419,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
                 
                 <button
                   onClick={handleCloseVideo}
-                  className="bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                  className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-2 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -449,7 +449,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
             <div className="absolute inset-0 flex items-center justify-center">
               <button
                 onClick={handlePlayPause}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
+                className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
               >
                 <Play className="w-8 h-8 ml-0.5" />
               </button>
@@ -488,7 +488,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
               <button
                 onClick={handleResumePlay}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
+                className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-4 transition-all duration-200 transform hover:scale-105 shadow-xl border-2 border-white/20"
               >
                 <Play className="w-8 h-8 ml-0.5" />
               </button>
@@ -500,7 +500,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
             <button
               onClick={handlePlayPause}
               disabled={isLoading}
-              className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 transition-all duration-200 transform hover:scale-110 disabled:opacity-50"
+              className="bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white rounded-full p-4 transition-all duration-200 transform hover:scale-110 disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -533,7 +533,7 @@ const CustomVideoPlayer = ({ videoUrl, title, onOpenExternal }) => {
               
               <button
                 onClick={handleExternalOpen}
-                className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                className="flex items-center space-x-2 bg-[#6A4CFF] hover:bg-[#5A3CE8] text-white px-3 py-1 rounded text-sm transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 <span>Открыть видео</span>
