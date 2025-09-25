@@ -20,7 +20,7 @@ const InviteTab = ({ locale = "ru", user }) => {
     ru: {
       inviteTitle: "Пригласите друга и получайте средства",
       earn: "Зарабатывайте",
-      earnAmount: "10 000 сум",
+      earnAmount: "5 000 сум",
       earnSubtitle: "с каждого приглашенного друга",
       howItWorks: "Как это работает?",
       invited: "Кол-во приглашенных:",
@@ -39,7 +39,7 @@ const InviteTab = ({ locale = "ru", user }) => {
     uz: {
       inviteTitle: "Do'stingizni taklif qiling va mablag' oling",
       earn: "Daromad qiling",
-      earnAmount: "10 000 so'm",
+      earnAmount: "5 000 so'm",
       earnSubtitle: "har bir taklif qilingan do'stdan",
       howItWorks: "Bu qanday ishlaydi?",
       invited: "Taklif qilinganlar soni:",
