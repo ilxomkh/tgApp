@@ -83,7 +83,7 @@ const InviteTab = ({ locale = "ru", user }) => {
       typeof window !== "undefined"
         ? window.location.origin
         : "https://example.com";
-    return `${origin}/?referral_code=${code}`;
+    return `${origin}/open/?referral_code=${code}`;
   }, [inviteStats.referral_code, user?.referral_code]);
 
   const showToast = (msg) => {

@@ -68,7 +68,7 @@ const SupportScreen = () => {
   };
 
   const openTelegram = () => {
-    window.open("https://t.me/prosurvey_support", "_blank");
+    window.open("https://t.me/prosurveysupport", "_blank");
   };
 
   const handleBack = () => {
