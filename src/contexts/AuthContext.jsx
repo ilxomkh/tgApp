@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api, { setInitializing } from '../services/api';
+import trackingService from '../services/trackingService';
+import { isAccessAllowed } from '../utils/deviceValidation';
 
 const AuthContext = createContext(undefined);
 
@@ -62,16 +64,36 @@ export const AuthProvider = ({ children }) => {
 
   const sendOtp = async (phoneNumber, referralCode = null) => {
     try {
+      trackingService.track('auth_otp_request', {
+        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
+        has_referral_code: !!referralCode
+      });
+      
       const response = await api.requestOtp(phoneNumber, referralCode);
+      
+      trackingService.track('auth_otp_request_success', {
+        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null
+      });
+      
       return true;
     } catch (error) {
       console.error('Error sending OTP:', error);
+      
+      trackingService.track('auth_otp_request_error', {
+        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
+        error_message: error.message
+      });
+      
       return false;
     }
   };
 
   const login = async (phoneNumber, otp) => {
     try {
+      trackingService.track('auth_login_attempt', {
+        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null
+      });
+      
       const response = await api.verifyOtp(phoneNumber, otp);
       
       const sessionId = response.session_id;
@@ -103,14 +125,39 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       localStorage.setItem('user', JSON.stringify(newUser));
       
+      trackingService.track('auth_login_success', {
+        user_id: newUser.id,
+        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
+        has_balance: !!newUser.balance
+      });
+
+      // Проверяем доступ после успешного входа
+      const accessAllowed = isAccessAllowed();
+      if (!accessAllowed) {
+        trackingService.track('access_denied_after_login', {
+          user_id: newUser.id,
+          phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null
+        });
+      }
+      
       return true;
     } catch (error) {
       console.error('Error during login:', error);
+      
+      trackingService.track('auth_login_error', {
+        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
+        error_message: error.message
+      });
+      
       return false;
     }
   };
 
   const logout = () => {
+    trackingService.track('auth_logout', {
+      user_id: user?.id
+    });
+    
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem('user');
@@ -134,15 +181,31 @@ export const AuthProvider = ({ children }) => {
     if (!user) return false;
     
     try {
+      trackingService.track('profile_update_attempt', {
+        user_id: user.id,
+        fields_updated: Object.keys(data)
+      });
+      
       const response = await api.updateUserProfile(data);
       
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
+      trackingService.track('profile_update_success', {
+        user_id: user.id,
+        fields_updated: Object.keys(data)
+      });
+      
       return true;
     } catch (error) {
       console.error('Error updating profile:', error);
+      
+      trackingService.track('profile_update_error', {
+        user_id: user.id,
+        fields_updated: Object.keys(data),
+        error_message: error.message
+      });
       
       return false;
     }

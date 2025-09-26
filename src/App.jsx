@@ -21,7 +21,11 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProSVG from './assets/Pro.svg';
 import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
-
+import { useTracking } from './hooks/useTracking';
+import trackingService from './services/trackingService';
+import { useAccessControl } from './hooks/useAccessControl';
+import AccessDeniedScreen from './components/AccessDeniedScreen';
+import './utils/accessDebug'; // Импортируем для инициализации отладочных функций
 
 import OpenRedirect from './components/OpenRedirect';
 
@@ -69,6 +73,14 @@ function useTelegramInit(setIsCloseModalOpen) {
     const vibrateOnClick = () => tg.HapticFeedback?.impactOccurred?.('medium');
     document.addEventListener('click', vibrateOnClick);
 
+    // Трекинг инициализации Telegram WebApp
+    trackingService.track('telegram_webapp_init', {
+      platform: tg.platform,
+      version: tg.version,
+      color_scheme: tg.colorScheme,
+      theme_params: tg.themeParams
+    });
+
     const backPages = new Set([
       '/withdraw',
       '/profile-edit',
@@ -99,6 +111,9 @@ function useTelegramInit(setIsCloseModalOpen) {
       if (surveyModalState && surveyModalState.isSurveyModalOpen) {
         tg.BackButton.show();
         const handler = () => {
+          trackingService.track('telegram_back_button_click', {
+            context: 'survey_modal'
+          });
           if (surveyModalState.closeSurveyModal) {
             surveyModalState.closeSurveyModal();
           }
@@ -107,7 +122,13 @@ function useTelegramInit(setIsCloseModalOpen) {
         tg.BackButton.onClick(handler);
       } else if (backPages.has(path)) {
         tg.BackButton.show();
-        const handler = () => navigate(-1);
+        const handler = () => {
+          trackingService.track('telegram_back_button_click', {
+            context: 'page_navigation',
+            current_page: path
+          });
+          navigate(-1);
+        };
         backHandlerRef.current = handler;
         tg.BackButton.onClick(handler);
       } else {
@@ -136,7 +157,27 @@ function useTelegramInit(setIsCloseModalOpen) {
 
 function AppContent() {
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const { isAllowed, isChecking } = useAccessControl();
   useTelegramInit(setIsCloseModalOpen);
+
+  // Показываем экран загрузки во время проверки доступа
+  if (isChecking) {
+    return (
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
+        <WaveOverlay />
+        <img
+          src={ProSVG}
+          alt="Loading"
+          className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
+        />
+      </div>
+    );
+  }
+
+  // Показываем экран отказа в доступе, если доступ запрещен
+  if (!isAllowed) {
+    return <AccessDeniedScreen />;
+  }
 
   return (
     <>
@@ -175,6 +216,12 @@ function AuthInitializer({ children }) {
 function RouterContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
   const location = useLocation();
+  
+  // Инициализируем трекинг для всего приложения
+  useTracking({
+    trackPageViews: true,
+    trackTimeOnPage: true
+  });
 
   return (
     <div

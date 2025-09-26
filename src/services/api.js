@@ -329,6 +329,19 @@ export const api = {
     });
     return handleResponse(response);
   },
+
+  // Tracking API methods
+  trackUserAction: async (actionName, context = {}) => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TRACK_USER_ACTION}`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        action_name: actionName,
+        context: context
+      }),
+    });
+    return handleResponse(response);
+  },
 };
 
 export default api;

@@ -8,16 +8,34 @@ import { useLanguage } from '../../contexts/LanguageContext.jsx';
 import CloseConfirmationModal from '../CloseConfirmationModal.jsx';
 import { isCustomInputOption, getCustomInputPlaceholder } from '../../utils/customInputDetection.js';
 import { useKeyboard } from '../../hooks/useKeyboard.js';
+import { useTracking } from '../../hooks/useTracking.js';
 
 const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete }) => {
   const { language } = useLanguage();
   const { isKeyboardOpen } = useKeyboard();
+  const { trackSurveyAction, trackModalOpen, trackModalClose } = useTracking();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isCompleted, setIsCompleted] = useState(false);
   const [surveyResult, setSurveyResult] = useState(null);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
   const [activeCustomInput, setActiveCustomInput] = useState(null);
+
+  // Трекинг открытия модального окна
+  React.useEffect(() => {
+    if (isOpen && survey) {
+      trackModalOpen('survey_modal', {
+        survey_id: survey.id,
+        survey_type: survey.type,
+        total_questions: survey.questions?.length || 0
+      });
+      
+      trackSurveyAction('survey_start', survey.id, {
+        survey_type: survey.type,
+        total_questions: survey.questions?.length || 0
+      });
+    }
+  }, [isOpen, survey, trackModalOpen, trackSurveyAction]);
 
   const texts = {
     ru: {
@@ -237,6 +255,11 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
     saveCustomInputIfActive();
     
     if (currentQuestion < survey.questions.length - 1) {
+      trackSurveyAction('question_next', survey.id, {
+        question_number: currentQuestion + 1,
+        total_questions: survey.questions.length,
+        has_answer: !!answers[question?.id]
+      });
       setCurrentQuestion(prev => prev + 1);
     } else {
       completeSurvey();
@@ -245,6 +268,10 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
 
   const handlePrevious = () => {
     if (currentQuestion > 0) {
+      trackSurveyAction('question_previous', survey.id, {
+        question_number: currentQuestion + 1,
+        total_questions: survey.questions.length
+      });
       setCurrentQuestion(prev => prev - 1);
     }
   };
@@ -253,15 +280,34 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
     try {
       saveCustomInputIfActive();
       
+      trackSurveyAction('survey_complete_attempt', survey.id, {
+        total_questions: survey.questions.length,
+        answered_questions: Object.keys(answers).length
+      });
+      
       const result = await onComplete(survey.id, answers);
       setSurveyResult(result);
       setIsCompleted(true);
+      
+      trackSurveyAction('survey_complete_success', survey.id, {
+        total_questions: survey.questions.length,
+        answered_questions: Object.keys(answers).length,
+        has_prize: !!result?.prizeAmount
+      });
     } catch (error) {
       console.error('Error completing survey:', error);
+      
+      trackSurveyAction('survey_complete_error', survey.id, {
+        total_questions: survey.questions.length,
+        answered_questions: Object.keys(answers).length,
+        error_message: error.message
+      });
     }
   };
 
   const closeModal = async () => {
+    trackModalClose('survey_modal', 'button');
+    
     setCurrentQuestion(0);
     setAnswers({});
     setIsCompleted(false);
@@ -276,15 +322,29 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
   };
 
   const handleCloseClick = () => {
+    trackSurveyAction('survey_exit_attempt', survey.id, {
+      question_number: currentQuestion + 1,
+      total_questions: survey.questions.length,
+      answered_questions: Object.keys(answers).length
+    });
     setShowExitConfirmation(true);
   };
 
   const handleConfirmExit = () => {
+    trackSurveyAction('survey_exit_confirm', survey.id, {
+      question_number: currentQuestion + 1,
+      total_questions: survey.questions.length,
+      answered_questions: Object.keys(answers).length
+    });
     setShowExitConfirmation(false);
     closeModal();
   };
 
   const handleCancelExit = () => {
+    trackSurveyAction('survey_exit_cancel', survey.id, {
+      question_number: currentQuestion + 1,
+      total_questions: survey.questions.length
+    });
     setShowExitConfirmation(false);
   };
 
@@ -312,10 +372,15 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
             <TallySurvey
               surveyId={survey.id}
               onComplete={(result) => {
+                trackSurveyAction('survey_complete_success', survey.id, {
+                  survey_type: 'tally',
+                  has_prize: !!result?.prizeAmount
+                });
                 setSurveyResult(result);
                 setIsCompleted(true);
               }}
               onClose={() => {
+                trackModalClose('survey_modal', 'button');
                 if (onSurveyComplete) {
                   console.log('🔄 Обновляем список опросов после завершения tally опроса');
                   onSurveyComplete();

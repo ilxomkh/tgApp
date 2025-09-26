@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../../hooks/useApi";
+import { useTracking } from "../../../hooks/useTracking";
 
 const InviteTab = ({ locale = "ru", user }) => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { getInviteStats, loading, error } = useApi();
+  const { trackReferralAction } = useTracking();
   const [toast, setToast] = React.useState(null);
   const [inviteStats, setInviteStats] = useState({
     total_invited: 0,
@@ -94,6 +96,11 @@ const InviteTab = ({ locale = "ru", user }) => {
   };
 
   const onInvite = async () => {
+    trackReferralAction('share_attempt', {
+      referral_code: inviteStats.referral_code,
+      has_native_share: !!navigator.share
+    });
+    
     const shareData = {
       title: t.inviteTitle,
       text: "Присоединяйся и зарабатывай вместе со мной!",
@@ -103,23 +110,50 @@ const InviteTab = ({ locale = "ru", user }) => {
       if (navigator.share) {
         await navigator.share(shareData);
         showToast(t.sent);
+        trackReferralAction('share_success', {
+          referral_code: inviteStats.referral_code,
+          method: 'native_share'
+        });
       } else {
         await navigator.clipboard.writeText(refLink);
         showToast(t.copied);
+        trackReferralAction('share_success', {
+          referral_code: inviteStats.referral_code,
+          method: 'clipboard_copy'
+        });
       }
-    } catch {}
+    } catch (error) {
+      trackReferralAction('share_error', {
+        referral_code: inviteStats.referral_code,
+        error_message: error.message
+      });
+    }
   };
 
   const onCopy = async () => {
+    trackReferralAction('copy_attempt', {
+      referral_code: inviteStats.referral_code
+    });
+    
     try {
       await navigator.clipboard.writeText(refLink);
       showToast(t.copied);
-    } catch {
+      trackReferralAction('copy_success', {
+        referral_code: inviteStats.referral_code
+      });
+    } catch (error) {
       showToast(t.copyFail);
+      trackReferralAction('copy_error', {
+        referral_code: inviteStats.referral_code,
+        error_message: error.message
+      });
     }
   };
 
   const onHowItWorks = () => {
+    trackReferralAction('how_it_works_click', {
+      referral_code: inviteStats.referral_code
+    });
     navigate("/referral-program");
   };
 

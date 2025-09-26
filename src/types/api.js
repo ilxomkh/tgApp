@@ -281,6 +281,17 @@
  * @property {TallyQuestion[]} questions
  */
 
+/**
+ * @typedef {Object} UserActionRequest
+ * @property {string} action_name
+ * @property {Object} [context]
+ */
+
+/**
+ * @typedef {Object} UserActionResponse
+ * @property {string} status
+ */
+
 export const API_ENDPOINTS = {
   REQUEST_OTP: '/auth/request-otp',
   VERIFY_OTP: '/auth/verify-otp',
@@ -300,6 +311,7 @@ export const API_ENDPOINTS = {
   TALLY_FORM_RESPONSES: '/tally/tally/forms',
   TALLY_SYNC: '/tally/tally/sync',
   TALLY_FORM_SUBMIT: '/tally/forms',
+  TRACK_USER_ACTION: '/track/action',
 };
 
 export const HTTP_STATUS = {
