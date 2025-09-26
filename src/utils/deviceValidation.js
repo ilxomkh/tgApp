@@ -67,6 +67,7 @@ export const getUserPhoneNumber = () => {
  */
 const ALLOWED_PHONE_NUMBERS = [
   '+998336832000',
+  '+998998514993',
   // Добавьте другие номера по необходимости
 ];
 
