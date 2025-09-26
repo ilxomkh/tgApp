@@ -23,9 +23,6 @@ import WaveOverlay from './components/WaveOverlay';
 import CloseConfirmationModal from './components/CloseConfirmationModal';
 import { useTracking } from './hooks/useTracking';
 import trackingService from './services/trackingService';
-import { useAccessControl } from './hooks/useAccessControl';
-import AccessDeniedScreen from './components/AccessDeniedScreen';
-import './utils/accessDebug'; // Импортируем для инициализации отладочных функций
 
 import OpenRedirect from './components/OpenRedirect';
 
@@ -157,27 +154,7 @@ function useTelegramInit(setIsCloseModalOpen) {
 
 function AppContent() {
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
-  const { isAllowed, isChecking } = useAccessControl();
   useTelegramInit(setIsCloseModalOpen);
-
-  // Показываем экран загрузки во время проверки доступа
-  if (isChecking) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[#7C65FF] to-[#5538F9]">
-        <WaveOverlay />
-        <img
-          src={ProSVG}
-          alt="Loading"
-          className="absolute w-[250px] top-1/2 left-1/2 -translate-x-1/2 z-50"
-        />
-      </div>
-    );
-  }
-
-  // Показываем экран отказа в доступе, если доступ запрещен
-  if (!isAllowed) {
-    return <AccessDeniedScreen />;
-  }
 
   return (
     <>

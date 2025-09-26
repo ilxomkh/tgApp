@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api, { setInitializing } from '../services/api';
 import trackingService from '../services/trackingService';
-import { isAccessAllowed } from '../utils/deviceValidation';
 
 const AuthContext = createContext(undefined);
 
@@ -130,15 +129,6 @@ export const AuthProvider = ({ children }) => {
         phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
         has_balance: !!newUser.balance
       });
-
-      // Проверяем доступ после успешного входа
-      const accessAllowed = isAccessAllowed();
-      if (!accessAllowed) {
-        trackingService.track('access_denied_after_login', {
-          user_id: newUser.id,
-          phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null
-        });
-      }
       
       return true;
     } catch (error) {
