@@ -119,7 +119,7 @@ const AdminUserDetail = () => {
   return (
     <div className="min-h-screen bg-[#F4F4FF]">
       <div className="bg-gradient-to-b from-[#5538F9] to-[#7C65FF]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className=" mx-auto px-4 sm:px-6">
           <div className="flex flex-col sm:flex-row items-center justify-between py-4 sm:py-6 gap-4">
             <button
               onClick={() => navigate('/admin')}
@@ -137,7 +137,7 @@ const AdminUserDetail = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      <div className="mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)] mb-8">
           <div className="p-4 sm:p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">

@@ -106,7 +106,7 @@ const AdminUsersList = () => {
 
       <AdminNavigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      <div className="mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">

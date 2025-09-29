@@ -43,8 +43,7 @@ const AdminStats = () => {
   const [error, setError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [viewMode, setViewMode] = useState('month'); // 'month' или 'year'
-
+  const [viewMode, setViewMode] = useState('month');
   const colors = {
     primary: "#6366f1",
     secondary: "#8b5cf6",
@@ -153,25 +152,114 @@ const AdminStats = () => {
       y: {
         beginAtZero: true,
         grid: {
-          color: "#f1f5f9",
+          color: "rgba(156, 163, 175, 0.08)",
           drawBorder: false,
+          lineWidth: 1,
+        },
+        border: {
+          display: false,
         },
         ticks: {
-          color: "#64748b",
+          color: "#9ca3af",
           font: {
             size: 11,
+            weight: "500",
           },
+          padding: 8,
         },
       },
       x: {
         grid: {
+          color: "rgba(156, 163, 175, 0.05)",
+          drawBorder: false,
+          lineWidth: 1,
+        },
+        border: {
           display: false,
         },
         ticks: {
-          color: "#64748b",
+          color: "#9ca3af",
           font: {
             size: 11,
+            weight: "500",
           },
+          padding: 8,
+        },
+      },
+    },
+  };
+
+  const barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: {
+      duration: 1200,
+      easing: "easeInOutQuart",
+    },
+    hover: {
+      animationDuration: 300,
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        titleColor: "#ffffff",
+        bodyColor: "#ffffff",
+        borderColor: "#6366f1",
+        borderWidth: 1,
+        cornerRadius: 8,
+        displayColors: false,
+        animation: {
+          duration: 200,
+        },
+        callbacks: {
+          title: function(context) {
+            return `Час ${context[0].label}:00`;
+          },
+          label: function(context) {
+            return `${context.parsed.y} пользователей`;
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          display: true,
+          color: "rgba(156, 163, 175, 0.1)",
+          drawBorder: false,
+        },
+        border: {
+          display: false,
+        },
+        ticks: {
+          color: "#9ca3af",
+          font: {
+            size: 11,
+            weight: "500",
+          },
+          padding: 8,
+        },
+      },
+      x: {
+        grid: {
+          display: true,
+          color: "rgba(156, 163, 175, 0.05)",
+          drawBorder: false,
+        },
+        border: {
+          display: false,
+        },
+        ticks: {
+          color: "#6b7280",
+          font: {
+            size: 11,
+            weight: "500",
+          },
+          padding: 8,
         },
       },
     },
@@ -204,39 +292,43 @@ const AdminStats = () => {
             data: showDailyData
               ? stats.dailyGrowth.map((item) => item.users)
               : stats.userGrowth?.map((item) => item.users) || [],
-            borderColor: "#10b981",
-            backgroundColor: "rgba(16, 185, 129, 0.1)",
-            borderWidth: 4,
+            borderColor: "#8b5cf6",
+            backgroundColor: "rgba(139, 92, 246, 0.08)",
+            borderWidth: 3,
             fill: true,
-            tension: 0.4,
+            tension: 0.3,
             pointBackgroundColor: (context) => {
               const data = context.dataset.data;
               const index = context.dataIndex;
 
-              if (index === 0) return "#10b981";
+              if (index === 0) return "#8b5cf6";
 
               const currentValue = data[index];
               const previousValue = data[index - 1];
 
-              return currentValue >= previousValue ? "#10b981" : "#ef4444";
+              return currentValue >= previousValue ? "#8b5cf6" : "#ef4444";
             },
             pointBorderColor: "#ffffff",
-            pointBorderWidth: 3,
+            pointBorderWidth: 2,
             pointRadius: 8,
             pointHoverRadius: 12,
             pointHoverBackgroundColor: (context) => {
               const data = context.dataset.data;
               const index = context.dataIndex;
 
-              if (index === 0) return "#059669";
+              if (index === 0) return "#7c3aed";
 
               const currentValue = data[index];
               const previousValue = data[index - 1];
 
-              return currentValue >= previousValue ? "#059669" : "#dc2626";
+              return currentValue >= previousValue ? "#7c3aed" : "#dc2626";
             },
             pointHoverBorderColor: "#ffffff",
-            pointHoverBorderWidth: 4,
+            pointHoverBorderWidth: 3,
+            shadowOffsetX: 0,
+            shadowOffsetY: 2,
+            shadowBlur: 4,
+            shadowColor: "rgba(139, 92, 246, 0.2)",
           },
         ],
       },
@@ -246,40 +338,37 @@ const AdminStats = () => {
           {
             label: "Активность",
             data: stats.userActivity?.map((item) => item.users) || [],
-            backgroundColor: [
-              "rgba(124, 101, 255, 0.8)",
-              "rgba(85, 56, 249, 0.8)",
-              "rgba(159, 122, 234, 0.8)",
-              "rgba(183, 148, 246, 0.8)",
-              "rgba(124, 101, 255, 0.8)",
-              "rgba(85, 56, 249, 0.8)",
-              "rgba(159, 122, 234, 0.8)",
-              "rgba(183, 148, 246, 0.8)",
-              "rgba(124, 101, 255, 0.8)",
-              "rgba(85, 56, 249, 0.8)",
-              "rgba(159, 122, 234, 0.8)",
-              "rgba(183, 148, 246, 0.8)",
-            ],
-            borderColor: "#ffffff",
-            borderWidth: 2,
-            borderRadius: 8,
+            backgroundColor: (context) => {
+              const value = context.parsed.y;
+              const max = Math.max(...context.dataset.data);
+              const intensity = value / max;
+              
+              const baseColor = [99, 102, 241];
+              const alpha = 0.3 + (intensity * 0.7);
+              
+              return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${alpha})`;
+            },
+            borderColor: "#6366f1",
+            borderWidth: 0,
+            borderRadius: {
+              topLeft: 6,
+              topRight: 6,
+              bottomLeft: 0,
+              bottomRight: 0,
+            },
             borderSkipped: false,
-            hoverBackgroundColor: [
-              "rgba(124, 101, 255, 1)",
-              "rgba(85, 56, 249, 1)",
-              "rgba(159, 122, 234, 1)",
-              "rgba(183, 148, 246, 1)",
-              "rgba(124, 101, 255, 1)",
-              "rgba(85, 56, 249, 1)",
-              "rgba(159, 122, 234, 1)",
-              "rgba(183, 148, 246, 1)",
-              "rgba(124, 101, 255, 1)",
-              "rgba(85, 56, 249, 1)",
-              "rgba(159, 122, 234, 1)",
-              "rgba(183, 148, 246, 1)",
-            ],
-            hoverBorderColor: "#6366f1",
-            hoverBorderWidth: 3,
+            hoverBackgroundColor: (context) => {
+              const value = context.parsed.y;
+              const max = Math.max(...context.dataset.data);
+              const intensity = value / max;
+              
+              const baseColor = [99, 102, 241];
+              const alpha = 0.5 + (intensity * 0.5);
+              
+              return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${alpha})`;
+            },
+            hoverBorderColor: "#4f46e5",
+            hoverBorderWidth: 2,
           },
         ],
       },
@@ -400,8 +489,8 @@ const AdminStats = () => {
       />
       <AdminNavigation />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="mx-6 px-2 sm:px-3 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -477,62 +566,95 @@ const AdminStats = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">
               Операционные системы пользователей
             </h3>
-            <div className="h-80 rounded-lg overflow-hidden">
-              <Doughnut
-                data={getChartData()?.userOS}
-                options={{
-                  ...chartOptions,
-                  cutout: "60%",
-                  animation: {
-                    ...chartOptions.animation,
-                    animateRotate: true,
-                    animateScale: true,
-                  },
-                  plugins: {
-                    ...chartOptions.plugins,
-                    legend: {
-                      position: "bottom",
-                      labels: {
-                        padding: 20,
-                        usePointStyle: true,
-                        pointStyle: "circle",
-                        font: {
-                          size: 12,
-                          weight: "500",
+            <div className="flex items-center justify-between h-96">
+              {/* Чарт слева */}
+              <div className="w-3/5 h-full flex items-center justify-center p-8">
+                <div className="w-72 h-72">
+                  <Doughnut
+                    data={getChartData()?.userOS}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: true,
+                      cutout: "60%",
+                      animation: {
+                        duration: 1000,
+                        easing: "easeInOutQuart",
+                        animateRotate: true,
+                        animateScale: true,
+                      },
+                      hover: {
+                        animationDuration: 300,
+                      },
+                      plugins: {
+                        legend: {
+                          display: false,
                         },
-                        generateLabels: function(chart) {
-                          const data = chart.data;
-                          if (data.labels.length && data.datasets.length) {
-                            const dataset = data.datasets[0];
-                            const total = dataset.data.reduce((a, b) => a + b, 0);
-                            
-                            return data.labels.map((label, index) => {
-                              const value = dataset.data[index];
-                              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-                              
-                              return {
-                                text: `${label}: ${percentage}%`,
-                                fillStyle: dataset.backgroundColor[index],
-                                strokeStyle: dataset.borderColor,
-                                lineWidth: dataset.borderWidth,
-                                pointStyle: 'circle',
-                                hidden: false,
-                                index: index
-                              };
-                            });
-                          }
-                          return [];
+                        tooltip: {
+                          backgroundColor: "rgba(0, 0, 0, 0.8)",
+                          titleColor: "#ffffff",
+                          bodyColor: "#ffffff",
+                          borderColor: "#6366f1",
+                          borderWidth: 1,
+                          cornerRadius: 8,
+                          displayColors: true,
+                          animation: {
+                            duration: 200,
+                          },
                         },
                       },
-                    },
-                  },
-                }}
-              />
+                      scales: {
+                        x: {
+                          display: false,
+                        },
+                        y: {
+                          display: false,
+                        },
+                      },
+                      elements: {
+                        arc: {
+                          borderWidth: 0,
+                        },
+                      },
+                      minAngle: 5,
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="w-2/5 h-full flex flex-col justify-center space-y-3">
+                {(() => {
+                  const data = getChartData()?.userOS;
+                  if (!data || !data.labels || !data.datasets) return null;
+                  
+                  const dataset = data.datasets[0];
+                  const total = dataset.data.reduce((a, b) => a + b, 0);
+                  
+                  return data.labels.map((label, index) => {
+                    const value = dataset.data[index];
+                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                    
+                    return (
+                      <div key={index} className="flex items-center space-x-2">
+                        <div 
+                          className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+                          style={{ backgroundColor: dataset.backgroundColor[index] }}
+                        />
+                        <div className="flex-1">
+                          <span className="text-sm font-medium text-gray-900">{label}</span>
+                          <div className="text-sm text-gray-500">
+                            {value.toLocaleString()} ({percentage}%)
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </div>
           </div>
 
@@ -541,12 +663,12 @@ const AdminStats = () => {
               Активность пользователей по часам
             </h3>
             <div className="h-80 rounded-lg overflow-hidden">
-              <Bar data={getChartData()?.userActivity} options={chartOptions} />
+              <Bar data={getChartData()?.userActivity} options={barChartOptions} />
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 mb-8">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-900">

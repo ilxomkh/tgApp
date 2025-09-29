@@ -8,7 +8,7 @@ const AdminHeader = ({ title, subtitle, stats }) => {
 
   return (
     <div className="bg-gradient-to-b from-[#5538F9] to-[#7C65FF]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="mx-auto px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row items-center justify-between py-4 sm:py-6 gap-4">
           <button
             onClick={() => navigate('/')}

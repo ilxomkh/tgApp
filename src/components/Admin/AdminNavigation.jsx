@@ -14,7 +14,7 @@ const AdminNavigation = () => {
 
   return (
     <div className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="mx-auto px-4 sm:px-6">
         <nav className="flex space-x-8">
           {tabs.map((tab) => {
             const isActive = location.pathname === tab.path;
