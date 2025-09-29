@@ -18,6 +18,8 @@ import {
   UserPlus,
   TrendingUp,
   RefreshCw,
+  Calendar,
+  ChevronDown,
 } from "lucide-react";
 import AdminHeader from "./AdminHeader";
 import AdminNavigation from "./AdminNavigation";
@@ -39,6 +41,9 @@ const AdminStats = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [viewMode, setViewMode] = useState('month'); // 'month' или 'year'
 
   const colors = {
     primary: "#6366f1",
@@ -61,7 +66,7 @@ const AdminStats = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await fetchUserStats();
+        const data = await fetchUserStats({ year: selectedYear, month: selectedMonth, viewMode });
         setStats(data);
       } catch (error) {
         console.error("Ошибка при загрузке статистики:", error);
@@ -73,13 +78,13 @@ const AdminStats = () => {
     };
 
     loadStats();
-  }, []);
+  }, [selectedYear, selectedMonth, viewMode]);
 
   const handleRefresh = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchUserStats();
+      const data = await fetchUserStats({ year: selectedYear, month: selectedMonth, viewMode });
       setStats(data);
     } catch (error) {
       console.error("Ошибка при обновлении статистики:", error);
@@ -172,16 +177,33 @@ const AdminStats = () => {
     },
   };
 
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
+
+  const months = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ];
+
   const getChartData = () => {
     if (!stats) return null;
 
+    const showDailyData = viewMode === 'month' && stats.dailyGrowth && stats.dailyGrowth.length > 0;
+
     return {
       userGrowth: {
-        labels: stats.userGrowth.map((item) => item.month),
+        labels: showDailyData
+          ? stats.dailyGrowth.map((item) => {
+              const date = new Date(item.date);
+              const monthNames = ['янв.', 'фев.', 'мар.', 'апр.', 'май', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'];
+              return `${date.getDate()} ${monthNames[date.getMonth()]}`;
+            })
+          : stats.userGrowth?.map((item) => item.month) || [],
         datasets: [
           {
-            label: "Пользователи",
-            data: stats.userGrowth.map((item) => item.users),
+            label: showDailyData ? "Пользователи (дни)" : "Пользователи (месяцы)",
+            data: showDailyData
+              ? stats.dailyGrowth.map((item) => item.users)
+              : stats.userGrowth?.map((item) => item.users) || [],
             borderColor: "#10b981",
             backgroundColor: "rgba(16, 185, 129, 0.1)",
             borderWidth: 4,
@@ -219,11 +241,11 @@ const AdminStats = () => {
         ],
       },
       userActivity: {
-        labels: stats.userActivity.map((item) => item.hour),
+        labels: stats.userActivity?.map((item) => item.hour) || [],
         datasets: [
           {
             label: "Активность",
-            data: stats.userActivity.map((item) => item.users),
+            data: stats.userActivity?.map((item) => item.users) || [],
             backgroundColor: [
               "rgba(124, 101, 255, 0.8)",
               "rgba(85, 56, 249, 0.8)",
@@ -261,16 +283,18 @@ const AdminStats = () => {
           },
         ],
       },
-      userSources: {
-        labels: stats.userSources.map((item) => item.source),
+      userOS: {
+        labels: stats.userOS?.map((item) => item.os === "Unknown" ? "Другое" : item.os) || [],
         datasets: [
           {
-            data: stats.userSources.map((item) => item.users),
+            data: stats.userOS?.map((item) => item.users) || [],
             backgroundColor: [
               colors.primary,
               colors.secondary,
               colors.accent,
               colors.success,
+              colors.warning,
+              colors.info,
             ],
             borderColor: "#ffffff",
             borderWidth: 3,
@@ -281,6 +305,8 @@ const AdminStats = () => {
               colors.accent,
               colors.success,
               colors.warning,
+              colors.info,
+              colors.danger,
             ],
           },
         ],
@@ -454,11 +480,11 @@ const AdminStats = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">
-              Источники пользователей
+              Операционные системы пользователей
             </h3>
             <div className="h-80 rounded-lg overflow-hidden">
               <Doughnut
-                data={getChartData()?.userSources}
+                data={getChartData()?.userOS}
                 options={{
                   ...chartOptions,
                   cutout: "60%",
@@ -478,6 +504,29 @@ const AdminStats = () => {
                         font: {
                           size: 12,
                           weight: "500",
+                        },
+                        generateLabels: function(chart) {
+                          const data = chart.data;
+                          if (data.labels.length && data.datasets.length) {
+                            const dataset = data.datasets[0];
+                            const total = dataset.data.reduce((a, b) => a + b, 0);
+                            
+                            return data.labels.map((label, index) => {
+                              const value = dataset.data[index];
+                              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                              
+                              return {
+                                text: `${label}: ${percentage}%`,
+                                fillStyle: dataset.backgroundColor[index],
+                                strokeStyle: dataset.borderColor,
+                                lineWidth: dataset.borderWidth,
+                                pointStyle: 'circle',
+                                hidden: false,
+                                index: index
+                              };
+                            });
+                          }
+                          return [];
                         },
                       },
                     },
@@ -499,9 +548,71 @@ const AdminStats = () => {
 
         <div className="grid grid-cols-1 gap-6 mb-8">
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
-              Рост пользователей по месяцам
-            </h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {(() => {
+                  const chartData = getChartData()?.userGrowth;
+                  const hasDailyData = chartData?.datasets?.[0]?.label === "Пользователи (дни)";
+                  
+                  return hasDailyData
+                    ? `Рост пользователей по дням (${months[selectedMonth]} ${selectedYear})`
+                    : `Рост пользователей по месяцам (${selectedYear})`;
+                })()}
+              </h3>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('month')}
+                    className={`px-3 py-1 text-sm font-medium rounded ${
+                      viewMode === 'month' 
+                        ? 'bg-white text-gray-900 shadow-sm' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    По дням
+                  </button>
+                  <button
+                    onClick={() => setViewMode('year')}
+                    className={`px-3 py-1 text-sm font-medium rounded ${
+                      viewMode === 'year' 
+                        ? 'bg-white text-gray-900 shadow-sm' 
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    По месяцам
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(Number(e.target.value))}
+                    className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {years.map(year => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
+
+                {viewMode === 'month' && (
+                  <div className="relative">
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                      className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      {months.map((month, index) => (
+                        <option key={index} value={index}>{month}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="h-80 rounded-lg overflow-hidden">
               <Line data={getChartData()?.userGrowth} options={chartOptions} />
             </div>

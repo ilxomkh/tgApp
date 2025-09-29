@@ -311,7 +311,6 @@ export const api = {
         timestamp: new Date().toISOString()
       });
       
-      // Проверяем, является ли ошибка сообщением о том, что опрос уже пройден
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
         console.log(`📝 Опрос ${formId} уже пройден, отмечаем как завершенный`);
         markSurveyAsCompleted(formId);
@@ -321,16 +320,25 @@ export const api = {
     }
   },
 
-  // Admin API methods
-  getUserStats: async () => {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/admin/users/stats/overall`, {
+  getUserStats: async (params = {}) => {
+    let url = `${API_BASE_URL}/admin/users/stats/overall`;
+    
+    const queryParams = new URLSearchParams();
+    if (params.year) queryParams.append('year', params.year);
+    if (params.month !== undefined) queryParams.append('month', params.month + 1); // JavaScript месяцы 0-11, API ожидает 1-12
+    if (params.viewMode) queryParams.append('view_mode', params.viewMode);
+    
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+    
+    const response = await fetchWithTimeout(url, {
       method: 'GET',
       headers: getHeaders(),
     });
     return handleResponse(response);
   },
 
-  // Tracking API methods
   trackUserAction: async (actionName, context = {}) => {
     const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.TRACK_USER_ACTION}`, {
       method: 'POST',
