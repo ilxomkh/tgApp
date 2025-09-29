@@ -128,50 +128,50 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
     <div className="relative">
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-3 py-3 border rounded-lg cursor-pointer transition-all duration-200 flex items-center justify-between text-sm ${
+        className={`w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl cursor-pointer transition-all duration-300 flex items-center justify-between text-sm font-medium ${
           error 
-            ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-            : 'border-gray-200 hover:border-gray-300 focus:ring-2 focus:ring-[#7C65FF] focus:border-transparent bg-gray-50 hover:bg-white'
+            ? 'border-red-500 focus:border-red-500' 
+            : 'focus:border-blue-500 bg-gray-50/50 focus:bg-white'
         }`}
       >
-        <div className="flex items-center gap-2">
-          <CalendarIcon className="w-4 h-4 text-gray-400" />
-          <span className={value ? 'text-gray-900' : 'text-gray-500'}>
-            {formatDateTime(selectedDate)}
-          </span>
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <CalendarIcon className="w-5 h-5 text-blue-500" />
         </div>
-        <ChevronDownIcon className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className={value ? 'text-gray-900' : 'text-gray-400'}>
+          {formatDateTime(selectedDate)}
+        </span>
+        <ChevronDownIcon className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm border-2 border-blue-100 rounded-2xl z-50 overflow-hidden">
           {viewMode === 'date' ? (
-            <div className="p-3">
-              <div className="flex items-center justify-between mb-3">
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-4">
                 <button
                   type="button"
                   onClick={() => setTempDate(new Date(tempDate.getFullYear(), tempDate.getMonth() - 1, 1))}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl transition-all duration-200"
                 >
-                  <ChevronDownIcon className="w-3 h-3 rotate-90 text-gray-600" />
+                  <ChevronDownIcon className="w-4 h-4 rotate-90 text-blue-600" />
                 </button>
                 
-                <div className="text-sm font-semibold text-gray-900">
+                <div className="text-base font-bold text-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl">
                   {monthNames[tempDate.getMonth()]} {tempDate.getFullYear()}
                 </div>
                 
                 <button
                   type="button"
                   onClick={() => setTempDate(new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 1))}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl transition-all duration-200"
                 >
-                  <ChevronDownIcon className="w-3 h-3 -rotate-90 text-gray-600" />
+                  <ChevronDownIcon className="w-4 h-4 -rotate-90 text-blue-600" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 mb-2">
+              <div className="grid grid-cols-7 gap-1 mb-3">
                 {weekDays.map(day => (
-                  <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
+                  <div key={day} className="text-center text-xs font-bold text-gray-600 py-2 bg-gray-50 rounded-lg">
                     {day}
                   </div>
                 ))}
@@ -188,10 +188,10 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
                       type="button"
                       onClick={() => handleDateSelect(dayObj.date)}
                       className={`
-                        p-1.5 text-xs rounded transition-all duration-150 hover:bg-gray-100
-                        ${!dayObj.isCurrentMonth ? 'text-gray-300' : 'text-gray-900'}
-                        ${isToday ? 'bg-blue-50 text-blue-600 font-medium' : ''}
-                        ${isSelected ? 'bg-[#7C65FF] text-white hover:bg-[#6B4FFF]' : ''}
+                        w-8 h-8 text-sm font-medium rounded-xl transition-all duration-200 
+                        ${!dayObj.isCurrentMonth ? 'text-gray-300' : 'text-gray-800'}
+                        ${isToday ? 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 font-bold' : ''}
+                        ${isSelected ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white scale-110' : 'hover:bg-blue-50'}
                       `}
                     >
                       {dayObj.date.getDate()}
@@ -201,18 +201,18 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
               </div>
             </div>
           ) : (
-            <div className="p-3">
-              <div className="text-center text-sm font-medium text-gray-900 mb-3">
+            <div className="p-5">
+              <div className="text-center text-base font-bold text-gray-800 mb-5 bg-gradient-to-r from-blue-50 to-indigo-50 py-2 rounded-xl">
                 Выберите время
               </div>
               
-              <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="flex items-center justify-center gap-4 mb-5">
                 <div className="text-center">
-                  <div className="text-xs text-gray-500 mb-1">Часы</div>
+                  <div className="text-xs font-bold text-gray-600 mb-2">Часы</div>
                   <select
                     value={tempDate.getHours()}
                     onChange={(e) => handleTimeChange('hour', e.target.value)}
-                    className="w-14 px-2 py-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#7C65FF] focus:border-transparent text-sm"
+                    className="w-16 px-3 py-2 border-2 border-blue-100 rounded-xl text-center focus:ring-0 focus:border-blue-500 transition-all duration-200 text-sm font-bold bg-gradient-to-r from-blue-50/50 to-indigo-50/50"
                   >
                     {Array.from({ length: 24 }, (_, i) => (
                       <option key={i} value={i}>
@@ -222,14 +222,14 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
                   </select>
                 </div>
                 
-                <div className="text-lg text-gray-400 mt-3">:</div>
+                <div className="text-2xl font-bold text-blue-500 mt-6">:</div>
                 
                 <div className="text-center">
-                  <div className="text-xs text-gray-500 mb-1">Минуты</div>
+                  <div className="text-xs font-bold text-gray-600 mb-2">Минуты</div>
                   <select
                     value={tempDate.getMinutes()}
                     onChange={(e) => handleTimeChange('minute', e.target.value)}
-                    className="w-14 px-2 py-1.5 border border-gray-300 rounded text-center focus:ring-2 focus:ring-[#7C65FF] focus:border-transparent text-sm"
+                    className="w-16 px-3 py-2 border-2 border-blue-100 rounded-xl text-center focus:ring-0 focus:border-blue-500 transition-all duration-200 text-sm font-bold bg-gradient-to-r from-blue-50/50 to-indigo-50/50"
                   >
                     {Array.from({ length: 60 }, (_, i) => (
                       <option key={i} value={i}>
@@ -240,28 +240,28 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
                 </div>
               </div>
               
-              <div className="text-center text-xs text-gray-600 mb-3">
+              <div className="text-center text-sm font-medium text-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 py-2 rounded-xl">
                 {formatDateTime(tempDate)}
               </div>
             </div>
           )}
 
-          <div className="flex items-center justify-between p-3 bg-gray-50 border-t">
+          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-t border-blue-100">
             {viewMode === 'time' && (
               <button
                 type="button"
                 onClick={() => setViewMode('date')}
-                className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-xl transition-all duration-200"
               >
                 ← Назад
               </button>
             )}
             
-            <div className={`flex gap-2 ${viewMode === 'date' ? 'w-full justify-end' : ''}`}>
+            <div className={`flex gap-3 ${viewMode === 'date' ? 'w-full justify-end' : ''}`}>
               <button
                 type="button"
                 onClick={handleCancel}
-                className="px-3 py-1.5 text-xs text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white rounded-xl transition-all duration-200"
               >
                 Отмена
               </button>
@@ -270,7 +270,7 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
                 <button
                   type="button"
                   onClick={handleConfirm}
-                  className="px-3 py-1.5 bg-[#7C65FF] text-white text-xs rounded hover:bg-[#6B4FFF] transition-colors"
+                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-bold rounded-xl transition-all duration-200"
                 >
                   Готово
                 </button>
@@ -406,7 +406,7 @@ const AdminRaffles = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F4FF]">
+    <div className="min-h-screen">
       <AdminHeader 
         title="Розыгрыши"
         subtitle="добавление видео"
@@ -414,9 +414,11 @@ const AdminRaffles = () => {
 
       <AdminNavigation />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden backdrop-blur-sm">
-          <div className="px-6 py-6">
+      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-8">
+        <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[#7C65FF]/10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#7C65FF]/3 via-transparent to-[#5538F9]/2"></div>
+          
+          <div className="relative px-6 py-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-[#5538F9] to-[#7C65FF] rounded-lg flex items-center justify-center">
                 <GiftIcon className="w-5 h-5 text-white" />
@@ -467,14 +469,15 @@ const AdminRaffles = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="group">
-                <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="group relative">
+                <label htmlFor="title" className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
+                  <div className="w-1 h-5 bg-gradient-to-b from-[#7C65FF] to-[#5538F9] rounded-full"></div>
                   Название розыгрыша *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <TextIcon className="h-4 w-4 text-gray-400 group-focus-within:text-[#7C65FF] transition-colors" />
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <TextIcon className="h-5 w-5 text-[#7C65FF]" />
                   </div>
                   <input
                     type="text"
@@ -482,7 +485,7 @@ const AdminRaffles = () => {
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7C65FF] focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-[#7C65FF] transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
                     placeholder="Например: Розыгрыш iPhone 15 Pro"
                     required
                   />
@@ -490,14 +493,15 @@ const AdminRaffles = () => {
               </div>
 
 
-              <div className="grid md:grid-cols-2 gap-5">
+              <div className="grid md:grid-cols-2 gap-8">
                 <div className="group">
-                  <label htmlFor="prize_amount" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="prize_amount" className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
+                    <div className="w-1 h-5 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></div>
                     Сумма приза *
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <GiftIcon className="h-4 w-4 text-gray-400 group-focus-within:text-[#7C65FF] transition-colors" />
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <GiftIcon className="h-5 w-5 text-green-500" />
                     </div>
                     <input
                       type="number"
@@ -506,18 +510,19 @@ const AdminRaffles = () => {
                       value={formData.prize_amount}
                       onChange={handleInputChange}
                       min="1"
-                      className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7C65FF] focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm"
+                      className="w-full pl-12 pr-16 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-green-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
                       placeholder="10000"
                       required
                     />
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 text-xs font-medium">сум</span>
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <span className="text-gray-600 text-sm font-bold bg-gray-100 px-2 py-1 rounded-lg">сум</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="group">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
+                    <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></div>
                     Дата проведения *
                   </label>
                   <CustomDateTimePicker 
@@ -529,12 +534,13 @@ const AdminRaffles = () => {
               </div>
 
               <div className="group">
-                <label htmlFor="video_url" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="video_url" className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
+                  <div className="w-1 h-5 bg-gradient-to-b from-red-500 to-pink-500 rounded-full"></div>
                   Ссылка на видео *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <VideoIcon className="h-4 w-4 text-gray-400 group-focus-within:text-[#7C65FF] transition-colors" />
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <VideoIcon className="h-5 w-5 text-red-500" />
                   </div>
                   <input
                     type="url"
@@ -542,22 +548,27 @@ const AdminRaffles = () => {
                     name="video_url"
                     value={formData.video_url}
                     onChange={handleInputChange}
-                    className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#7C65FF] focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm"
+                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-red-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
                     placeholder="https://youtu.be/_RwD8PDZb7A?si=OeICMOWlQm9vRFgA"
                     required
                   />
                 </div>
-                <p className="mt-1 text-xs text-gray-500 flex items-center gap-1">
-                  <VideoIcon className="w-3 h-3" />
-                  Поддерживаются ссылки YouTube, Vimeo и другие видео платформы
-                </p>
+                <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg">
+                  <p className="text-xs text-blue-700 font-medium flex items-center gap-2">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    Поддерживаются ссылки YouTube, Vimeo и другие видео платформы
+                  </p>
+                </div>
               </div>
 
-              <div className="p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-100">
+              <div className="p-6 bg-gradient-to-r from-[#7C65FF]/5 via-[#5538F9]/5 to-[#7C65FF]/5 rounded-2xl border-2 border-[#7C65FF]/10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">Статус розыгрыша</h3>
-                    <p className="text-xs text-gray-600">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-2">
+                      <div className="w-1 h-5 bg-gradient-to-b from-[#7C65FF] to-[#5538F9] rounded-full"></div>
+                      Статус розыгрыша
+                    </h3>
+                    <p className="text-xs text-gray-600 font-medium bg-white/60 px-3 py-1.5 rounded-lg">
                       {formData.is_active ? 'Розыгрыш будет активен сразу после создания' : 'Розыгрыш будет создан в неактивном состоянии'}
                     </p>
                   </div>
@@ -569,21 +580,21 @@ const AdminRaffles = () => {
                 </div>
               </div>
 
-              <div className="flex pt-4 border-t border-gray-100">
+              <div className="flex justify-center pt-8">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-3 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-semibold rounded-lg hover:from-[#4A2FE8] hover:to-[#6B4FFF] transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="w-full max-w-md px-8 py-4 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-98"
                 >
                   {loading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span className="text-sm">Создание розыгрыша...</span>
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span className="text-base">Создание розыгрыша...</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <GiftIcon className="w-4 h-4" />
-                      <span className="text-sm">Создать розыгрыш</span>
+                    <div className="flex items-center justify-center gap-3">
+                      <GiftIcon className="w-5 h-5" />
+                      <span className="text-base">Создать розыгрыш</span>
                     </div>
                   )}
                 </button>

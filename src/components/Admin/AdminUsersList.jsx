@@ -98,7 +98,7 @@ const AdminUsersList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F4FF]">
+    <div className="min-h-screen">
       <AdminHeader 
         title={pagination.total.toLocaleString()}
         subtitle="всего пользователей"
@@ -106,28 +106,45 @@ const AdminUsersList = () => {
 
       <AdminNavigation />
 
-      <div className="mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_8px_28px_rgba(40,40,80,0.08)] overflow-hidden">
-          <div className="overflow-x-auto">
+      <div className="mx-auto px-6 sm:px-8 py-8">
+        <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[#7C65FF]/10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#7C65FF]/3 via-transparent to-[#5538F9]/2"></div>
+          
+          <div className="relative overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left px-3 sm:px-6 py-3 sm:py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Пользователь
+                <tr className="border-b border-[#7C65FF]/10 bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5">
+                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#7C65FF]"></div>
+                      Пользователь
+                    </div>
                   </th>
-                  <th className="text-left px-3 sm:px-6 py-3 sm:py-4 text-xs font-medium text-gray-500 uppercase tracking-wide hidden sm:table-cell">
-                    Контакты
+                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider hidden sm:table-cell">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#5538F9]"></div>
+                      Контакты
+                    </div>
                   </th>
-                  <th className="text-left px-3 sm:px-6 py-3 sm:py-4 text-xs font-medium text-gray-500 uppercase tracking-wide hidden lg:table-cell">
-                    Устройство
+                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider hidden lg:table-cell">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      Устройство
+                    </div>
                   </th>
-                  <th className="text-left px-3 sm:px-6 py-3 sm:py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Баланс
+                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                      Баланс
+                    </div>
                   </th>
-                  <th className="text-left px-3 sm:px-6 py-3 sm:py-4 text-xs font-medium text-gray-500 uppercase tracking-wide hidden md:table-cell">
-                    Регистрация
+                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider hidden md:table-cell">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                      Регистрация
+                    </div>
                   </th>
-                  <th className="text-right px-3 sm:px-6 py-3 sm:py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  <th className="text-right px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Действия
                   </th>
                 </tr>
@@ -140,7 +157,7 @@ const AdminUsersList = () => {
                   return (
                     <tr 
                       key={user.id} 
-                      className={`border-b border-gray-50 hover:bg-[#7C65FF]/5 cursor-pointer transition-all duration-200 ${
+                      className={`border-b border-gray-50 cursor-pointer transition-all duration-200 ${
                         index === users.length - 1 ? 'border-b-0' : ''
                       }`}
                       onClick={() => handleUserClick(user.id)}
@@ -149,8 +166,14 @@ const AdminUsersList = () => {
                         <div className="flex items-center gap-3 sm:gap-4">
                           <UserAvatar user={user} size="md" />
                           <div className="min-w-0 flex-1">
-                            <div className="font-medium text-gray-900 truncate text-sm sm:text-base">
-                              {user.full_name || 'Без имени'}
+                            <div className="font-medium text-gray-900 text-sm sm:text-base">
+                              {user.full_name ? 
+                                (user.full_name.length > 20 ? 
+                                  user.full_name.substring(0, 20) + '...' : 
+                                  user.full_name
+                                ) : 
+                                'Без имени'
+                              }
                             </div>
                             <div className="text-xs sm:text-sm text-gray-600">ID: {user.id}</div>
                             <div className="sm:hidden mt-1">
@@ -209,9 +232,12 @@ const AdminUsersList = () => {
                             e.stopPropagation();
                             handleUserClick(user.id);
                           }}
-                          className="text-[#7C65FF] hover:text-[#5538F9] text-xs sm:text-sm font-medium transition-colors"
+                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#7C65FF] to-[#5538F9] rounded-xl transition-all duration-200"
                         >
-                          Подробнее →
+                          <span>Подробнее</span>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
                         </button>
                       </td>
                     </tr>
@@ -222,24 +248,24 @@ const AdminUsersList = () => {
           </div>
 
           {totalPages > 1 && (
-            <div className="border-t border-gray-100 px-3 sm:px-6 py-3 sm:py-4">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
-                <div className="text-xs sm:text-sm text-gray-600 order-2 sm:order-1">
+            <div className="border-t border-gray-100/60 bg-gradient-to-r from-gray-50/50 to-blue-50/30 px-3 sm:px-6 py-4 sm:py-5">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+                <div className="text-xs sm:text-sm text-gray-700 order-2 sm:order-1 bg-white/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200/50">
                   Показано{' '}
-                  <span className="font-medium text-gray-900">
+                  <span className="font-bold text-indigo-600">
                     {(pagination.page - 1) * pagination.limit + 1}
                   </span>
                   —
-                  <span className="font-medium text-gray-900">
+                  <span className="font-bold text-indigo-600">
                     {Math.min(pagination.page * pagination.limit, pagination.total)}
                   </span>
                   {' '}из{' '}
-                  <span className="font-medium text-gray-900">
+                  <span className="font-bold text-purple-600">
                     {pagination.total.toLocaleString()}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1 order-1 sm:order-2">
+                <div className="flex items-center gap-2 order-1 sm:order-2">
                   <button
                     onClick={() => handlePageChange(pagination.page - 1)}
                     disabled={pagination.page === 1}

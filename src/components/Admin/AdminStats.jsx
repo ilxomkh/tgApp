@@ -20,6 +20,9 @@ import {
   RefreshCw,
   Calendar,
   ChevronDown,
+  Monitor,
+  Clock,
+  BarChart3,
 } from "lucide-react";
 import AdminHeader from "./AdminHeader";
 import AdminNavigation from "./AdminNavigation";
@@ -481,7 +484,7 @@ const AdminStats = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <AdminHeader
         title="Статистика пользователей"
         subtitle="Общая статистика по пользователям"
@@ -489,86 +492,89 @@ const AdminStats = () => {
       />
       <AdminNavigation />
 
-      <div className="mx-6 px-2 sm:px-3 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="mx-6 sm:mx-8 px-2 sm:px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-[#7C65FF]/10 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-semibold text-gray-700 mb-1">
                   Всего пользователей
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-3xl font-black text-[#7C65FF] mb-2">
                   {stats.totalUsers.toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">За все время</p>
+                <p className="text-xs text-gray-500 bg-[#7C65FF]/5 px-2 py-1 rounded-full">За все время</p>
               </div>
-              <div className="p-3 rounded-full bg-indigo-100 hover:bg-indigo-200 transition-colors duration-200">
-                <Users className="w-6 h-6 text-indigo-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-[#7C65FF] to-[#5538F9] rounded-2xl flex items-center justify-center">
+                <Users className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-[#5538F9]/10 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-semibold text-gray-700 mb-1">
                   Активные пользователи
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-3xl font-black text-[#5538F9] mb-2">
                   {stats.activeUsers.toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 bg-[#5538F9]/5 px-2 py-1 rounded-full">
                   За последние 30 дней
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-emerald-100 hover:bg-emerald-200 transition-colors duration-200">
-                <UserCheck className="w-6 h-6 text-emerald-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-[#5538F9] to-[#7C65FF] rounded-2xl flex items-center justify-center">
+                <UserCheck className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-green-500/10 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-semibold text-gray-700 mb-1">
                   Новые сегодня
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-3xl font-black text-green-600 mb-2">
                   {stats.newUsersToday.toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 bg-green-50 px-2 py-1 rounded-full">
                   За последние 24 часа
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors duration-200">
-                <UserPlus className="w-6 h-6 text-purple-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
+                <UserPlus className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-blue-500/10 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-semibold text-gray-700 mb-1">
                   Новые за месяц
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-3xl font-black text-blue-600 mb-2">
                   {stats.newUsersThisMonth.toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 bg-blue-50 px-2 py-1 rounded-full">
                   За последние 30 дней
                 </p>
               </div>
-              <div className="p-3 rounded-full bg-amber-100 hover:bg-amber-200 transition-colors duration-200">
-                <TrendingUp className="w-6 h-6 text-amber-600" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">
+                <TrendingUp className="w-7 h-7 text-white" />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-[#7C65FF]/10 p-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-8 flex items-center gap-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#7C65FF] to-[#5538F9] rounded-xl flex items-center justify-center">
+                <Monitor className="w-5 h-5 text-white" />
+              </div>
               Операционные системы пользователей
             </h3>
             <div className="flex items-center justify-between h-96">
@@ -658,8 +664,11 @@ const AdminStats = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-[#7C65FF]/10 p-8">
+            <h3 className="text-xl font-bold text-gray-800 mb-8 flex items-center gap-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#7C65FF] to-[#5538F9] rounded-xl flex items-center justify-center">
+                <Clock className="w-5 h-5 text-white" />
+              </div>
               Активность пользователей по часам
             </h3>
             <div className="h-80 rounded-lg overflow-hidden">
@@ -668,10 +677,13 @@ const AdminStats = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 mb-4">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">
+        <div className="grid grid-cols-1 gap-4 mb-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-[#7C65FF]/10 p-8">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#7C65FF] to-[#5538F9] rounded-xl flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
                 {(() => {
                   const chartData = getChartData()?.userGrowth;
                   const hasDailyData = chartData?.datasets?.[0]?.label === "Пользователи (дни)";
