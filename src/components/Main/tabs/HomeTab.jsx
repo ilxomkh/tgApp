@@ -19,7 +19,7 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
   const { refreshUserProfile } = useAuth();
   const [surveys, setSurveys] = useState([]);
   const [surveysLoading, setSurveysLoading] = useState(true);
-  const { getSurvey, submitSurvey, getAvailableSurveys, loading } = useSurvey();
+  const { getSurvey, submitSurvey, getAvailableSurveys, loading, surveyCache } = useSurvey();
   const { 
     isSurveyModalOpen, 
     selectedSurvey, 
@@ -33,31 +33,23 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
       setSurveysLoading(true);
       
       const availableSurveys = await getAvailableSurveys();
-      console.log(`📋 Получено ${availableSurveys.length} опросов с сервера`);
       
       const filteredSurveys = availableSurveys.filter(survey => {
         const surveyLanguage = survey.language || 'ru';
         const matchesLanguage = surveyLanguage === language;
         const isNotCompleted = !isSurveyCompleted(survey.id);
         
-        console.log(`🔍 Опрос ${survey.id}: язык=${surveyLanguage} (нужен ${language}), пройден=${!isNotCompleted}`);
         
         if (!matchesLanguage) {
-          console.log(`❌ Опрос ${survey.id} исключен: не совпадает язык`);
         }
         if (!isNotCompleted) {
-          console.log(`❌ Опрос ${survey.id} исключен: уже пройден`);
         }
         
         return matchesLanguage && isNotCompleted;
       });
       
-      console.log(`📊 Обновлен список опросов: ${filteredSurveys.length} доступных опросов`);
-      console.log('📋 Доступные опросы:', filteredSurveys.map(s => ({ id: s.id, title: s.title })));
       setSurveys(filteredSurveys);
     } catch (error) {
-      console.error('❌ Ошибка при загрузке опросов:', error);
-      console.error('🔍 Детали ошибки:', error.message);
       setSurveys([]);
     } finally {
       setSurveysLoading(false);
@@ -71,11 +63,14 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
   const handleSurveyStart = async (surveyId) => {
     try {
+      if (surveyCache[surveyId]) {
+        openSurveyModal(surveyCache[surveyId]);
+        return;
+      }
+
       const survey = await getSurvey(surveyId);
       openSurveyModal(survey);
     } catch (error) {
-      console.error('Error loading survey:', error);
-      
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
         loadSurveys();
       }
@@ -84,16 +79,15 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
   const handleSurveyComplete = async (surveyId, answers) => {
     try {
-      console.log(`✅ Опрос ${surveyId} завершен, обновляем список...`);
       const result = await submitSurvey(surveyId, answers);
       
-      await refreshUserProfile();
-      
-      await loadSurveys();
+      await Promise.all([
+        refreshUserProfile(),
+        loadSurveys()
+      ]);
       
       return result;
     } catch (error) {
-      console.error('Error completing survey:', error);
       throw error;
     }
   };

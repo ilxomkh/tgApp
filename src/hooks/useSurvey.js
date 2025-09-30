@@ -10,6 +10,7 @@ import { markSurveyAsCompleted } from '../utils/completedSurveys.js';
 export const useSurvey = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [surveyCache, setSurveyCache] = useState({});
   const { language } = useLanguage();
   const { user } = useAuth();
 
@@ -37,11 +38,11 @@ export const useSurvey = () => {
           ]
         }
       }));
-      
+
+      preloadSurveyDetails(surveys);
       
       return surveys;
     } catch (err) {
-      console.error('❌ Ошибка при загрузке опросов:', err);
       setError(err.message);
       throw err;
     } finally {
@@ -49,15 +50,41 @@ export const useSurvey = () => {
     }
   }, [language]);
 
+  const preloadSurveyDetails = useCallback(async (surveys) => {
+    const preloadPromises = surveys.map(async (survey) => {
+      try {
+        const details = await tallyApiService.getFormDetails(survey.id);
+        setSurveyCache(prev => ({
+          ...prev,
+          [survey.id]: {
+            id: survey.id,
+            title: details.title,
+            type: 'tally',
+            formUrl: tallyApiService.getFormUrl(language, details.formId),
+            language,
+            formId: details.formId,
+            questions: details.questions
+          }
+        }));
+      } catch (error) {
+      }
+    });
+
+    await Promise.allSettled(preloadPromises);
+  }, [language]);
+
   const getSurvey = useCallback(async (surveyId) => {
+    if (surveyCache[surveyId]) {
+      return surveyCache[surveyId];
+    }
+
     setLoading(true);
     setError(null);
     
     try {
-      // Получаем детали опроса напрямую с сервера
       const details = await tallyApiService.getFormDetails(surveyId);
       
-      return {
+      const survey = {
         id: surveyId,
         title: details.title,
         type: 'tally',
@@ -66,13 +93,20 @@ export const useSurvey = () => {
         formId: details.formId,
         questions: details.questions
       };
+
+      setSurveyCache(prev => ({
+        ...prev,
+        [surveyId]: survey
+      }));
+
+      return survey;
     } catch (err) {
       setError(err.message);
       throw err;
     } finally {
       setLoading(false);
     }
-  }, [language]);
+  }, [language, surveyCache]);
 
   const submitSurvey = useCallback(async (surveyId, answers) => {
     setLoading(true);
@@ -99,14 +133,12 @@ export const useSurvey = () => {
       
       const result = await api.submitTallyForm(formId, submitData, userId);
 
-      // Отмечаем опрос как пройденный при успешном завершении
       markSurveyAsCompleted(formId);
 
       return result;
-    } catch (err) {
-      console.error('❌ Ошибка при отправке опроса:', err);
-      setError(err.message);
-      throw err;
+      } catch (err) {
+        setError(err.message);
+        throw err;
     } finally {
       setLoading(false);
     }
@@ -149,6 +181,7 @@ export const useSurvey = () => {
     getFormResponses,
     syncTallyData,
     loading,
-    error
+    error,
+    surveyCache
   };
 };

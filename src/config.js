@@ -3,7 +3,7 @@ export const config = {
   
   DEBUG_MODE: import.meta.env.VITE_DEBUG_MODE === 'true',
   
-  REQUEST_TIMEOUT: 10000,
+  REQUEST_TIMEOUT: 5000,
   
   MAX_OTP_RETRIES: 3,
   
@@ -18,7 +18,7 @@ export const config = {
     WEBHOOK_SECRET: import.meta.env.VITE_TALLY_WEBHOOK_SECRET || '',
     SERVER_API: {
       ENABLED: import.meta.env.VITE_TALLY_SERVER_API_ENABLED !== 'false',
-      TIMEOUT: parseInt(import.meta.env.VITE_TALLY_SERVER_API_TIMEOUT) || 15000,
+      TIMEOUT: parseInt(import.meta.env.VITE_TALLY_SERVER_API_TIMEOUT) || 8000,
       RETRY_ATTEMPTS: parseInt(import.meta.env.VITE_TALLY_SERVER_API_RETRY_ATTEMPTS) || 3,
     },
   },

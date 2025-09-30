@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AvatarIcon } from './Main/icons';
 
-const UserAvatar = ({
+const UserAvatar = React.memo(({
   avatarUrl,
   size = 'w-12 h-12',
   className = '',
@@ -35,6 +35,6 @@ const UserAvatar = ({
       )}
     </div>
   );
-};
+});
 
 export default UserAvatar;

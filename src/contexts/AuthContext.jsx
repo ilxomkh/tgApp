@@ -22,6 +22,8 @@ export const AuthProvider = ({ children }) => {
   });
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [profileCache, setProfileCache] = useState(null);
+  const [cacheTimestamp, setCacheTimestamp] = useState(null);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -45,8 +47,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(updatedUser));
         
       } catch (error) {
-        console.error('Token validation failed:', error);
-        
         setUser(null);
         setIsAuthenticated(false);
         localStorage.removeItem('user');
@@ -76,8 +76,6 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (error) {
-      console.error('Error sending OTP:', error);
-      
       trackingService.track('auth_otp_request_error', {
         phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
         error_message: error.message
@@ -132,8 +130,6 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (error) {
-      console.error('Error during login:', error);
-      
       trackingService.track('auth_login_error', {
         phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
         error_message: error.message
@@ -189,8 +185,6 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (error) {
-      console.error('Error updating profile:', error);
-      
       trackingService.track('profile_update_error', {
         user_id: user.id,
         fields_updated: Object.keys(data),
@@ -201,12 +195,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const refreshUserProfile = async () => {
+  const refreshUserProfile = async (forceRefresh = false) => {
     if (!user || isLoadingProfile) return false;
+    
+    const now = Date.now();
+    const cacheAge = cacheTimestamp ? now - cacheTimestamp : Infinity;
+    const cacheValid = cacheAge < 30000;
+    
+    if (!forceRefresh && cacheValid && profileCache) {
+      const updatedUser = { ...user, ...profileCache };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      return true;
+    }
     
     setIsLoadingProfile(true);
     try {
       const userProfile = await api.getUserProfile();
+      
+      setProfileCache(userProfile);
+      setCacheTimestamp(now);
       
       const updatedUser = { ...user, ...userProfile };
       setUser(updatedUser);
@@ -214,8 +222,6 @@ export const AuthProvider = ({ children }) => {
       
       return true;
     } catch (error) {
-      console.error('Error refreshing profile:', error);
-      
       return false;
     } finally {
       setIsLoadingProfile(false);

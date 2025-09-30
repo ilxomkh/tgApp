@@ -70,8 +70,6 @@ class TallyApiService {
    * @returns {Object}
    */
   getFallbackFormDetails(formId) {
-    // Возвращаем пустые данные - никаких мок данных
-    console.warn(`getFallbackFormDetails called for ${formId} - returning empty data (no mock data)`);
     return {
       formId: formId,
       title: 'Опрос недоступен',
@@ -86,8 +84,6 @@ class TallyApiService {
    * @returns {Array}
    */
   getFallbackQuestions(language) {
-    // Возвращаем пустой массив - никаких мок данных
-    console.warn('getFallbackQuestions called - returning empty array (no mock data)');
     return [];
   }
 
@@ -119,7 +115,6 @@ class TallyApiService {
       const result = await api.syncTallyData(syncData);
       return result;
     } catch (error) {
-      console.error(`Error syncing data for form ${formId}:`, error);
       throw new Error(`Failed to sync data for form ${formId}`);
     }
   }
@@ -140,30 +135,28 @@ class TallyApiService {
       if (serverForms && serverForms.length > 0) {
         const filteredForms = filterFormsByLanguage(serverForms, language);
 
-        // Проверяем статус каждого опроса и фильтруем пройденные
         const availableForms = [];
         
-        console.log(`🔍 Проверяем ${filteredForms.length} опросов на предмет завершения...`);
-        
-        for (const form of filteredForms) {
-          console.log(`🔍 Проверяем опрос ${form.id} (${form.name})`);
-          
-          // Сначала проверяем локальное хранилище
+        const statusChecks = filteredForms.map(async (form) => {
           if (isSurveyCompleted(form.id)) {
-            console.log(`📝 Опрос ${form.id} уже пройден (локальное хранилище)`);
-            continue;
+            return null;
           }
           
-          // Затем проверяем статус на сервере
-          console.log(`🔍 Проверяем статус опроса ${form.id} на сервере...`);
-          const isCompleted = await this.checkSurveyStatus(form.id);
-          if (isCompleted) {
-            console.log(`📝 Опрос ${form.id} уже пройден (сервер) - исключаем из списка`);
-            continue;
+          try {
+            const isCompleted = await this.checkSurveyStatus(form.id);
+            return isCompleted ? null : form;
+          } catch {
+            return form;
           }
+        });
+
+        const availableFormsResults = await Promise.allSettled(statusChecks);
+        
+        for (let i = 0; i < filteredForms.length; i++) {
+          const result = availableFormsResults[i];
+          const form = result.status === 'fulfilled' && result.value ? result.value : null;
           
-          
-          console.log(`✅ Опрос ${form.id} доступен - добавляем в список`);
+          if (!form) continue;
           
           const detectedLanguage = detectFormLanguage(form.name);
           const titlePrefix = detectedLanguage === 'ru' ? 'Тема: ' : 'Mavzu: ';
@@ -192,16 +185,11 @@ class TallyApiService {
           });
         }
         
-        console.log(`📊 Результат: из ${filteredForms.length} опросов доступно ${availableForms.length}`);
-        console.log(`📋 Доступные формы:`, availableForms.map(f => ({ id: f.id, title: f.title })));
         return availableForms;
       }
       
-      // Если нет форм с сервера, возвращаем пустой массив
-      console.warn('No forms received from server');
       return [];
     } catch (error) {
-      console.warn('Failed to get forms from server:', error);
       return [];
     }
   }
@@ -284,39 +272,28 @@ class TallyApiService {
   }
 
   /**
-   * Проверяет статус опроса - пройден ли он уже
-   * @param {string} formId - ID опроса
-   * @returns {Promise<boolean>} true если опрос уже пройден
+   * @param {string} formId
+   * @returns {Promise<boolean>}
    */
   async checkSurveyStatus(formId) {
     try {
-      // Делаем прямой запрос к API для проверки статуса
-      const response = await api.getTallyFormById(formId);
-      console.log(`✅ Опрос ${formId} доступен через API`);
-      return false; // Если получили данные, значит опрос доступен
+      await api.getTallyFormById(formId);
+      return false;
     } catch (error) {
-      console.log(`🔍 Проверка статуса опроса ${formId}:`, error.message);
-      
-      // Проверяем конкретные типы ошибок
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
-        console.log(`📝 Опрос ${formId} уже пройден - исключаем из списка`);
-        return true; // Опрос уже пройден
+        return true;
       }
       
-      // Для ошибок аутентификации НЕ скрываем опрос
       if (error.message && (
         error.message.includes('Откройте приложение внутри Telegram') ||
         error.message.includes('Личность пользователя не определена') ||
         error.message.includes('Unauthorized') ||
         error.message.includes('401')
       )) {
-        console.log(`⚠️ Ошибка аутентификации для опроса ${formId} - НЕ скрываем опрос`);
-        return false; // Не скрываем опрос при ошибках аутентификации
+        return false;
       }
       
-      // Для других ошибок (500, сетевые ошибки) тоже не скрываем
-      console.log(`⚠️ Ошибка при проверке опроса ${formId}: ${error.message} - НЕ скрываем опрос`);
-      return false; // Не скрываем опрос при других ошибках
+      return false;
     }
   }
 }

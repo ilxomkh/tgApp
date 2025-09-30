@@ -578,7 +578,6 @@ const AdminStats = () => {
               Операционные системы пользователей
             </h3>
             <div className="flex items-center justify-between h-96">
-              {/* Чарт слева */}
               <div className="w-3/5 h-full flex items-center justify-center p-8">
                 <div className="w-72 h-72">
                   <Doughnut

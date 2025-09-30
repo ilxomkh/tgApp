@@ -442,12 +442,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         onComplete(result);
       }
     } catch (err) {
-      console.error(JSON.stringify({
-        formId: formDetails?.formId,
-        answers: finalAnswers,
-        language: language,
-        submittedAt: new Date().toISOString()
-      }, null, 2));
+      setError(err.message);
     }
   };
 

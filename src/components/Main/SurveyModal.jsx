@@ -295,7 +295,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
         has_prize: !!result?.prizeAmount
       });
     } catch (error) {
-      console.error('Error completing survey:', error);
       
       trackSurveyAction('survey_complete_error', survey.id, {
         total_questions: survey.questions.length,
@@ -314,7 +313,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
     setSurveyResult(null);
     
     if (onSurveyComplete) {
-      console.log('🔄 Обновляем список опросов после закрытия модального окна');
       onSurveyComplete();
     }
     
@@ -382,7 +380,6 @@ const SurveyModal = ({ isOpen, onClose, survey, onComplete, t, onSurveyComplete 
               onClose={() => {
                 trackModalClose('survey_modal', 'button');
                 if (onSurveyComplete) {
-                  console.log('🔄 Обновляем список опросов после завершения tally опроса');
                   onSurveyComplete();
                 }
                 onClose();

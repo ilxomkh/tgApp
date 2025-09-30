@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRightIcon } from './icons';
 import { useHapticClick } from '../../utils/hapticFeedback';
 
-const SurveyCard = ({ title, lines = [], ctaLabel, onStart }) => {
+const SurveyCard = React.memo(({ title, lines = [], ctaLabel, onStart }) => {
   const hapticOnStart = useHapticClick(onStart, 'medium');
 
   return (
@@ -32,6 +32,6 @@ const SurveyCard = ({ title, lines = [], ctaLabel, onStart }) => {
       </button>
     </div>
   );
-};
+});
 
 export default SurveyCard;
