@@ -1,61 +1,129 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import adminApi from '../../services/adminApi';
-import AdminNavigation from './AdminNavigation';
-import AdminHeader from './AdminHeader';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import adminApi from "../../services/adminApi";
+import AdminNavigation from "./AdminNavigation";
+import AdminHeader from "./AdminHeader";
 
 const CalendarIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+    />
   </svg>
 );
 
 const ClockIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
   </svg>
 );
 
 const VideoIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+    />
   </svg>
 );
 
 const GiftIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+    />
   </svg>
 );
 
 const TextIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 6h16M4 12h16M4 18h7"
+    />
   </svg>
 );
 
 const ChevronDownIcon = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M19 9l-7 7-7-7"
+    />
   </svg>
 );
 
 const CustomDateTimePicker = ({ value, onChange, error }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(value ? new Date(value) : new Date());
-  const [tempDate, setTempDate] = useState(value ? new Date(value) : new Date());
-  const [viewMode, setViewMode] = useState('date');
+  const [selectedDate, setSelectedDate] = useState(
+    value ? new Date(value) : new Date()
+  );
+  const [currentMonth, setCurrentMonth] = useState(
+    value ? new Date(value) : new Date()
+  );
 
-  const formatDateTime = (date) => {
-    if (!date) return 'Выберите дату';
-    return date.toLocaleString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const monthNames = [
+    "Январь",
+    "Февраль",
+    "Март",
+    "Апрель",
+    "Май",
+    "Июнь",
+    "Июль",
+    "Август",
+    "Сентябрь",
+    "Октябрь",
+    "Ноябрь",
+    "Декабрь",
+  ];
+  const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -63,221 +131,203 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-    
+    const startingDayOfWeek = (firstDay.getDay() + 6) % 7; // Monday = 0
+
     const days = [];
-    
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-      const prevDate = new Date(year, month, -i);
-      days.push({ date: prevDate, isCurrentMonth: false });
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
     }
-    
     for (let i = 1; i <= daysInMonth; i++) {
-      days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+      days.push(new Date(year, month, i));
     }
-    
-    const remainingDays = 42 - days.length;
-    for (let i = 1; i <= remainingDays; i++) {
-      const nextDate = new Date(year, month + 1, i);
-      days.push({ date: nextDate, isCurrentMonth: false });
-    }
-    
     return days;
   };
 
+  const formatDisplayDate = () => {
+    if (!value) return "Выберите дату";
+    const date = new Date(value);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  };
+
   const handleDateSelect = (date) => {
-    const newDate = new Date(tempDate);
-    newDate.setFullYear(date.getFullYear());
-    newDate.setMonth(date.getMonth());
-    newDate.setDate(date.getDate());
-    setTempDate(newDate);
-    setViewMode('time');
+    if (!date) return;
+    setSelectedDate(date);
   };
 
-  const handleTimeChange = (type, value) => {
-    const newDate = new Date(tempDate);
-    if (type === 'hour') {
-      newDate.setHours(parseInt(value));
-    } else if (type === 'minute') {
-      newDate.setMinutes(parseInt(value));
-    }
-    setTempDate(newDate);
-  };
-
-  const handleConfirm = () => {
-    setSelectedDate(tempDate);
-    onChange(tempDate.toISOString().slice(0, 16));
+  const handleApply = () => {
+    const finalDate = new Date(selectedDate);
+    finalDate.setHours(23);
+    finalDate.setMinutes(59);
+    finalDate.setSeconds(59);
+    onChange(finalDate.toISOString().slice(0, 16));
     setIsOpen(false);
-    setViewMode('date');
   };
 
-  const handleCancel = () => {
-    setTempDate(selectedDate);
-    setIsOpen(false);
-    setViewMode('date');
+  const isToday = (date) => {
+    const today = new Date();
+    return date && date.toDateString() === today.toDateString();
   };
 
-  const monthNames = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-  ];
+  const isSelected = (date) => {
+    return (
+      date &&
+      selectedDate &&
+      date.toDateString() === selectedDate.toDateString()
+    );
+  };
 
-  const weekDays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const days = getDaysInMonth(currentMonth);
 
   return (
     <div className="relative">
-      <div
+      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <CalendarIcon className="w-5 h-5 text-blue-500" />
+      </div>
+      <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl cursor-pointer transition-all duration-300 flex items-center justify-between text-sm font-medium ${
-          error 
-            ? 'border-red-500 focus:border-red-500' 
-            : 'focus:border-blue-500 bg-gray-50/50 focus:bg-white'
-        }`}
+        className={`w-full pl-12 pr-10 py-4 border-2 rounded-xl focus:ring-0 transition-all duration-300 text-sm font-medium text-left ${
+          error
+            ? "border-red-500"
+            : "border-gray-100 focus:border-blue-500 bg-gray-50/50 focus:bg-white text-gray-900"
+        } ${!value ? "text-gray-400" : "text-gray-900"}`}
       >
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <CalendarIcon className="w-5 h-5 text-blue-500" />
-        </div>
-        <span className={value ? 'text-gray-900' : 'text-gray-400'}>
-          {formatDateTime(selectedDate)}
-        </span>
-        <ChevronDownIcon className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        {formatDisplayDate()}
+      </button>
+      <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+        <ChevronDownIcon
+          className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-sm border-2 border-blue-100 rounded-2xl z-50 overflow-hidden">
-          {viewMode === 'date' ? (
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <button
-                  type="button"
-                  onClick={() => setTempDate(new Date(tempDate.getFullYear(), tempDate.getMonth() - 1, 1))}
-                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl transition-all duration-200"
-                >
-                  <ChevronDownIcon className="w-4 h-4 rotate-90 text-blue-600" />
-                </button>
-                
-                <div className="text-base font-bold text-gray-800 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl">
-                  {monthNames[tempDate.getMonth()]} {tempDate.getFullYear()}
-                </div>
-                
-                <button
-                  type="button"
-                  onClick={() => setTempDate(new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 1))}
-                  className="w-8 h-8 flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl transition-all duration-200"
-                >
-                  <ChevronDownIcon className="w-4 h-4 -rotate-90 text-blue-600" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-7 gap-1 mb-3">
-                {weekDays.map(day => (
-                  <div key={day} className="text-center text-xs font-bold text-gray-600 py-2 bg-gray-50 rounded-lg">
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-7 gap-1">
-                {getDaysInMonth(tempDate).map((dayObj, index) => {
-                  const isToday = dayObj.date.toDateString() === new Date().toDateString();
-                  const isSelected = selectedDate && dayObj.date.toDateString() === selectedDate.toDateString();
-                  
-                  return (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleDateSelect(dayObj.date)}
-                      className={`
-                        w-8 h-8 text-sm font-medium rounded-xl transition-all duration-200 
-                        ${!dayObj.isCurrentMonth ? 'text-gray-300' : 'text-gray-800'}
-                        ${isToday ? 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 font-bold' : ''}
-                        ${isSelected ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white scale-110' : 'hover:bg-blue-50'}
-                      `}
-                    >
-                      {dayObj.date.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="p-5">
-              <div className="text-center text-base font-bold text-gray-800 mb-5 bg-gradient-to-r from-blue-50 to-indigo-50 py-2 rounded-xl">
-                Выберите время
-              </div>
-              
-              <div className="flex items-center justify-center gap-4 mb-5">
-                <div className="text-center">
-                  <div className="text-xs font-bold text-gray-600 mb-2">Часы</div>
-                  <select
-                    value={tempDate.getHours()}
-                    onChange={(e) => handleTimeChange('hour', e.target.value)}
-                    className="w-16 px-3 py-2 border-2 border-blue-100 rounded-xl text-center focus:ring-0 focus:border-blue-500 transition-all duration-200 text-sm font-bold bg-gradient-to-r from-blue-50/50 to-indigo-50/50"
-                  >
-                    {Array.from({ length: 24 }, (_, i) => (
-                      <option key={i} value={i}>
-                        {i.toString().padStart(2, '0')}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="text-2xl font-bold text-blue-500 mt-6">:</div>
-                
-                <div className="text-center">
-                  <div className="text-xs font-bold text-gray-600 mb-2">Минуты</div>
-                  <select
-                    value={tempDate.getMinutes()}
-                    onChange={(e) => handleTimeChange('minute', e.target.value)}
-                    className="w-16 px-3 py-2 border-2 border-blue-100 rounded-xl text-center focus:ring-0 focus:border-blue-500 transition-all duration-200 text-sm font-bold bg-gradient-to-r from-blue-50/50 to-indigo-50/50"
-                  >
-                    {Array.from({ length: 60 }, (_, i) => (
-                      <option key={i} value={i}>
-                        {i.toString().padStart(2, '0')}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              
-              <div className="text-center text-sm font-medium text-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 py-2 rounded-xl">
-                {formatDateTime(tempDate)}
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-t border-blue-100">
-            {viewMode === 'time' && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className="absolute z-50 mt-1 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 w-full left-0">
+            {/* Month Navigation */}
+            <div className="flex items-center justify-between mb-2">
               <button
                 type="button"
-                onClick={() => setViewMode('date')}
-                className="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-xl transition-all duration-200"
+                onClick={() =>
+                  setCurrentMonth(
+                    new Date(
+                      currentMonth.getFullYear(),
+                      currentMonth.getMonth() - 1
+                    )
+                  )
+                }
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
               >
-                ← Назад
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
               </button>
-            )}
-            
-            <div className={`flex gap-3 ${viewMode === 'date' ? 'w-full justify-end' : ''}`}>
+              <div className="text-xs font-bold text-gray-900">
+                {monthNames[currentMonth.getMonth()]}{" "}
+                {currentMonth.getFullYear()}
+              </div>
               <button
                 type="button"
-                onClick={handleCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white rounded-xl transition-all duration-200"
+                onClick={() =>
+                  setCurrentMonth(
+                    new Date(
+                      currentMonth.getFullYear(),
+                      currentMonth.getMonth() + 1
+                    )
+                  )
+                }
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
+              >
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Week Days */}
+            <div className="grid grid-cols-7 gap-0.5 mb-1">
+              {weekDays.map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-[10px] font-semibold text-gray-500 py-0.5"
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar Days */}
+            <div className="grid grid-cols-7 gap-0.5 mb-3">
+              {days.map((date, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => handleDateSelect(date)}
+                  disabled={!date}
+                  className={`
+                    p-1.5 text-xs rounded transition-all duration-200
+                    ${!date ? "invisible" : ""}
+                    ${
+                      isSelected(date)
+                        ? "bg-gradient-to-br from-[#5538F9] to-[#7C65FF] text-white font-bold shadow-md scale-105"
+                        : isToday(date)
+                        ? "bg-blue-50 text-blue-600 font-semibold"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }
+                  `}
+                >
+                  {date ? date.getDate() : ""}
+                </button>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors text-xs font-semibold"
               >
                 Отмена
               </button>
-              
-              {viewMode === 'time' && (
-                <button
-                  type="button"
-                  onClick={handleConfirm}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-bold rounded-xl transition-all duration-200"
-                >
-                  Готово
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleApply}
+                className="flex-1 px-3 py-1.5 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white rounded hover:shadow-lg transition-all text-xs font-semibold"
+              >
+                Применить
+              </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
@@ -291,17 +341,24 @@ const CustomToggle = ({ checked, onChange, label }) => {
         onClick={() => onChange(!checked)}
         className={`
           relative w-14 h-8 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#7C65FF] focus:ring-offset-2
-          ${checked ? 'bg-gradient-to-r from-[#7C65FF] to-[#5538F9]' : 'bg-gray-300'}
+          ${
+            checked
+              ? "bg-gradient-to-r from-[#7C65FF] to-[#5538F9]"
+              : "bg-gray-300"
+          }
         `}
       >
         <div
           className={`
             absolute top-0.5 w-7 h-7 bg-white rounded-full shadow-lg transition-transform duration-300 ease-in-out
-            ${checked ? 'translate-x-6' : 'translate-x-0.5'}
+            ${checked ? "translate-x-6" : "translate-x-0.5"}
           `}
         />
       </button>
-      <label className="text-sm font-medium text-gray-700 cursor-pointer" onClick={() => onChange(!checked)}>
+      <label
+        className="text-sm font-medium text-gray-700 cursor-pointer"
+        onClick={() => onChange(!checked)}
+      >
         {label}
       </label>
     </div>
@@ -313,93 +370,91 @@ const AdminRaffles = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    title: '',
-    prize_amount: '',
-    video_url: '',
+    title: "",
+    prize_amount: "",
+    video_url: "",
     is_active: true,
-    end_date: ''
+    end_date: "",
   });
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleDateTimeChange = (value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      end_date: value
+      end_date: value,
     }));
   };
 
   const handleToggleChange = (value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      is_active: value
+      is_active: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
-      setError('Название обязательно для заполнения');
+      setError("Название обязательно для заполнения");
       return;
     }
-    
+
     if (!formData.prize_amount || formData.prize_amount <= 0) {
-      setError('Сумма приза должна быть больше 0');
+      setError("Сумма приза должна быть больше 0");
       return;
     }
-    
+
     if (!formData.video_url.trim()) {
-      setError('Ссылка на видео обязательна');
+      setError("Ссылка на видео обязательна");
       return;
     }
-    
+
     if (!formData.end_date) {
-      setError('Дата проведения обязательна');
+      setError("Дата проведения обязательна");
       return;
     }
 
     try {
       new URL(formData.video_url);
     } catch {
-      setError('Неверный формат ссылки на видео');
+      setError("Неверный формат ссылки на видео");
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
-      
+
       const raffleData = {
         ...formData,
         prize_amount: parseInt(formData.prize_amount),
-        end_date: new Date(formData.end_date).toISOString()
+        end_date: new Date(formData.end_date).toISOString(),
       };
 
       await adminApi.createRaffle(raffleData);
-      
+
       setSuccess(true);
       setFormData({
-        title: '',
-        prize_amount: '',
-        video_url: '',
+        title: "",
+        prize_amount: "",
+        video_url: "",
         is_active: true,
-        end_date: ''
+        end_date: "",
       });
-      
+
       setTimeout(() => setSuccess(false), 3000);
-      
     } catch (err) {
-      console.error('Error creating raffle:', err);
-      setError(err.message || 'Ошибка при создании розыгрыша');
+      setError(err.message || "Ошибка при создании розыгрыша");
     } finally {
       setLoading(false);
     }
@@ -407,28 +462,29 @@ const AdminRaffles = () => {
 
   return (
     <div className="min-h-screen">
-      <AdminHeader 
-        title="Розыгрыши"
-        subtitle="добавление видео"
-      />
+      <AdminHeader title="Розыгрыши" subtitle="добавление видео" />
 
       <AdminNavigation />
 
-      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-8">
+      <div className="max-w-3xl mx-auto px-6 sm:px-8 py-8">
         <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[#7C65FF]/10 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#7C65FF]/3 via-transparent to-[#5538F9]/2"></div>
-          
+
           <div className="relative px-6 py-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-[#5538F9] to-[#7C65FF] rounded-lg flex items-center justify-center">
                 <GiftIcon className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Создать новый розыгрыш</h1>
-                <p className="text-xs text-gray-500 mt-1">Заполните все поля для создания розыгрыша</p>
+                <h1 className="text-xl font-bold text-gray-900">
+                  Создать новый розыгрыш
+                </h1>
+                <p className="text-xs text-gray-500 mt-1">
+                  Заполните все поля для создания розыгрыша
+                </p>
               </div>
             </div>
-            
+
             {success && (
               <div className="mb-6 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
                 <div className="flex items-center">
@@ -461,103 +517,140 @@ const AdminRaffles = () => {
                     <p className="text-xs font-semibold text-red-800">
                       Ошибка при создании розыгрыша
                     </p>
-                    <p className="text-xs text-red-600 mt-0.5">
-                      {error}
-                    </p>
+                    <p className="text-xs text-red-600 mt-0.5">{error}</p>
                   </div>
                 </div>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="group relative">
-                <label htmlFor="title" className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
-                  <div className="w-1 h-5 bg-gradient-to-b from-[#7C65FF] to-[#5538F9] rounded-full"></div>
-                  Название розыгрыша *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <TextIcon className="h-5 w-5 text-[#7C65FF]" />
-                  </div>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-[#7C65FF] transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
-                    placeholder="Например: Розыгрыш iPhone 15 Pro"
-                    required
-                  />
-                </div>
-              </div>
-
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="group">
-                  <label htmlFor="prize_amount" className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
-                    <div className="w-1 h-5 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></div>
-                    Сумма приза *
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <GiftIcon className="h-5 w-5 text-green-500" />
-                    </div>
-                    <input
-                      type="number"
-                      id="prize_amount"
-                      name="prize_amount"
-                      value={formData.prize_amount}
-                      onChange={handleInputChange}
-                      min="1"
-                      className="w-full pl-12 pr-16 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-green-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
-                      placeholder="10000"
-                      required
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                      <span className="text-gray-600 text-sm font-bold bg-gray-100 px-2 py-1 rounded-lg">сум</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group">
-                  <label className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
-                    <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-indigo-500 rounded-full"></div>
-                    Дата проведения *
-                  </label>
-                  <CustomDateTimePicker 
-                    value={formData.end_date}
-                    onChange={handleDateTimeChange}
-                    error={error && !formData.end_date}
-                  />
-                </div>
-              </div>
-
               <div className="group">
-                <label htmlFor="video_url" className="flex items-center gap-2 text-sm font-bold text-gray-800 mb-3">
-                  <div className="w-1 h-5 bg-gradient-to-b from-red-500 to-pink-500 rounded-full"></div>
-                  Ссылка на видео *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <VideoIcon className="h-5 w-5 text-red-500" />
+                <div className="bg-white border-1 border-gray-200 rounded-2xl overflow-hidden">
+                  <div className="p-6 border-b border-gray-100">
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                          <TextIcon className="h-5 w-5 text-[#7C65FF]" />
+                        </div>
+                        <input
+                          type="text"
+                          id="title"
+                          name="title"
+                          value={formData.title}
+                          onChange={handleInputChange}
+                          className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-[#7C65FF] transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
+                          placeholder="Название розыгрыша..."
+                          required
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <GiftIcon className="h-5 w-5 text-green-500" />
+                          </div>
+                          <input
+                            type="number"
+                            id="prize_amount"
+                            name="prize_amount"
+                            value={formData.prize_amount}
+                            onChange={handleInputChange}
+                            min="1"
+                            className="w-full pl-12 pr-16 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-green-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
+                            placeholder="10000"
+                            required
+                          />
+                          <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <span className="text-gray-600 text-sm font-bold bg-gray-100 px-2 py-1 rounded-lg">
+                              сум
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <CustomDateTimePicker
+                            value={formData.end_date}
+                            onChange={handleDateTimeChange}
+                            error={error && !formData.end_date}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <input
-                    type="url"
-                    id="video_url"
-                    name="video_url"
-                    value={formData.video_url}
-                    onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-red-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
-                    placeholder="https://youtu.be/_RwD8PDZb7A?si=OeICMOWlQm9vRFgA"
-                    required
-                  />
-                </div>
-                <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg">
-                  <p className="text-xs text-blue-700 font-medium flex items-center gap-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                    Поддерживаются ссылки YouTube, Vimeo и другие видео платформы
-                  </p>
+
+                  <div className="p-6">
+                    <div className="relative mb-4">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <VideoIcon className="h-5 w-5 text-red-500" />
+                      </div>
+                      <input
+                        type="url"
+                        id="video_url"
+                        name="video_url"
+                        value={formData.video_url}
+                        onChange={handleInputChange}
+                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-red-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
+                        placeholder="https://youtu.be/_RwD8PDZb7A?si=OeICMOWlQm9vRFgA"
+                        required
+                      />
+                    </div>
+
+                    {formData.video_url && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                          {(() => {
+                            const getYouTubeVideoId = (url) => {
+                              const regExp =
+                                /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                              const match = url.match(regExp);
+                              return match && match[2].length === 11
+                                ? match[2]
+                                : null;
+                            };
+
+                            const videoId = getYouTubeVideoId(
+                              formData.video_url
+                            );
+
+                            if (videoId) {
+                              return (
+                                <iframe
+                                  width="100%"
+                                  height="100%"
+                                  src={`https://www.youtube.com/embed/${videoId}`}
+                                  title="YouTube video player"
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  className="w-full h-full"
+                                ></iframe>
+                              );
+                            } else {
+                              return (
+                                <div className="w-full h-full flex items-center justify-center text-white">
+                                  <div className="text-center">
+                                    <VideoIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                    <p className="text-sm">
+                                      Неверная ссылка на видео
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            }
+                          })()}
+                        </div>
+                      </div>
+                    )}
+
+                    {!formData.video_url && (
+                      <div className="bg-gray-50 rounded-xl p-8 text-center">
+                        <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">
+                          Введите ссылку на видео для предпросмотра
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -569,7 +662,9 @@ const AdminRaffles = () => {
                       Статус розыгрыша
                     </h3>
                     <p className="text-xs text-gray-600 font-medium bg-white/60 px-3 py-1.5 rounded-lg">
-                      {formData.is_active ? 'Розыгрыш будет активен сразу после создания' : 'Розыгрыш будет создан в неактивном состоянии'}
+                      {formData.is_active
+                        ? "Розыгрыш будет активен сразу после создания"
+                        : "Розыгрыш будет создан в неактивном состоянии"}
                     </p>
                   </div>
                   <CustomToggle
@@ -580,11 +675,11 @@ const AdminRaffles = () => {
                 </div>
               </div>
 
-              <div className="flex justify-center pt-8">
+              <div className="flex justify-center">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full max-w-md px-8 py-4 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-98"
+                  className="w-full px-3 py-3 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-98"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-3">
