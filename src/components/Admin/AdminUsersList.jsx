@@ -39,7 +39,6 @@ const AdminUsersList = () => {
         });
       }
     } catch (err) {
-      console.error('Error fetching users:', err);
       setError(err.message || 'Ошибка загрузки пользователей');
       setUsers([]);
     } finally {
@@ -98,7 +97,7 @@ const AdminUsersList = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[#F8F9FD]">
       <AdminHeader 
         title={pagination.total.toLocaleString()}
         subtitle="всего пользователей"
@@ -106,209 +105,155 @@ const AdminUsersList = () => {
 
       <AdminNavigation />
 
-      <div className="mx-auto px-6 sm:px-8 py-8">
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl border border-[#7C65FF]/10 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#7C65FF]/3 via-transparent to-[#5538F9]/2"></div>
+      <div className="max-w-[100%] mx-auto px-4 sm:px-6 py-8">
+        <div className="bg-white rounded-[20px] shadow-sm overflow-hidden">
           
-          <div className="relative overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[#7C65FF]/10 bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5">
-                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#7C65FF]"></div>
-                      Пользователь
-                    </div>
-                  </th>
-                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider hidden sm:table-cell">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#5538F9]"></div>
-                      Контакты
-                    </div>
-                  </th>
-                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider hidden lg:table-cell">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      Устройство
-                    </div>
-                  </th>
-                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                      Баланс
-                    </div>
-                  </th>
-                  <th className="text-left px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider hidden md:table-cell">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                      Регистрация
-                    </div>
-                  </th>
-                  <th className="text-right px-3 sm:px-6 py-4 sm:py-5 text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Действия
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user, index) => {
-                  const langInfo = getLanguageInfo(user.language);
-                  const deviceInfo = getDeviceInfo(user.device_info);
-                  
-                  return (
-                    <tr 
-                      key={user.id} 
-                      className={`border-b border-gray-50 cursor-pointer transition-all duration-200 ${
-                        index === users.length - 1 ? 'border-b-0' : ''
-                      }`}
-                      onClick={() => handleUserClick(user.id)}
-                    >
-                      <td className="px-3 sm:px-6 py-3 sm:py-4">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                          <UserAvatar user={user} size="md" />
-                          <div className="min-w-0 flex-1">
-                            <div className="font-medium text-gray-900 text-sm sm:text-base">
-                              {user.full_name ? 
-                                (user.full_name.length > 20 ? 
-                                  user.full_name.substring(0, 20) + '...' : 
-                                  user.full_name
-                                ) : 
-                                'Без имени'
-                              }
-                            </div>
-                            <div className="text-xs sm:text-sm text-gray-600">ID: {user.id}</div>
-                            <div className="sm:hidden mt-1">
-                              <div className="text-xs text-gray-900 font-mono">
-                                {formatPhoneNumber(user.phone_number)}
-                              </div>
-                              <div className="text-xs text-gray-600 truncate">
-                                {user.email || '—'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
-                        <div className="space-y-1">
-                          <div className="text-sm text-gray-900 font-mono">
-                            {formatPhoneNumber(user.phone_number)}
-                          </div>
-                            <div className="text-sm text-gray-600 truncate max-w-48">
-                              {user.email || '—'}
-                            </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-gray-600">{langInfo.icon}</div>
-                            <span className="text-xs text-gray-600 font-medium">
-                              {langInfo.name}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
+          <div className="overflow-x-auto p-6">
+            <div className="space-y-3">
+              <div className="grid grid-cols-[80px_1fr_150px_200px_120px_100px_150px_60px] gap-4 px-6 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                <div>ID</div>
+                <div>Пользователь</div>
+                <div className="hidden sm:block">Телефон</div>
+                <div className="hidden lg:block">Email</div>
+                <div>Баланс</div>
+                <div className="hidden md:block">Язык</div>
+                <div className="hidden xl:block">Дата регистрации</div>
+                <div></div>
+              </div>
 
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 hidden lg:table-cell">
-                        <div className="flex items-center gap-3">
-                          <div className="text-gray-600">{deviceInfo.icon}</div>
-                          <div>
-                            <div className="text-sm text-gray-900">{deviceInfo.name}</div>
-                            <div className="text-xs text-gray-600">{user.operator || '—'}</div>
-                          </div>
+              {users.map((user, index) => {
+                const langInfo = getLanguageInfo(user.language);
+                const deviceInfo = getDeviceInfo(user.device_info);
+                
+                return (
+                  <div
+                    key={user.id}
+                    onClick={() => handleUserClick(user.id)}
+                    className="grid grid-cols-[80px_1fr_150px_200px_120px_100px_150px_60px] gap-4 px-6 py-4 bg-gray-50/50 hover:bg-blue-50/60 rounded-xl transition-colors duration-150 cursor-pointer items-center"
+                  >
+                    <div className="text-sm text-gray-700 font-medium">
+                      {user.id}
+                    </div>
+                    
+                    <div className="flex items-center gap-3 min-w-0 overflow-hidden">
+                      <UserAvatar user={user} size="sm" className="flex-shrink-0" />
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <div className="text-sm font-medium text-gray-900 truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                          {user.full_name || 'Без имени'}
                         </div>
-                      </td>
-
-                      <td className="px-3 sm:px-6 py-3 sm:py-4">
-                        <div className="text-sm text-gray-900 font-medium">
-                          {user.balance?.toLocaleString() || '0'} сум
+                        <div className="text-xs text-gray-500 sm:hidden mt-0.5 truncate">
+                          {formatPhoneNumber(user.phone_number)}
                         </div>
-                      </td>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm text-gray-700 font-mono hidden sm:block overflow-hidden text-ellipsis whitespace-nowrap">
+                      {formatPhoneNumber(user.phone_number)}
+                    </div>
 
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 hidden md:table-cell">
-                        <div className="text-sm text-gray-900">
-                          {formatDate(user.created_at)}
-                        </div>
-                      </td>
+                    <div className="text-sm text-gray-700 hidden lg:block overflow-hidden text-ellipsis whitespace-nowrap">
+                      {user.email || '—'}
+                    </div>
 
-                      <td className="px-3 sm:px-6 py-3 sm:py-4 text-right">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUserClick(user.id);
-                          }}
-                          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#7C65FF] to-[#5538F9] rounded-xl transition-all duration-200"
-                        >
-                          <span>Подробнее</span>
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                    <div className="text-sm text-gray-900 font-semibold">
+                      {user.balance?.toLocaleString() || '0'}
+                    </div>
+
+                    <div className="hidden md:flex items-center">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700">
+                        <span>{langInfo.icon}</span>
+                        <span>{langInfo.name}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-sm text-gray-700 hidden xl:block">
+                      {formatDate(user.created_at)}
+                    </div>
+
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUserClick(user.id);
+                        }}
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-blue-600 hover:bg-white transition-all duration-200"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {totalPages > 1 && (
-            <div className="border-t border-gray-100/60 bg-gradient-to-r from-gray-50/50 to-blue-50/30 px-3 sm:px-6 py-4 sm:py-5">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-                <div className="text-xs sm:text-sm text-gray-700 order-2 sm:order-1 bg-white/60 backdrop-blur-sm px-3 py-2 rounded-lg border border-gray-200/50">
-                  Показано{' '}
-                  <span className="font-bold text-indigo-600">
-                    {(pagination.page - 1) * pagination.limit + 1}
-                  </span>
-                  —
-                  <span className="font-bold text-indigo-600">
+            <div className="border-t border-gray-100 bg-white px-6 py-5">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span className="font-medium">
+                    Показано {(pagination.page - 1) * pagination.limit + 1}–
                     {Math.min(pagination.page * pagination.limit, pagination.total)}
                   </span>
-                  {' '}из{' '}
-                  <span className="font-bold text-purple-600">
-                    {pagination.total.toLocaleString()}
-                  </span>
+                  <span className="text-gray-400">из</span>
+                  <span className="font-semibold text-gray-900">{pagination.total.toLocaleString()}</span>
+                  <span className="hidden sm:inline text-gray-500">пользователей</span>
                 </div>
 
-                <div className="flex items-center gap-2 order-1 sm:order-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(1)}
+                    disabled={pagination.page === 1}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100"
+                    title="Первая страница"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                  </button>
+
                   <button
                     onClick={() => handlePageChange(pagination.page - 1)}
                     disabled={pagination.page === 1}
-                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm text-gray-600 hover:text-[#7C65FF] hover:bg-[#7C65FF]/5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600"
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100"
+                    title="Предыдущая страница"
                   >
-                    ← Назад
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
                   </button>
 
-                  <div className="flex items-center gap-1 mx-2">
+                  <div className="flex items-center gap-1.5">
                     {(() => {
                       const getPageNumbers = () => {
-                        const delta = 2;
+                        const delta = 1;
                         const range = [];
-                        const rangeWithDots = [];
+                        let l;
 
-                        for (let i = Math.max(2, pagination.page - delta); 
-                             i <= Math.min(totalPages - 1, pagination.page + delta); 
-                             i++) {
-                          range.push(i);
+                        for (let i = 1; i <= totalPages; i++) {
+                          if (i === 1 || i === totalPages || (i >= pagination.page - delta && i <= pagination.page + delta)) {
+                            if (l) {
+                              if (i - l === 2) {
+                                range.push(l + 1);
+                              } else if (i - l !== 1) {
+                                range.push('...');
+                              }
+                            }
+                            range.push(i);
+                            l = i;
+                          }
                         }
 
-                        if (pagination.page - delta > 2) {
-                          rangeWithDots.push(1, '...');
-                        } else {
-                          rangeWithDots.push(1);
-                        }
-
-                        rangeWithDots.push(...range);
-
-                        if (pagination.page + delta < totalPages - 1) {
-                          rangeWithDots.push('...', totalPages);
-                        } else if (totalPages > 1) {
-                          rangeWithDots.push(totalPages);
-                        }
-
-                        return rangeWithDots;
+                        return range;
                       };
 
                       return getPageNumbers().map((pageNum, idx) => {
                         if (pageNum === '...') {
                           return (
-                            <span key={`dots-${idx}`} className="px-2 text-slate-400">
-                              …
+                            <span key={`dots-${idx}`} className="px-2 text-gray-400 text-sm">
+                              ...
                             </span>
                           );
                         }
@@ -318,10 +263,10 @@ const AdminUsersList = () => {
                           <button
                             key={pageNum}
                             onClick={() => handlePageChange(pageNum)}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-xs sm:text-sm rounded-lg transition-all duration-200 ${
+                            className={`w-9 h-9 flex items-center justify-center text-sm font-medium rounded-full transition-all duration-200 ${
                               isActive
-                                ? 'bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white'
-                                : 'text-gray-600 hover:text-[#7C65FF] hover:bg-[#7C65FF]/5'
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                           >
                             {pageNum}
@@ -334,10 +279,45 @@ const AdminUsersList = () => {
                   <button
                     onClick={() => handlePageChange(pagination.page + 1)}
                     disabled={pagination.page === totalPages}
-                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm text-gray-600 hover:text-[#7C65FF] hover:bg-[#7C65FF]/5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-600"
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100"
+                    title="Следующая страница"
                   >
-                    Вперед →
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
+
+                  <button
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={pagination.page === totalPages}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-gray-100"
+                    title="Последняя страница"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-600 hidden lg:inline">Страница:</span>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max={totalPages}
+                      value={pagination.page}
+                      onChange={(e) => {
+                        const page = parseInt(e.target.value);
+                        if (page >= 1 && page <= totalPages) {
+                          handlePageChange(page);
+                        }
+                      }}
+                      className="w-16 px-3 py-1.5 text-center border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <span className="text-gray-400">из</span>
+                  <span className="font-medium text-gray-700">{totalPages}</span>
                 </div>
               </div>
             </div>
