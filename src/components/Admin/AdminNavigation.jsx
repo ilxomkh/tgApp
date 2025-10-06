@@ -10,7 +10,7 @@ const AdminNavigation = () => {
     { path: '/admin/users', label: 'Пользователи', icon: Users },
     { path: '/admin/raffles', label: 'Розыгрыши', icon: Film },
     { path: '/admin/stats', label: 'Статистика', icon: BarChart3 },
-    { path: '/admin/balances', label: 'Балансы', icon: Wallet },
+    // { path: '/admin/balances', label: 'Балансы', icon: Wallet },
     { path: '/admin/broadcast', label: 'Рассылка', icon: Send }
   ];
 
