@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Users, Film, BarChart3, Send } from 'lucide-react';
+import { Users, Film, BarChart3, Send, Wallet } from 'lucide-react';
 
 const AdminNavigation = () => {
   const location = useLocation();
@@ -10,6 +10,7 @@ const AdminNavigation = () => {
     { path: '/admin/users', label: 'Пользователи', icon: Users },
     { path: '/admin/raffles', label: 'Розыгрыши', icon: Film },
     { path: '/admin/stats', label: 'Статистика', icon: BarChart3 },
+    { path: '/admin/balances', label: 'Балансы', icon: Wallet },
     { path: '/admin/broadcast', label: 'Рассылка', icon: Send }
   ];
 

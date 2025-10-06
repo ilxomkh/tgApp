@@ -6,36 +6,40 @@ import AdminNavigation from './AdminNavigation';
 
 const AdminBroadcast = () => {
   const [formData, setFormData] = useState({
-    text: '',
-    photo: null
+    text_ru: '',
+    text_uz: '',
+    photo_ru: null,
+    photo_uz: null
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
 
   const handleTextChange = (e) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      text: e.target.value
+      [name]: value
     }));
   };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
+    const photoType = e.target.name;
     if (file) {
       setFormData(prev => ({
         ...prev,
-        photo: file
+        [photoType]: file
       }));
     }
   };
 
-  const removePhoto = () => {
+  const removePhoto = (photoType) => {
     setFormData(prev => ({
       ...prev,
-      photo: null
+      [photoType]: null
     }));
-    const fileInput = document.getElementById('photo-upload');
+    const fileInput = document.getElementById(`${photoType}-upload`);
     if (fileInput) {
       fileInput.value = '';
     }
@@ -44,8 +48,14 @@ const AdminBroadcast = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.text.trim()) {
-      setMessage('Текст сообщения обязателен');
+    if (!formData.text_ru.trim()) {
+      setMessage('Текст сообщения (RU) обязателен');
+      setMessageType('error');
+      return;
+    }
+
+    if (!formData.text_uz.trim()) {
+      setMessage('Текст сообщения (UZ) обязателен');
       setMessageType('error');
       return;
     }
@@ -55,10 +65,15 @@ const AdminBroadcast = () => {
 
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('text', formData.text);
+      formDataToSend.append('text_ru', formData.text_ru);
+      formDataToSend.append('text_uz', formData.text_uz);
       
-      if (formData.photo) {
-        formDataToSend.append('photo', formData.photo);
+      if (formData.photo_ru) {
+        formDataToSend.append('photo_ru', formData.photo_ru);
+      }
+      
+      if (formData.photo_uz) {
+        formDataToSend.append('photo_uz', formData.photo_uz);
       }
 
       await adminApi.sendBroadcast(formDataToSend);
@@ -67,13 +82,15 @@ const AdminBroadcast = () => {
       setMessageType('success');
       
       setFormData({
-        text: '',
-        photo: null
+        text_ru: '',
+        text_uz: '',
+        photo_ru: null,
+        photo_uz: null
       });
-      const fileInput = document.getElementById('photo-upload');
-      if (fileInput) {
-        fileInput.value = '';
-      }
+      const fileInputRu = document.getElementById('photo_ru-upload');
+      const fileInputUz = document.getElementById('photo_uz-upload');
+      if (fileInputRu) fileInputRu.value = '';
+      if (fileInputUz) fileInputUz.value = '';
       
     } catch (error) {
       setMessage(error.message || 'Ошибка при отправке рассылки');
@@ -111,39 +128,89 @@ const AdminBroadcast = () => {
               <div className="group">
                 
                 <div className="bg-white border-1 border-gray-200 rounded-2xl overflow-hidden">
-                  {!formData.photo ? (
-                    <div className="border-b-2 border-dashed border-gray-300 p-8 text-center hover:border-[#7C65FF] transition-colors duration-200 bg-gray-50/50">
-                      <input
-                        id="photo-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoChange}
-                        className="hidden"
-                      />
-                      <label htmlFor="photo-upload" className="cursor-pointer">
-                        <Image className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600 font-medium text-lg">Нажмите для загрузки фото</p>
-                        <p className="text-sm text-gray-500 mt-2">PNG, JPG, GIF до 10MB</p>
-                      </label>
+                  <div className="flex gap-4 p-6">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">RU</span>
+                        <span className="text-sm font-medium text-gray-700">Фото для русского текста</span>
+                      </div>
+                      {!formData.photo_ru ? (
+                        <div className="border-2 border-dashed border-gray-300 p-6 text-center hover:border-[#7C65FF] transition-colors duration-200 bg-gray-50/50 rounded-xl">
+                          <input
+                            id="photo_ru-upload"
+                            name="photo_ru"
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoChange}
+                            className="hidden"
+                          />
+                          <label htmlFor="photo_ru-upload" className="cursor-pointer">
+                            <Image className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                            <p className="text-gray-600 font-medium text-sm">Нажмите для загрузки фото</p>
+                            <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF до 10MB</p>
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <img 
+                            src={URL.createObjectURL(formData.photo_ru)} 
+                            alt="Загруженное фото RU" 
+                            className="w-full h-48 object-cover rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto('photo_ru')}
+                            className="absolute top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="relative">
-                      <img 
-                        src={URL.createObjectURL(formData.photo)} 
-                        alt="Загруженное фото" 
-                        className="w-full h-64 object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={removePhoto}
-                        className="absolute top-4 right-4 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">UZ</span>
+                        <span className="text-sm font-medium text-gray-700">O'zbekcha matn uchun rasm</span>
+                      </div>
+                      {!formData.photo_uz ? (
+                        <div className="border-2 border-dashed border-gray-300 p-6 text-center hover:border-[#7C65FF] transition-colors duration-200 bg-gray-50/50 rounded-xl">
+                          <input
+                            id="photo_uz-upload"
+                            name="photo_uz"
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoChange}
+                            className="hidden"
+                          />
+                          <label htmlFor="photo_uz-upload" className="cursor-pointer">
+                            <Image className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                            <p className="text-gray-600 font-medium text-sm">Rasm yuklash uchun bosing</p>
+                            <p className="text-xs text-gray-500 mt-1">PNG, JPG, GIF 10MB gacha</p>
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <img 
+                            src={URL.createObjectURL(formData.photo_uz)} 
+                            alt="Загруженное фото UZ" 
+                            className="w-full h-48 object-cover rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto('photo_uz')}
+                            className="absolute top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                   
                   <div className="p-6">
                     <div className="flex items-center gap-3 mb-4">
@@ -156,20 +223,55 @@ const AdminBroadcast = () => {
                       </div>
                     </div>
                     
-                    <div className="relative">
-                      <div className="bg-white border-2 border-[#7C65FF] rounded-xl p-4 min-h-[100px]">
-                        <textarea
-                          id="text"
-                          value={formData.text}
-                          onChange={handleTextChange}
-                          placeholder="Введите текст сообщения для рассылки..."
-                          className="w-full h-full border-none outline-none resize-none bg-transparent text-gray-900 placeholder-gray-400 text-base font-medium leading-relaxed"
-                          style={{ minHeight: '60px' }}
-                          required
-                        />
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <div className="bg-white border-2 border-[#7C65FF] rounded-xl p-4 min-h-[120px]">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">RU</span>
+                            <span className="text-sm font-medium text-gray-700">Текст на русском</span>
+                          </div>
+                          <textarea
+                            id="text_ru"
+                            name="text_ru"
+                            value={formData.text_ru}
+                            onChange={handleTextChange}
+                            placeholder="Введите текст сообщения на русском..."
+                            className="w-full border-none outline-none resize-none bg-transparent text-gray-900 placeholder-gray-400 text-base font-medium leading-relaxed"
+                            style={{ minHeight: '60px' }}
+                            required
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 text-right">
+                          {formData.text_ru.length} символов
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2 text-right">
-                        {formData.text.length} символов
+
+                      <div className="flex-1">
+                        <div className="bg-white border-2 border-[#7C65FF] rounded-xl p-4 min-h-[120px]">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">UZ</span>
+                            <span className="text-sm font-medium text-gray-700">O'zbekcha matn</span>
+                          </div>
+                          <textarea
+                            id="text_uz"
+                            name="text_uz"
+                            value={formData.text_uz}
+                            onChange={handleTextChange}
+                            placeholder="O'zbekcha xabar matnini kiriting..."
+                            className="w-full border-none outline-none resize-none bg-transparent text-gray-900 placeholder-gray-400 text-base font-medium leading-relaxed"
+                            style={{ minHeight: '60px' }}
+                            required
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 text-right">
+                          {formData.text_uz.length} символов
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 text-center">
+                      <p className="text-xs text-gray-500">
+                        Всего: {formData.text_ru.length + formData.text_uz.length} символов
                       </p>
                     </div>
                   </div>
@@ -194,7 +296,7 @@ const AdminBroadcast = () => {
               <div className="flex justify-center">
                 <button
                   type="submit"
-                  disabled={loading || !formData.text.trim()}
+                  disabled={loading || !formData.text_ru.trim() || !formData.text_uz.trim()}
                   className="w-full  px-3 py-3 bg-gradient-to-r from-[#5538F9] to-[#7C65FF] text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-98"
                 >
                   {loading ? (

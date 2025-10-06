@@ -219,7 +219,7 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await sendOtp(phoneE164, referralCode);
+      const ok = await sendOtp(phoneE164, referralCode, language, 'telegram');
       if (ok) {
         setStep("otp");
         setOtp(Array(OTP_LENGTH).fill(""));
@@ -279,7 +279,7 @@ const AuthScreen = () => {
     setIsLoading(true);
     setErrorText("");
     try {
-      const ok = await sendOtp(phoneE164, referralCode);
+      const ok = await sendOtp(phoneE164, referralCode, language, 'telegram');
       if (ok) {
         startResendTimer();
       } else {

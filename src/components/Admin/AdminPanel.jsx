@@ -4,6 +4,7 @@ import AdminUsersList from './AdminUsersList';
 import AdminUserDetail from './AdminUserDetail';
 import AdminRaffles from './AdminRaffles';
 import AdminStats from './AdminStats';
+import AdminBalances from './AdminBalances';
 import AdminBroadcast from './AdminBroadcast';
 import AdminProtectedRoute from './AdminProtectedRoute';
 
@@ -22,6 +23,7 @@ const AdminPanel = () => {
             <Route path="/users/:userId" element={<AdminUserDetail />} />
             <Route path="/raffles" element={<AdminRaffles />} />
             <Route path="/stats" element={<AdminStats />} />
+            <Route path="/balances" element={<AdminBalances />} />
             <Route path="/broadcast" element={<AdminBroadcast />} />
           </Routes>
         </div>

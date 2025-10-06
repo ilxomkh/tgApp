@@ -113,10 +113,16 @@ const fetchWithTimeout = async (url, options, timeout = config.REQUEST_TIMEOUT) 
 };
 
 export const api = {
-  requestOtp: async (phoneNumber, referralCode = null) => {
+  requestOtp: async (phoneNumber, referralCode = null, language = 'ru', source = 'telegram') => {
     const body = phoneNumber ? { phone_number: phoneNumber } : {};
     if (referralCode) {
       body.referral_code = referralCode;
+    }
+    if (language) {
+      body.language = language;
+    }
+    if (source) {
+      body.source = source;
     }
     const response = await fetchWithTimeout(`${API_BASE_URL}${API_ENDPOINTS.REQUEST_OTP}`, {
       method: 'POST',

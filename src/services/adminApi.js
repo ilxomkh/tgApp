@@ -124,6 +124,14 @@ export const adminApi = {
       body: formData,
     });
     return handleResponse(response);
+  },
+
+  getBalances: async () => {
+    const response = await fetchWithTimeout(`${API_BASE_URL}/balances`, {
+      method: 'GET',
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
   }
 };
 

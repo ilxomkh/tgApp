@@ -372,9 +372,11 @@ const AdminRaffles = () => {
   const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
-    title: "",
+    title_ru: "",
+    title_uz: "",
     prize_amount: "",
-    video_url: "",
+    video_url_ru: "",
+    video_url_uz: "",
     is_active: true,
     end_date: "",
   });
@@ -404,8 +406,13 @@ const AdminRaffles = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.title.trim()) {
-      setError("Название обязательно для заполнения");
+    if (!formData.title_ru.trim()) {
+      setError("Название (RU) обязательно для заполнения");
+      return;
+    }
+
+    if (!formData.title_uz.trim()) {
+      setError("Название (UZ) обязательно для заполнения");
       return;
     }
 
@@ -414,8 +421,8 @@ const AdminRaffles = () => {
       return;
     }
 
-    if (!formData.video_url.trim()) {
-      setError("Ссылка на видео обязательна");
+    if (!formData.video_url_ru.trim() && !formData.video_url_uz.trim()) {
+      setError("Ссылка на видео обязательна (хотя бы для одного языка)");
       return;
     }
 
@@ -424,11 +431,23 @@ const AdminRaffles = () => {
       return;
     }
 
-    try {
-      new URL(formData.video_url);
-    } catch {
-      setError("Неверный формат ссылки на видео");
-      return;
+    // Проверяем валидность URL для заполненных полей
+    if (formData.video_url_ru.trim()) {
+      try {
+        new URL(formData.video_url_ru);
+      } catch {
+        setError("Неверный формат ссылки на видео (RU)");
+        return;
+      }
+    }
+
+    if (formData.video_url_uz.trim()) {
+      try {
+        new URL(formData.video_url_uz);
+      } catch {
+        setError("Неверный формат ссылки на видео (UZ)");
+        return;
+      }
     }
 
     try {
@@ -436,8 +455,12 @@ const AdminRaffles = () => {
       setError(null);
 
       const raffleData = {
-        ...formData,
+        title_ru: formData.title_ru,
+        title_uz: formData.title_uz,
         prize_amount: parseInt(formData.prize_amount),
+        video_url_ru: formData.video_url_ru || formData.video_url_uz, // Fallback логика
+        video_url_uz: formData.video_url_uz || formData.video_url_ru, // Fallback логика
+        is_active: formData.is_active,
         end_date: new Date(formData.end_date).toISOString(),
       };
 
@@ -445,9 +468,11 @@ const AdminRaffles = () => {
 
       setSuccess(true);
       setFormData({
-        title: "",
+        title_ru: "",
+        title_uz: "",
         prize_amount: "",
-        video_url: "",
+        video_url_ru: "",
+        video_url_uz: "",
         is_active: true,
         end_date: "",
       });
@@ -528,20 +553,37 @@ const AdminRaffles = () => {
                 <div className="bg-white border-1 border-gray-200 rounded-2xl overflow-hidden">
                   <div className="p-6 border-b border-gray-100">
                     <div className="space-y-4">
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <TextIcon className="h-5 w-5 text-[#7C65FF]" />
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">RU</span>
+                          </div>
+                          <input
+                            type="text"
+                            id="title_ru"
+                            name="title_ru"
+                            value={formData.title_ru}
+                            onChange={handleInputChange}
+                            className="w-full pl-16 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-[#7C65FF] transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
+                            placeholder="Название розыгрыша на русском..."
+                            required
+                          />
                         </div>
-                        <input
-                          type="text"
-                          id="title"
-                          name="title"
-                          value={formData.title}
-                          onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-[#7C65FF] transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
-                          placeholder="Название розыгрыша..."
-                          required
-                        />
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">UZ</span>
+                          </div>
+                          <input
+                            type="text"
+                            id="title_uz"
+                            name="title_uz"
+                            value={formData.title_uz}
+                            onChange={handleInputChange}
+                            className="w-full pl-16 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-[#7C65FF] transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
+                            placeholder="Lotereya nomi o'zbekcha..."
+                            required
+                          />
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -579,71 +621,146 @@ const AdminRaffles = () => {
                   </div>
 
                   <div className="p-6">
-                    <div className="relative mb-4">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <VideoIcon className="h-5 w-5 text-red-500" />
-                      </div>
-                      <input
-                        type="url"
-                        id="video_url"
-                        name="video_url"
-                        value={formData.video_url}
-                        onChange={handleInputChange}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-red-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
-                        placeholder="https://youtu.be/_RwD8PDZb7A?si=OeICMOWlQm9vRFgA"
-                        required
-                      />
-                    </div>
-
-                    {formData.video_url && (
-                      <div className="bg-gray-50 rounded-xl p-4">
-                        <div className="aspect-video bg-black rounded-lg overflow-hidden">
-                          {(() => {
-                            const getYouTubeVideoId = (url) => {
-                              const regExp =
-                                /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                              const match = url.match(regExp);
-                              return match && match[2].length === 11
-                                ? match[2]
-                                : null;
-                            };
-
-                            const videoId = getYouTubeVideoId(
-                              formData.video_url
-                            );
-
-                            if (videoId) {
-                              return (
-                                <iframe
-                                  width="100%"
-                                  height="100%"
-                                  src={`https://www.youtube.com/embed/${videoId}`}
-                                  title="YouTube video player"
-                                  frameBorder="0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                  className="w-full h-full"
-                                ></iframe>
-                              );
-                            } else {
-                              return (
-                                <div className="w-full h-full flex items-center justify-center text-white">
-                                  <div className="text-center">
-                                    <VideoIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                                    <p className="text-sm">
-                                      Неверная ссылка на видео
-                                    </p>
-                                  </div>
-                                </div>
-                              );
-                            }
-                          })()}
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">RU</span>
+                          <span className="text-sm font-medium text-gray-700">Ссылка на видео (русский)</span>
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="url"
+                            id="video_url_ru"
+                            name="video_url_ru"
+                            value={formData.video_url_ru}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-red-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
+                            placeholder="https://youtu.be/_RwD8PDZb7A?si=OeICMOWlQm9vRFgA"
+                          />
                         </div>
                       </div>
-                    )}
 
-                    {!formData.video_url && (
-                      <div className="bg-gray-50 rounded-xl p-8 text-center">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">UZ</span>
+                          <span className="text-sm font-medium text-gray-700">Video havolasi (o'zbekcha)</span>
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="url"
+                            id="video_url_uz"
+                            name="video_url_uz"
+                            value={formData.video_url_uz}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-4 border-2 border-gray-100 rounded-xl focus:ring-0 focus:border-red-500 transition-all duration-300 bg-gray-50/50 focus:bg-white text-gray-900 placeholder-gray-400 text-sm font-medium"
+                            placeholder="https://youtu.be/_RwD8PDZb7A?si=OeICMOWlQm9vRFgA"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 mt-4">
+                      {formData.video_url_ru && (
+                        <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">RU</span>
+                            <span className="text-sm font-medium text-gray-700">Предпросмотр видео (русский)</span>
+                          </div>
+                          <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                            {(() => {
+                              const getYouTubeVideoId = (url) => {
+                                const regExp =
+                                  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                                const match = url.match(regExp);
+                                return match && match[2].length === 11
+                                  ? match[2]
+                                  : null;
+                              };
+
+                              const videoId = getYouTubeVideoId(formData.video_url_ru);
+
+                              if (videoId) {
+                                return (
+                                  <iframe
+                                    width="100%"
+                                    height="100%"
+                                    src={`https://www.youtube.com/embed/${videoId}`}
+                                    title="YouTube video player"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="w-full h-full"
+                                  ></iframe>
+                                );
+                              } else {
+                                return (
+                                  <div className="w-full h-full flex items-center justify-center text-white">
+                                    <div className="text-center">
+                                      <VideoIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                      <p className="text-sm">
+                                        Неверная ссылка на видео
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                        </div>
+                      )}
+
+                      {formData.video_url_uz && (
+                        <div className="flex-1 bg-gray-50 rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded">UZ</span>
+                            <span className="text-sm font-medium text-gray-700">Video ko'rish (o'zbekcha)</span>
+                          </div>
+                          <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                            {(() => {
+                              const getYouTubeVideoId = (url) => {
+                                const regExp =
+                                  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                                const match = url.match(regExp);
+                                return match && match[2].length === 11
+                                  ? match[2]
+                                  : null;
+                              };
+
+                              const videoId = getYouTubeVideoId(formData.video_url_uz);
+
+                              if (videoId) {
+                                return (
+                                  <iframe
+                                    width="100%"
+                                    height="100%"
+                                    src={`https://www.youtube.com/embed/${videoId}`}
+                                    title="YouTube video player"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    className="w-full h-full"
+                                  ></iframe>
+                                );
+                              } else {
+                                return (
+                                  <div className="w-full h-full flex items-center justify-center text-white">
+                                    <div className="text-center">
+                                      <VideoIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                      <p className="text-sm">
+                                        Noto'g'ri video havolasi
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {!formData.video_url_ru && !formData.video_url_uz && (
+                      <div className="bg-gray-50 rounded-xl p-8 text-center mt-4">
                         <VideoIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                         <p className="text-sm text-gray-500">
                           Введите ссылку на видео для предпросмотра

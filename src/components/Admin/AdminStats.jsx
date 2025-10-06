@@ -521,7 +521,7 @@ const AdminStats = () => {
                   {stats.activeUsers.toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-500 bg-[#5538F9]/5 px-2 py-1 rounded-full">
-                  За последние 30 дней
+                  За все время
                 </p>
               </div>
               <div className="w-14 h-14 bg-gradient-to-br from-[#5538F9] to-[#7C65FF] rounded-2xl flex items-center justify-center">
@@ -559,7 +559,7 @@ const AdminStats = () => {
                   {stats.newUsersThisMonth.toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-500 bg-blue-50 px-2 py-1 rounded-full">
-                  За последние 30 дней
+                  За последний месяц
                 </p>
               </div>
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center">

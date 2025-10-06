@@ -61,24 +61,30 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const sendOtp = async (phoneNumber, referralCode = null) => {
+  const sendOtp = async (phoneNumber, referralCode = null, language = 'ru', source = 'telegram') => {
     try {
       trackingService.track('auth_otp_request', {
         phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
-        has_referral_code: !!referralCode
+        has_referral_code: !!referralCode,
+        language: language,
+        source: source
       });
       
-      const response = await api.requestOtp(phoneNumber, referralCode);
+      const response = await api.requestOtp(phoneNumber, referralCode, language, source);
       
       trackingService.track('auth_otp_request_success', {
-        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null
+        phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
+        language: language,
+        source: source
       });
       
       return true;
     } catch (error) {
       trackingService.track('auth_otp_request_error', {
         phone_number: phoneNumber ? phoneNumber.replace(/\d(?=\d{4})/g, '*') : null,
-        error_message: error.message
+        error_message: error.message,
+        language: language,
+        source: source
       });
       
       return false;

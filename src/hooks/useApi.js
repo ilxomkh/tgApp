@@ -22,12 +22,12 @@ export const useApi = () => {
     return { success: false, error: errorMessage };
   }, [resetToOnboarding]);
 
-  const requestOtp = useCallback(async (phoneNumber) => {
+  const requestOtp = useCallback(async (phoneNumber, referralCode = null, language = 'ru', source = 'telegram') => {
     setLoading(true);
     setError(null);
     
     try {
-      const result = await api.requestOtp(phoneNumber);
+      const result = await api.requestOtp(phoneNumber, referralCode, language, source);
       return { success: true, data: result };
     } catch (err) {
       return handleApiError(err);
