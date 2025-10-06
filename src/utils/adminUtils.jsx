@@ -34,8 +34,8 @@ export const formatCurrency = (amount) => {
 // Получение информации о языке
 export const getLanguageInfo = (lang) => {
   const languages = {
-    'uz': { icon: <FlagUzIcon className="w-4 h-4" />, name: 'Узбекский' },
-    'ru': { icon: <FlagRuIcon className="w-4 h-4" />, name: 'Русский' },
+    'uz': { icon: <FlagUzIcon className="w-4 h-4" /> },
+    'ru': { icon: <FlagRuIcon className="w-4 h-4" /> },
     'en': { icon: <FlagUsIcon className="w-4 h-4" />, name: 'Английский' }
   };
   return languages[lang] || { icon: <GlobeIcon className="w-4 h-4" />, name: 'Не определен' };

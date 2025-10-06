@@ -160,9 +160,8 @@ const AdminUsersList = () => {
                     </div>
 
                     <div className="hidden md:flex items-center">
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-gray-700">
                         <span>{langInfo.icon}</span>
-                        <span>{langInfo.name}</span>
                       </div>
                     </div>
 
