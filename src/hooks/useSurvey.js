@@ -101,6 +101,9 @@ export const useSurvey = () => {
 
       return survey;
     } catch (err) {
+      if (err.message && err.message.includes('Вы уже прошли этот опрос')) {
+        markSurveyAsCompleted(surveyId);
+      }
       setError(err.message);
       throw err;
     } finally {

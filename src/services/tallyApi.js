@@ -39,6 +39,11 @@ class TallyApiService {
       return result;
     } catch (error) {
       console.error(`Error getting Tally form ${formId}:`, error);
+      
+      if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
+        throw error;
+      }
+      
       throw new Error(`Failed to get Tally form ${formId} from server`);
     }
   }
@@ -60,6 +65,11 @@ class TallyApiService {
       };
     } catch (error) {
       console.error(`Error getting form details for ${formId}:`, error);
+      
+      // Если опрос уже пройден, пробрасываем ошибку дальше
+      if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
+        throw error;
+      }
       
       return this.getFallbackFormDetails(formId);
     }
