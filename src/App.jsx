@@ -194,7 +194,6 @@ function RouterContent() {
   const { isLanguageModalOpen, closeLanguageModal } = useLanguage();
   const location = useLocation();
   
-  // Инициализируем трекинг для всего приложения
   useTracking({
     trackPageViews: true,
     trackTimeOnPage: true

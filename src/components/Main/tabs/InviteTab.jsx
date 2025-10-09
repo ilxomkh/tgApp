@@ -71,9 +71,7 @@ const InviteTab = ({ locale = "ru", user }) => {
           earned_amount: result.data.earned_amount ?? 0,
           referral_code: result.data.referral_code ?? null,
         });
-      } else {
-        console.error("Failed to load invite stats:", result.error);
-      }
+      } else {}
     };
 
     loadInviteStats();

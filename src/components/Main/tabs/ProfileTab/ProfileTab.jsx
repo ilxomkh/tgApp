@@ -69,9 +69,7 @@ const ProfileTab = ({ t = {}, onClose, onResetToOnboarding }) => {
           if (result.success) {
             setUserProfile(result.data);
           }
-        } catch (error) {
-          console.error("Error loading profile:", error);
-        }
+        } catch (error) {}
       }
     };
 

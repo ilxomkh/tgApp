@@ -15,7 +15,6 @@ const UserBalance = ({ userId }) => {
       const balanceData = await adminApi.getUserBalance(userId);
       setBalance(balanceData);
     } catch (err) {
-      console.error('Error fetching user balance:', err);
       setError(err.message || 'Ошибка загрузки баланса пользователя');
     } finally {
       setLoading(false);

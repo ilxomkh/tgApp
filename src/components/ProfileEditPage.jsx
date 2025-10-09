@@ -363,9 +363,7 @@ const ProfileEditPage = () => {
         setErrors({ general: t.errors.updateFailed });
         return false;
       }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      
+    } catch (error) {      
       setErrors({ general: t.errors.updateFailed });
       return false;
     } finally {

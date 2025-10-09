@@ -268,9 +268,7 @@ const WithdrawScreen = () => {
       const result = await getCards();
       if (result.success) {
         setUserCards(result.data);
-      } else {
-        console.error("Failed to load cards:", result.error);
-      }
+      } else {}
     };
 
     loadUserCards();
@@ -525,7 +523,6 @@ const WithdrawScreen = () => {
         }
       }
     } catch (error) {
-      console.error("Error adding card:", error);
       setErrorText(t.error);
     }
   };
@@ -567,7 +564,6 @@ const WithdrawScreen = () => {
         setPaymentError(result.error || t.paymentError);
       }
     } catch (error) {
-      console.error("Payment error:", error);
       setPaymentError(t.paymentError);
     } finally {
       setIsPaymentProcessing(false);

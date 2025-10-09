@@ -29,7 +29,6 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
   const loadSurveys = async () => {
     try {
-      console.log('🔄 Загружаем список опросов...');
       setSurveysLoading(true);
       
       const availableSurveys = await getAvailableSurveys();
@@ -39,20 +38,8 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
         const matchesLanguage = surveyLanguage === language;
         const isNotCompleted = !isSurveyCompleted(survey.id);
         
-        console.log(`🔍 Фильтрация опроса ${survey.id}:`, {
-          title: survey.title,
-          language: surveyLanguage,
-          matchesLanguage,
-          isNotCompleted,
-          willShow: matchesLanguage && isNotCompleted
-        });
-        
-        if (!matchesLanguage) {
-          console.log(`❌ Опрос ${survey.id} не подходит по языку`);
-        }
-        if (!isNotCompleted) {
-          console.log(`❌ Опрос ${survey.id} уже пройден`);
-        }
+        if (!matchesLanguage) {}
+        if (!isNotCompleted) {}
         
         return matchesLanguage && isNotCompleted;
       });
@@ -71,24 +58,17 @@ const HomeTab = ({ t, onOpenProfile, user }) => {
 
 
   const handleSurveyStart = async (surveyId) => {
-    try {
-      console.log(`🚀 Начинаем опрос ${surveyId}`);
-      
+    try {      
       if (surveyCache[surveyId]) {
-        console.log(`📋 Используем кэшированный опрос ${surveyId}`);
         openSurveyModal(surveyCache[surveyId]);
         return;
       }
 
-      console.log(`📥 Загружаем детали опроса ${surveyId}`);
       const survey = await getSurvey(surveyId);
-      console.log(`✅ Опрос ${surveyId} загружен успешно`);
       openSurveyModal(survey);
     } catch (error) {
-      console.log(`❌ Ошибка при загрузке опроса ${surveyId}:`, error.message);
       
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
-        console.log(`🔄 Опрос ${surveyId} уже пройден, обновляем список`);
         loadSurveys();
       }
     }

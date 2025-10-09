@@ -309,19 +309,9 @@ export const api = {
       
       return result;
     } catch (error) {
-      console.error('❌ API Error in submitTallyForm:', {
-        error: error.message,
-        endpoint,
-        formId,
-        userId,
-        timestamp: new Date().toISOString()
-      });
-      
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
-        console.log(`📝 Опрос ${formId} уже пройден, отмечаем как завершенный`);
         markSurveyAsCompleted(formId);
       }
-      
       throw error;
     }
   },

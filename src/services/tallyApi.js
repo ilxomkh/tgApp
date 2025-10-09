@@ -20,11 +20,9 @@ class TallyApiService {
       } else if (Array.isArray(result)) {
         return result;
       } else {
-        console.warn('Unexpected API response structure:', result);
         return [];
       }
     } catch (error) {
-      console.error('Error getting Tally forms:', error);
       throw new Error('Failed to get Tally forms from server');
     }
   }
@@ -37,9 +35,7 @@ class TallyApiService {
     try {
       const result = await api.getTallyFormById(formId);
       return result;
-    } catch (error) {
-      console.error(`Error getting Tally form ${formId}:`, error);
-      
+    } catch (error) {      
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
         throw error;
       }
@@ -63,10 +59,7 @@ class TallyApiService {
         totalQuestions: formDetails.questions ? formDetails.questions.length : 0,
         requiredQuestions: formDetails.questions ? formDetails.questions.filter(q => q.required).length : 0
       };
-    } catch (error) {
-      console.error(`Error getting form details for ${formId}:`, error);
-      
-      // Если опрос уже пройден, пробрасываем ошибку дальше
+    } catch (error) {      
       if (error.message && error.message.includes('Вы уже прошли этот опрос')) {
         throw error;
       }
@@ -106,7 +99,6 @@ class TallyApiService {
       const result = await api.getTallyFormResponses(formId);
       return result;
     } catch (error) {
-      console.error(`Error getting responses for form ${formId}:`, error);
       throw new Error(`Failed to get responses for form ${formId} from server`);
     }
   }
@@ -135,7 +127,6 @@ class TallyApiService {
    */
   async getAvailableForms(language = 'ru') {
     if (!config.TALLY.SERVER_API.ENABLED) {
-      console.warn('Server API is disabled, returning empty array');
       return [];
     }
 
@@ -262,7 +253,6 @@ class TallyApiService {
       
       return mapping;
     } catch (error) {
-      console.warn('Failed to get form ID mapping from server:', error);
       return {
         'registration': config.TALLY.FORM_IDS.ru || '3xqyg9'
       };

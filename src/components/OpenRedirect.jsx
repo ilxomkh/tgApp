@@ -16,9 +16,7 @@ export default function OpenRedirect() {
     const timer = setTimeout(() => {
       try {
         tg?.close?.();
-      } catch (err) {
-        console.warn("Ошибка при закрытии WebApp:", err);
-      }
+      } catch (err) {}
     }, 2000);
 
     return () => clearTimeout(timer);

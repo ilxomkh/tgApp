@@ -24,14 +24,12 @@ class TildaWebhookService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Tilda webhook error:', response.status, errorText);
         throw new Error(`Webhook processing failed: ${response.status}`);
       }
 
       const result = await response.json();
       return result;
     } catch (error) {
-      console.error('Error processing Tilda webhook:', error);
       throw error;
     }
   }
@@ -90,7 +88,6 @@ class TildaWebhookService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error getting survey stats:', error);
       throw new Error('Failed to get survey statistics');
     }
   }
@@ -108,7 +105,6 @@ class TildaWebhookService {
       });
       return response.ok;
     } catch (error) {
-      console.error('Webhook health check failed:', error);
       return false;
     }
   }

@@ -11,9 +11,7 @@ export const lightImpact = () => {
   if (isTelegramWebApp()) {
     try {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-    } catch (error) {
-      console.warn('Haptic feedback error:', error);
-    }
+    } catch (error) {}
   }
 };
 
@@ -21,9 +19,7 @@ export const mediumImpact = () => {
   if (isTelegramWebApp()) {
     try {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-    } catch (error) {
-      console.warn('Haptic feedback error:', error);
-    }
+    } catch (error) {}
   }
 };
 
@@ -31,9 +27,7 @@ export const heavyImpact = () => {
   if (isTelegramWebApp()) {
     try {
       window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-    } catch (error) {
-      console.warn('Haptic feedback error:', error);
-    }
+    } catch (error) {}
   }
 };
 
@@ -41,9 +35,7 @@ export const notificationSuccess = () => {
   if (isTelegramWebApp()) {
     try {
       window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-    } catch (error) {
-      console.warn('Haptic feedback error:', error);
-    }
+    } catch (error) {}
   }
 };
 
@@ -51,9 +43,7 @@ export const notificationError = () => {
   if (isTelegramWebApp()) {
     try {
       window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-    } catch (error) {
-      console.warn('Haptic feedback error:', error);
-    }
+    } catch (error) {}
   }
 };
 
@@ -61,9 +51,7 @@ export const notificationWarning = () => {
   if (isTelegramWebApp()) {
     try {
       window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning');
-    } catch (error) {
-      console.warn('Haptic feedback error:', error);
-    }
+    } catch (error) {}
   }
 };
 
@@ -71,9 +59,7 @@ export const selectionChanged = () => {
   if (isTelegramWebApp()) {
     try {
       window.Telegram.WebApp.HapticFeedback.selectionChanged();
-    } catch (error) {
-      console.warn('Haptic feedback error:', error);
-    }
+    } catch (error) {}
   }
 };
 
@@ -196,9 +182,7 @@ export const initGlobalHapticFeedback = (options = {}) => {
           default:
             lightImpact();
         }
-      } catch (error) {
-        console.warn('Global haptic feedback error:', error);
-      }
+      } catch (error) {}
     }
   };
 

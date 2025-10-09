@@ -131,7 +131,7 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = (firstDay.getDay() + 6) % 7; // Monday = 0
+    const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
 
     const days = [];
     for (let i = 0; i < startingDayOfWeek; i++) {
@@ -212,7 +212,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute z-50 mt-1 bg-white rounded-xl shadow-2xl border border-gray-200 p-3 w-full left-0">
-            {/* Month Navigation */}
             <div className="flex items-center justify-between mb-2">
               <button
                 type="button"
@@ -272,7 +271,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
               </button>
             </div>
 
-            {/* Week Days */}
             <div className="grid grid-cols-7 gap-0.5 mb-1">
               {weekDays.map((day) => (
                 <div
@@ -284,7 +282,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
               ))}
             </div>
 
-            {/* Calendar Days */}
             <div className="grid grid-cols-7 gap-0.5 mb-3">
               {days.map((date, index) => (
                 <button
@@ -309,7 +306,6 @@ const CustomDateTimePicker = ({ value, onChange, error }) => {
               ))}
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-1.5">
               <button
                 type="button"
@@ -431,7 +427,6 @@ const AdminRaffles = () => {
       return;
     }
 
-    // Проверяем валидность URL для заполненных полей
     if (formData.video_url_ru.trim()) {
       try {
         new URL(formData.video_url_ru);
@@ -458,8 +453,8 @@ const AdminRaffles = () => {
         title_ru: formData.title_ru,
         title_uz: formData.title_uz,
         prize_amount: parseInt(formData.prize_amount),
-        video_url_ru: formData.video_url_ru || formData.video_url_uz, // Fallback логика
-        video_url_uz: formData.video_url_uz || formData.video_url_ru, // Fallback логика
+        video_url_ru: formData.video_url_ru || formData.video_url_uz,
+        video_url_uz: formData.video_url_uz || formData.video_url_ru,
         is_active: formData.is_active,
         end_date: new Date(formData.end_date).toISOString(),
       };

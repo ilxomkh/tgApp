@@ -23,36 +23,28 @@ export const SurveyManager = () => {
     try {
       const surveys = await getAvailableSurveys();
       return surveys;
-    } catch (error) {
-      console.error('Ошибка при получении опросов:', error);
-    }
+    } catch (error) {}
   };
 
   const handleGetSurvey = async (surveyId) => {
     try {
       const survey = await getSurvey(surveyId);
       return survey;
-    } catch (error) {
-      console.error('Ошибка при получении опроса:', error);
-    }
+    } catch (error) {}
   };
 
   const handleGetResponses = async (formId) => {
     try {
       const responses = await getFormResponses(formId);
       return responses;
-    } catch (error) {
-      console.error('Ошибка при получении ответов:', error);
-    }
+    } catch (error) {}
   };
 
   const handleSyncData = async (formId) => {
     try {
       const result = await syncTallyData(formId);
       return result;
-    } catch (error) {
-      console.error('Ошибка при синхронизации:', error);
-    }
+    } catch (error) {}
   };
 
   const handleDirectApiCall = async () => {
@@ -70,7 +62,6 @@ export const SurveyManager = () => {
         const syncResult = await syncData({ formId: firstForm.id, action: 'sync' });
       }
     } catch (error) {
-      console.error('Ошибка при прямом вызове API:', error);
     }
   };
 
@@ -79,7 +70,6 @@ export const SurveyManager = () => {
       const isAvailable = await tallyApiService.isServerApiAvailable();
       return isAvailable;
     } catch (error) {
-      console.error('Ошибка при проверке API:', error);
       return false;
     }
   };

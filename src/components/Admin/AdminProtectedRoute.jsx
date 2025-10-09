@@ -26,7 +26,6 @@ const AdminProtectedRoute = ({ children }) => {
           setIsAuthorized(adminPhoneNumbers.includes(result.data?.phone_number));
         }
       } catch (error) {
-        console.error("Error checking admin access:", error);
         setIsAuthorized(false);
       } finally {
         setLoading(false);

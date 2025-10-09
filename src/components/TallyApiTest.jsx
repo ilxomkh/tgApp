@@ -127,7 +127,6 @@ const TallyApiTest = () => {
       }
 
     } catch (error) {
-      console.error('Критическая ошибка при тестировании:', error);
       results.criticalError = {
         success: false,
         message: 'Критическая ошибка при тестировании',

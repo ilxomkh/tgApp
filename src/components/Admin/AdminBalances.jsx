@@ -39,7 +39,6 @@ const AdminBalances = () => {
       setBalances(data);
       setLastUpdated(new Date());
     } catch (err) {
-      console.error("Ошибка при получении балансов:", err);
       setError(err.message || "Ошибка при загрузке балансов");
     } finally {
       setLoading(false);
@@ -155,7 +154,6 @@ const AdminBalances = () => {
       
       <div className="relative z-10 px-6 py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Балансы сервисов</h1>
@@ -180,7 +178,6 @@ const AdminBalances = () => {
             </div>
           </div>
 
-          {/* Summary Cards */}
           {balances && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-[#7C65FF]/10 shadow-lg">
@@ -227,9 +224,7 @@ const AdminBalances = () => {
             </div>
           )}
 
-          {/* Services List */}
           <div className="space-y-6">
-            {/* Eskiz Service */}
             {balances?.eskiz && (
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-[#7C65FF]/10 shadow-lg overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200">
@@ -242,7 +237,6 @@ const AdminBalances = () => {
                 </div>
                 
                 <div className="p-6">
-                  {/* Balance Info */}
                   <div className="mb-6 p-4 bg-gradient-to-r from-[#7C65FF]/5 to-[#5538F9]/5 rounded-xl">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-lg font-semibold text-gray-900">Баланс</h3>
@@ -261,7 +255,6 @@ const AdminBalances = () => {
                     </div>
                   </div>
 
-                  {/* Domains */}
                   {balances.eskiz.domains && balances.eskiz.domains.length > 0 && (
                     <div className="mb-6">
                       <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -293,7 +286,6 @@ const AdminBalances = () => {
                     </div>
                   )}
 
-                  {/* VPS */}
                   {balances.eskiz.vps && balances.eskiz.vps.length > 0 && (
                     <div>
                       <h4 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -329,7 +321,6 @@ const AdminBalances = () => {
               </div>
             )}
 
-            {/* Atmos Service */}
             {balances?.atmos && (
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-[#7C65FF]/10 shadow-lg overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-200">

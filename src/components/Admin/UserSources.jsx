@@ -14,7 +14,6 @@ const UserSources = ({ userId }) => {
       const sourcesData = await adminApi.getUserSources(userId);
       setSources(sourcesData);
     } catch (err) {
-      console.error('Error fetching user sources:', err);
       setError(err.message || 'Ошибка загрузки источников пользователя');
     } finally {
       setLoading(false);

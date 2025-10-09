@@ -647,9 +647,7 @@ const LotteryTab = ({ t }) => {
       const result = await getRaffles();
       if (result.success) {
         setRaffles(result.data);
-      } else {
-        console.error("Failed to load raffles:", result.error);
-      }
+      } else {}
     };
 
     loadRaffles();

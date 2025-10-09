@@ -71,7 +71,6 @@ const AuthScreen = () => {
         })
         .then((otp) => {
           if (otp && otp.code) {
-            console.log("WebOTP code:", otp.code);
 
             const code = otp.code.replace(/\D/g, "").slice(0, OTP_LENGTH);
             if (code.length === OTP_LENGTH) {
@@ -80,7 +79,7 @@ const AuthScreen = () => {
             }
           }
         })
-        .catch((err) => console.log("WebOTP error:", err));
+        .catch((err) => {});
 
       return () => ac.abort();
     }
@@ -174,7 +173,6 @@ const AuthScreen = () => {
 
   const handleOtpAutofill = (e) => {
     const value = e.target.value.replace(/\D/g, "");
-    console.log('OTP Autofill detected:', value);
     
     if (value.length === OTP_LENGTH) {
       const next = Array(OTP_LENGTH).fill("");
@@ -194,7 +192,6 @@ const AuthScreen = () => {
 
   const handleHiddenOtpChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
-    console.log('Hidden OTP field changed:', value);
     
     if (value.length === OTP_LENGTH) {
       const next = Array(OTP_LENGTH).fill("");
@@ -228,7 +225,6 @@ const AuthScreen = () => {
         setErrorText(getMessage('NETWORK_ERROR', language));
       }
     } catch (error) {
-      console.error('Send OTP error:', error);
       const errorMessage = getApiErrorMessage(error, language);
       
       if (errorMessage.includes('phone') || errorMessage.includes('номер') || errorMessage.includes('raqam')) {
@@ -259,7 +255,6 @@ const AuthScreen = () => {
         setErrorText(T.wrongOtp);
       }
     } catch (error) {
-      console.error('Verify OTP error:', error);
       const errorMessage = getApiErrorMessage(error, language);
       setErrorText(errorMessage);
     } finally {
@@ -286,7 +281,6 @@ const AuthScreen = () => {
         setErrorText(getMessage('NETWORK_ERROR', language));
       }
     } catch (error) {
-      console.error('Resend OTP error:', error);
       const errorMessage = getApiErrorMessage(error, language);
       setErrorText(errorMessage);
     } finally {

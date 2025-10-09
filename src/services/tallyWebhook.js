@@ -51,7 +51,6 @@ class TallyWebhookService {
         submissionId: payload.submissionId,
       };
     } catch (error) {
-      console.error('Error processing Tally webhook:', error);
       throw new Error('Failed to process webhook data');
     }
   }
@@ -165,7 +164,6 @@ class TallyWebhookService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error sending survey data to server:', error);
       throw new Error('Failed to send survey data to server');
     }
   }
@@ -189,7 +187,6 @@ class TallyWebhookService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error getting survey stats:', error);
       throw new Error('Failed to get survey statistics');
     }
   }

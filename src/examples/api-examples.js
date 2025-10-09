@@ -5,7 +5,6 @@ export const exampleRequestOtp = async () => {
     const result = await api.requestOtp('+998414736544');
     return result;
   } catch (error) {
-    console.error('Ошибка отправки OTP:', error.message);
     throw error;
   }
 };
@@ -27,7 +26,6 @@ export const exampleFullAuth = async () => {
     
     return userData;
   } catch (error) {
-    console.error('Ошибка в процессе аутентификации:', error.message);
     throw error;
   }
 };
@@ -38,7 +36,6 @@ export const exampleGetUserProfile = async () => {
     const result = await api.getUserProfile();
     return result;
   } catch (error) {
-    console.error('Ошибка получения профиля:', error.message);
     throw error;
   }
 };
@@ -55,7 +52,6 @@ export const exampleUpdateUserProfile = async () => {
     const result = await api.updateUserProfile(updateData);
     return result;
   } catch (error) {
-    console.error('Ошибка обновления профиля:', error.message);
     throw error;
   }
 };
@@ -65,7 +61,6 @@ export const exampleGetRaffles = async () => {
     const result = await api.getRaffles();
     return result;
   } catch (error) {
-    console.error('Ошибка получения лотерей:', error.message);
     throw error;
   }
 };
@@ -90,7 +85,6 @@ export const exampleProfileWorkflow = async () => {
     
     return refreshedProfile;
   } catch (error) {
-    console.error('Ошибка в цикле работы с профилем:', error.message);
     throw error;
   }
 };
@@ -111,7 +105,6 @@ export const exampleCardsWorkflow = async () => {
     
     return updatedCards;
   } catch (error) {
-    console.error('Ошибка в цикле работы с картами:', error.message);
     throw error;
   }
 };
@@ -125,7 +118,6 @@ export const exampleGetInviteStats = async () => {
     
     return stats;
   } catch (error) {
-    console.error('Ошибка получения статистики приглашений:', error.message);
     throw error;
   }
 };
@@ -147,7 +139,6 @@ export const exampleCreateOrder = async () => {
     
     return result;
   } catch (error) {
-    console.error('Ошибка создания заказа:', error.message);
     throw error;
   }
 };
@@ -166,7 +157,6 @@ export const exampleCreatePayment = async () => {
     
     return result;
   } catch (error) {
-    console.error('Ошибка создания платежа:', error.message);
     throw error;
   }
 };
@@ -215,7 +205,6 @@ export const exampleErrorHandling = async () => {
         await api.updateUserProfile(testCase);
       }
     } catch (error) {
-      console.error(`Ожидаемая ошибка: ${error.message}`);
     }
   }
 };

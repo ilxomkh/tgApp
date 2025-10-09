@@ -25,7 +25,6 @@ const AdminUserDetail = () => {
       const userData = await adminApi.getUserById(userId);
       setUser(userData);
     } catch (err) {
-      console.error('Error fetching user:', err);
       setError(err.message || 'Ошибка загрузки данных пользователя');
     } finally {
       setLoading(false);

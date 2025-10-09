@@ -48,11 +48,8 @@ const SurveyStatusTest = () => {
         timestamp: new Date().toISOString()
       });
       
-      forms.forEach(form => {
-        console.log(`  - ${form.id}: ${form.title}`);
-      });
+      forms.forEach(form => {});
     } catch (error) {
-      console.error('❌ Ошибка при получении опросов:', error);
       setTestResults({
         error: error.message,
         timestamp: new Date().toISOString()

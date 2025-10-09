@@ -16,7 +16,6 @@ const UserReferrals = ({ userId }) => {
       const referralsData = await adminApi.getUserReferrals(userId);
       setReferrals(referralsData);
     } catch (err) {
-      console.error('Error fetching user referrals:', err);
       setError(err.message || 'Ошибка загрузки реферальной информации');
     } finally {
       setLoading(false);

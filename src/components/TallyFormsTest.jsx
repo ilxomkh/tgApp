@@ -17,7 +17,6 @@ const TallyFormsTest = () => {
       setApiStatus(isAvailable ? 'available' : 'unavailable');
     } catch (err) {
       setApiStatus('error');
-      console.error('API status check failed:', err);
     }
   };
 
@@ -44,7 +43,6 @@ const TallyFormsTest = () => {
       setForms(directForms);
     } catch (err) {
       setError(err.message);
-      console.error('Failed to load forms directly:', err);
     } finally {
       setLoading(false);
     }
@@ -60,7 +58,6 @@ const TallyFormsTest = () => {
       setSelectedForm(formId);
     } catch (err) {
       setError(err.message);
-      console.error('Failed to load form details:', err);
     } finally {
       setLoading(false);
     }

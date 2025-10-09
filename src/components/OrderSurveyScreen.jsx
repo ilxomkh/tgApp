@@ -123,12 +123,8 @@ const OrderSurveyScreen = () => {
         setSubmitSuccess(true);
         setIsFormSubmitted(true);
         setIsSuccessModalOpen(true);
-      } else {
-        console.error('Submit error:', result.error);
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    } finally {
+      } else {}
+    } catch (error) {} finally {
       setIsSubmitting(false);
     }
   };
@@ -255,12 +251,9 @@ const OrderSurveyScreen = () => {
       if (result.success) {
         setSubmitSuccess(true);
         setIsSuccessModalOpen(true);
-      } else {
-        console.error('Auto submit error:', result.error);
-      }
-    } catch (error) {
-      console.error('Error auto submitting form:', error);
-    } finally {
+      } else {}
+    } catch (error) {}
+     finally {
       setIsSubmitting(false);
     }
   }, [isFormSubmitted, isSubmitting, hasFormData, formData, createOrder]);

@@ -15,7 +15,6 @@ const UserStats = ({ userId }) => {
       const statsData = await adminApi.getUserStats(userId);
       setStats(statsData);
     } catch (err) {
-      console.error('Error fetching user stats:', err);
       setError(err.message || 'Ошибка загрузки статистики пользователя');
     } finally {
       setLoading(false);

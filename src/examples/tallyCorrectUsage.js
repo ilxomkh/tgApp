@@ -16,12 +16,8 @@ export const TallyApiCorrectUsage = () => {
         });
         
         return result.data;
-      } else {
-        console.error('Ошибка при получении форм:', result.error);
-      }
-    } catch (error) {
-      console.error('Критическая ошибка:', error);
-    }
+      } else {}
+    } catch (error) {}
   };
 
   const handleGetFormByRealId = async (realFormId) => {
@@ -30,30 +26,22 @@ export const TallyApiCorrectUsage = () => {
       
       if (result.success) {
         return result.data;
-      } else {
-        console.error('Ошибка при получении формы:', result.error);
-      }
-    } catch (error) {
-      console.error('Критическая ошибка:', error);
-    }
+      } else {}
+    } catch (error) {}
   };
 
   const handleGetSurveyByInternalId = async (internalId) => {
     try {
       const survey = await getSurvey(internalId);
       return survey;
-    } catch (error) {
-      console.error('Ошибка при получении опроса:', error);
-    }
+    } catch (error) {}
   };
 
   const handleGetAvailableSurveys = async () => {
     try {
       const surveys = await getAvailableSurveys();
       return surveys;
-    } catch (error) {
-      console.error('Ошибка при получении опросов:', error);
-    }
+    } catch (error) {}
   };
 
   const handleWrongUsage = async () => {
@@ -64,9 +52,7 @@ export const TallyApiCorrectUsage = () => {
       if (result.success) {
       } else {
       }
-    } catch (error) {
-      console.error('Ожидаемая ошибка:', error.message);
-    }
+    } catch (error) {}
   };
 
   const handleCorrectWorkflow = async () => {
@@ -85,18 +71,14 @@ export const TallyApiCorrectUsage = () => {
         
         await handleGetSurveyByInternalId('registration');
       }
-    } catch (error) {
-      console.error('Ошибка в workflow:', error);
-    }
+    } catch (error) {}
   };
 
   const handleGetIdMapping = async () => {
     try {
       const mapping = await tallyApiService.getFormIdMapping();
       return mapping;
-    } catch (error) {
-      console.error('Ошибка при получении маппинга:', error);
-    }
+    } catch (error) {}
   };
 
   return {

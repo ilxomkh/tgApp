@@ -1,7 +1,4 @@
-// Утилита для определения вариантов ответов, которые требуют пользовательский ввод
-
 export const CUSTOM_INPUT_PATTERNS = [
-  // Узбекские варианты
   'Boshqa (o\'z variantingizni yozing)',
   'Boshqa (o\'z variantingizni yozing)',
   'Boshqa',
@@ -9,7 +6,6 @@ export const CUSTOM_INPUT_PATTERNS = [
   'o\'z javobingizni yozing',
   'Boshqa javob',
   
-  // Русские варианты
   'Другое (напишите свой вариант)',
   'Другое',
   'напишите свой вариант',
@@ -17,7 +13,6 @@ export const CUSTOM_INPUT_PATTERNS = [
   'Другой ответ',
   'Свой вариант',
   
-  // Английские варианты (на случай)
   'Other (write your own)',
   'Other',
   'write your own',
@@ -27,9 +22,8 @@ export const CUSTOM_INPUT_PATTERNS = [
 ];
 
 /**
- * Проверяет, является ли вариант ответа пользовательским вводом
- * @param {string} option - Вариант ответа
- * @returns {boolean} - true если это пользовательский ввод
+ * @param {string} option
+ * @returns {boolean}
  */
 export const isCustomInputOption = (option) => {
   if (!option || typeof option !== 'string') return false;
@@ -42,10 +36,9 @@ export const isCustomInputOption = (option) => {
 };
 
 /**
- * Получает текст плейсхолдера для пользовательского ввода
- * @param {string} option - Вариант ответа
- * @param {string} language - Язык интерфейса
- * @returns {string} - Текст плейсхолдера
+ * @param {string} option
+ * @param {string} language
+ * @returns {string}
  */
 export const getCustomInputPlaceholder = (option, language = 'uz') => {
   const placeholders = {
@@ -58,10 +51,9 @@ export const getCustomInputPlaceholder = (option, language = 'uz') => {
 };
 
 /**
- * Получает заголовок для пользовательского ввода
- * @param {string} option - Вариант ответа
- * @param {string} language - Язык интерфейса
- * @returns {string} - Заголовок
+ * @param {string} option
+ * @param {string} language
+ * @returns {string}
  */
 export const getCustomInputTitle = (option, language = 'uz') => {
   const titles = {

@@ -5,7 +5,6 @@ export const fetchUserStats = async (params = {}) => {
     const data = await api.getUserStats(params);
     return data;
   } catch (error) {
-    console.error('Ошибка при получении статистики пользователей:', error);
     throw error;
   }
 };

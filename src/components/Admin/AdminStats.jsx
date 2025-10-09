@@ -71,7 +71,6 @@ const AdminStats = () => {
         const data = await fetchUserStats({ year: selectedYear, month: selectedMonth, viewMode });
         setStats(data);
       } catch (error) {
-        console.error("Ошибка при загрузке статистики:", error);
         setError(error.message);
         setStats(null);
       } finally {
@@ -89,7 +88,6 @@ const AdminStats = () => {
       const data = await fetchUserStats({ year: selectedYear, month: selectedMonth, viewMode });
       setStats(data);
     } catch (error) {
-      console.error("Ошибка при обновлении статистики:", error);
       setError(error.message);
       setStats(null);
     } finally {

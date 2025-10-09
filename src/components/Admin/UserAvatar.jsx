@@ -20,12 +20,8 @@ const UserAvatar = ({
   
   const avatarUrl = user?.avatar_url || user?.avatar || user?.profile_picture || user?.image_url;
   
-  console.log('User data:', user);
   if (avatarUrl) {
-    console.log('Avatar URL found:', avatarUrl);
-  } else {
-    console.log('No avatar URL found for user:', user?.full_name);
-  }
+  } else {}
   
   const initials = getUserInitials(user?.full_name);
   
@@ -43,7 +39,6 @@ const UserAvatar = ({
           alt={user?.full_name || 'User'}
           className="w-full h-full rounded-full object-cover"
           onError={() => {
-            console.log('Image failed to load:', avatarUrl);
             setImageError(true);
           }}
         />

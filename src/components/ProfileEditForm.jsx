@@ -97,7 +97,6 @@ const ProfileEditForm = ({ onSave, onCancel }) => {
         setErrors({ general: getMessage('UPDATE_FAILED', language) });
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
       setErrors({ general: getMessage('UPDATE_FAILED', language) });
     } finally {
       setIsLoading(false);
