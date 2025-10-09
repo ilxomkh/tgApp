@@ -9,7 +9,6 @@ export const useKeyboard = () => {
     const checkKeyboard = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        // Используем visualViewport если доступен (более точный)
         if (window.visualViewport) {
           const currentHeight = window.visualViewport.height;
           const initialHeight = window.innerHeight;
@@ -18,7 +17,6 @@ export const useKeyboard = () => {
           const keyboardOpen = heightDifference > 150;
           setIsKeyboardOpen(keyboardOpen);
         } else {
-          // Fallback для старых браузеров
           const windowHeight = window.innerHeight;
           const documentHeight = document.documentElement.clientHeight;
           const heightDifference = windowHeight - documentHeight;
@@ -33,7 +31,6 @@ export const useKeyboard = () => {
       checkKeyboard();
     };
 
-    // Используем visualViewport если доступен
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleResize);
     } else {
@@ -44,7 +41,6 @@ export const useKeyboard = () => {
 
     checkKeyboard();
 
-    // Cleanup
     return () => {
       clearTimeout(timeoutId);
       if (window.visualViewport) {
