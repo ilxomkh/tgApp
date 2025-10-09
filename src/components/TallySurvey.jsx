@@ -27,7 +27,8 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
   const answersRef = useRef({});
   const [numberFieldValid, setNumberFieldValid] = useState(false);
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
-  const [activeCustomInput, setActiveCustomInput] = useState(null); // {questionId, optionIndex, value}
+  const [activeCustomInput, setActiveCustomInput] = useState(null);
+  const [surveyAlreadyCompleted, setSurveyAlreadyCompleted] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -52,9 +53,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         setError(err.message);
         
         if (err.message && err.message.includes('Вы уже прошли этот опрос')) {
-          if (onClose) {
-            onClose();
-          }
+          setSurveyAlreadyCompleted(true);
           return;
         }
         
@@ -442,6 +441,10 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
         onComplete(result);
       }
     } catch (err) {
+      if (err.message && err.message.includes('Вы уже прошли этот опрос')) {
+        setSurveyAlreadyCompleted(true);
+        return;
+      }
       setError(err.message);
     }
   };
@@ -970,7 +973,7 @@ const TallySurvey = ({ surveyId, onComplete, onClose }) => {
     );
   }
 
-  if (!survey || !formDetails) {
+  if (!survey || !formDetails || surveyAlreadyCompleted) {
     return null;
   }
 
