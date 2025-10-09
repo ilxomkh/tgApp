@@ -66,12 +66,12 @@ const getHeaders = (additionalHeaders = {}) => {
 const handleResponse = async (response) => {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    let errorMessage = errorData.message || errorData.error;
+    let errorMessage = errorData.message || errorData.error || errorData.detail;
 
     switch (response.status) {
       case 400:
         errorMessage = errorMessage || ERROR_MESSAGES?.INVALID_PHONE || 'Bad request';
-        if (!errorData.message && !errorData.error) {
+        if (!errorData.message && !errorData.error && !errorData.detail) {
           errorMessage = 'Откройте приложение внутри Telegram. Личность пользователя не определена.';
         }
         break;
